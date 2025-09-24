@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg
+  xmlns="http://www.w3.org/2000/svg"
+  width="64"
+  height="64"
+  viewBox="0 0 64 64"
+>
+  <!-- Rounded Background -->
+  <rect width="64" height="64" fill="black" rx="12" ry="12" />
+
+  <!-- Left angle bracket "<" -->
+  <polyline
+    points="20,16 8,32 20,48"
+    fill="none"
+    stroke="white"
+    stroke-width="3"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  />
+
+  <!-- Slash "/" -->
+  <line
+    x1="36"
+    y1="16"
+    x2="28"
+    y2="48"
+    stroke="white"
+    stroke-width="3"
+    stroke-linecap="round"
+  />
+
+  <!-- Right angle bracket ">" -->
+  <polyline
+    points="42,16 56,32 42,48"
+    fill="none"
+    stroke="white"
+    stroke-width="3"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  />
+</svg>

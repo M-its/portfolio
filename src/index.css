@@ -1,0 +1,122 @@
+@import "tailwindcss";
+
+@theme {
+  --color-*: initial;
+
+  /* Neutros */
+  --color-white: #ffffff;
+  --color-black: #000000;
+  --color-gray-100: #e0e0e0;
+  --color-gray-200: #7a6e5f;
+  --color-gray-700: #27272a;
+  --color-gray-800: #18181b;
+
+  /* Sépia / amarelos */
+  --color-sepia: #fdfaf3;
+  --color-yellow-200: #fff085;
+
+  /* Botão primário */
+  --color-btn-primary-bg: #4a4035;
+  --color-btn-primary-bg-hover: #3a322a;
+  --color-btn-primary-text: #fdfaf3;
+
+  /* Botão secundário */
+  --color-btn-secondary-bg: #f3e2b3;
+  --color-btn-secondary-bg-hover: #e0c783;
+  --color-btn-secondary-text: var(--color-black);
+
+  /* Icons */
+  --color-icon-primary: #2b2a28;
+
+  --color-fill-icon-button: #4a4035;
+
+  /* Efeitos Glass */
+  --color-glass-light: rgba(255, 255, 255, 0.05);
+  --color-glass-border: rgba(255, 255, 255, 0.2);
+  --color-glass-hover: rgba(255, 255, 255, 0.1);
+
+  /* Fundo decorativo */
+  --color-light-blur: rgba(255, 255, 255, 0.05);
+  --color-silver-blur: rgba(200, 200, 200, 0.08);
+
+  /* Fontes */
+  --font-sans: "Inter", sans-serif;
+  --font-display: "Space Grotesk", sans-serif;
+
+  /* Sombras */
+  --shadow-sm: 0px 4px 8px 0px rgba(0, 0, 0, 0.2);
+
+  /* Theme Switcher */
+  --shadow-switcher-container-light: 
+    4px 4px 8px rgba(200, 200, 200, 0.9),
+    -2px -2px 6px rgba(255, 255, 255, 0.8),
+    inset 2px 2px 6px rgba(255, 255, 0, 0.6);
+
+  --shadow-switcher-container-dark: 
+    6px 6px 8px rgba(0, 0, 0, 0.8),
+    -2px -2px 6px rgba(30, 30, 30, 0.8),
+    inset 2px 2px 6px rgba(23, 23, 23, 1);
+
+  --shadow-switcher-toggle-light: 
+    2px 2px 120px rgb(255, 255, 0) inset,
+    0.5px 0.5px 15px rgb(255, 255, 0);
+
+  --shadow-switcher-toggle-dark: 
+    4px 4px 8px rgba(0, 0, 0, 0.6),
+    -4px -4px 6px rgba(30, 30, 30, 0.7),
+    5px -3px 0.3px rgb(255, 255, 255) inset,
+    -1px 2px 4px rgba(23, 23, 23, 0.9) inset;
+}
+
+@layer base {
+  :root {
+    /* Fundo & texto */
+    --color-background: var(--color-sepia);
+    --color-text-primary: #2b2a28; /* sépia escuro */
+    --color-text-secondary: var(--color-gray-200);
+
+    /* Aplicação */
+    color: var(--color-text-primary);
+    background-color: var(--color-background);
+
+    /* Layout base */
+    min-height: 100vh;
+    margin: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    /* Transições suaves */
+    transition: color 0.3s, background-color 0.3s;
+
+    /* Textura */
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilterLight'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilterLight)' opacity='0.50'/%3E%3C/svg%3E");
+    background-blend-mode: normal;
+    background-size: 300px;
+  }
+
+  .dark:root {
+    /* Fundo & texto */
+    --color-background: var(--color-black);
+    --color-text-primary: var(--color-white);
+    --color-text-secondary: var(--color-gray-800);
+
+    /* Botões */
+    --color-btn-primary-bg: var(--color-gray-800);
+    --color-btn-primary-bg-hover: var(--color-gray-700);
+    --color-btn-primary-text: var(--color-gray-100);
+
+    --color-btn-secondary-bg: var(--color-gray-100);
+    --color-btn-secondary-bg-hover: var(--color-white);
+    --color-btn-secondary-text: var(--color-black);
+
+    /* Icon */
+    --color-icon-primary: var(--color-gray-100);
+
+    --color-fill-icon-button: var(--color-gray-100);
+
+    /* Textura */
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilterDark'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilterDark)' opacity='0.15'/%3E%3C/svg%3E");
+    background-blend-mode: normal;
+  }
+}
