@@ -15,6 +15,10 @@ import IntroSplash from "./components/intro-splash";
 import ButtonIcon from "./components/button-icon";
 import ButtonText from "./components/button-text";
 import Container from "./components/container";
+import Card from "./components/card";
+import TechCard from "./core-components/tech-card";
+import Skeleton from "./components/skeleton";
+import Divider from "./components/divider";
 
 export default function App() {
   const [showIntro, setShowIntro] = useState(false);
@@ -37,43 +41,59 @@ export default function App() {
   }
 
   return (
-    <Container>
-      <div className="grid gap-8 mt-4">
-        <ThemeSwitcher />
-        <div className="flex flex-col gap-1">
-          <Text as="p" variant="heading-hero" className="mb-8">
-            Componentes
-          </Text>
-          <Text>Componente de texto</Text>
-        </div>
-        <div className="flex gap-1 h-8">
-          <Icon
-            svg={SpinnerIcon}
-            className="fill-icon-primary"
-            animate="spin"
-          />
-          <Icon svg={NodeIcon} className="fill-icon-primary" />
-          <Icon svg={CSSIcon} className="fill-icon-primary" />
-          <Icon svg={HTMLIcon} className="fill-icon-primary" />
-        </div>
-        <div className="flex gap-3">
-          <Button icon={GitHubIcon}>GitHub</Button>
-          <Button icon={LinkedInIcon}>LinkedIn</Button>
-          <Button>GitHub</Button>
-          <Button variant="secondary" size="lg">
-            Entre em contato
-          </Button>
-        </div>
+    <Container className="grid gap-8 mt-4 mb-4">
+      <ThemeSwitcher />
+      <div className="flex flex-col gap-1">
+        <Text as="p" variant="heading-hero" className="mb-8">
+          Componentes
+        </Text>
+        <Text>Componente de texto</Text>
+      </div>
+      <div className="flex gap-1 h-8">
+        <Icon svg={SpinnerIcon} className="fill-icon-primary" animate="spin" />
+        <Icon svg={NodeIcon} className="fill-icon-primary" />
+        <Icon svg={CSSIcon} className="fill-icon-primary" />
+        <Icon svg={HTMLIcon} className="fill-icon-primary" />
+      </div>
+      <div className="flex gap-3">
+        <Button icon={GitHubIcon}>GitHub</Button>
+        <Button icon={LinkedInIcon}>LinkedIn</Button>
+        <Button>GitHub</Button>
+        <Button variant="secondary" size="lg">
+          Entre em contato
+        </Button>
+      </div>
 
-        <div className="flex gap-3 h-8">
-          <ButtonIcon icon={LinkedInIcon} />
-          <ButtonIcon icon={DiscordIcon} variant="secondary" />
-        </div>
+      <div className="flex gap-3 h-8">
+        <ButtonIcon icon={LinkedInIcon} />
+        <ButtonIcon icon={DiscordIcon} variant="secondary" />
+      </div>
 
-        <div className="flex gap-3 h-8">
-          <ButtonText icon={ArrowLeftIcon}>Voltar</ButtonText>
-          <ButtonText>Ver mais</ButtonText>
-        </div>
+      <div className="flex gap-3 h-8">
+        <ButtonText icon={ArrowLeftIcon}>Voltar</ButtonText>
+        <ButtonText>Ver mais</ButtonText>
+      </div>
+
+      <div className="flex gap-3">
+        <Card size="md" className="flex flex-col gap-4">
+          <Icon svg={NodeIcon} className="fill-btn-primary-text" />
+          <Text className="text-btn-primary-text">Node</Text>
+        </Card>
+      </div>
+
+      <div className="flex gap-3">
+        <TechCard size="md" className="flex flex-col gap-4">
+          <Icon svg={NodeIcon} className="fill-btn-primary-text" />
+          <Text className="text-btn-primary-text">Node</Text>
+        </TechCard>
+      </div>
+
+      <Divider />
+
+      <div className="flex flex-col gap-3">
+        <Skeleton className="w-full h-8" />
+        <Skeleton className="w-full h-8" />
+        <Skeleton className="w-full h-8" />
       </div>
     </Container>
   );
