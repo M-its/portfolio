@@ -1,12 +1,9 @@
-import { useEffect, useState } from "react";
 import { tv } from "tailwind-variants";
-
-type Theme = "light" | "dark";
-const STORAGE_KEY = "theme";
+import { useTheme } from "../contexts/theme-context";
 
 const container = tv({
   base: `
-    w-18 h-8 rounded-full flex cursor-pointer
+    w-14 h-6 rounded-full flex cursor-pointer
     transition-colors duration-300
   `,
   variants: {
@@ -20,13 +17,13 @@ const container = tv({
 
 const border = tv({
   base: `
-    w-18 h-8 rounded-full flex items-center p-1
+    w-14 h-6 rounded-full flex items-center p-1
     transition-colors duration-300
   `,
   variants: {
     theme: {
       dark: "bg-gray-800",
-      light: "bg-white",
+      light: "bg-sepia",
     },
   },
   defaultVariants: { theme: "dark" },
@@ -34,7 +31,7 @@ const border = tv({
 
 const toggle = tv({
   base: `
-    w-6 h-6 rounded-full transition-all duration-500 
+    w-5 h-5 rounded-full transition-all duration-500 
     border
   `,
   variants: {
@@ -48,23 +45,7 @@ const toggle = tv({
 });
 
 export default function ThemeSwitcher() {
-  const [theme, setTheme] = useState<Theme>(() => {
-    if (typeof window === "undefined") return "dark"; // Para SSR
-    const storedTheme = localStorage.getItem(STORAGE_KEY) as Theme;
-    if (storedTheme) {
-      return storedTheme;
-    }
-    return window.matchMedia("(prefers-color-scheme: dark)").matches
-      ? "dark"
-      : "light";
-  });
-
-  const isDark = theme === "dark";
-
-  useEffect(() => {
-    document.documentElement.classList.toggle("dark", isDark);
-    localStorage.setItem(STORAGE_KEY, theme);
-  }, [theme, isDark]);
+  const { isDark, setTheme } = useTheme();
 
   const handleToggle = () => {
     setTheme(isDark ? "light" : "dark");
@@ -75,6 +56,7 @@ export default function ThemeSwitcher() {
       <button
         className={container({ theme: isDark ? "dark" : "light" })}
         type="button"
+        aria-label="theme-switcher"
         aria-pressed={isDark}
         onClick={handleToggle}
         onKeyDown={(event) => {
@@ -84,7 +66,7 @@ export default function ThemeSwitcher() {
         <div className={border({ theme: isDark ? "dark" : "light" })}>
           <div
             className={`${toggle({ theme: isDark ? "dark" : "light" })} ${
-              isDark ? "translate-x-0" : "translate-x-[40px] rotate-[360deg]"
+              isDark ? "translate-x-0" : "translate-x-[30px] rotate-360"
             }`}
           />
         </div>

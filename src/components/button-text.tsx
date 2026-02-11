@@ -3,14 +3,16 @@ import Text from "./text";
 import { tv, type VariantProps } from "tailwind-variants";
 
 export const buttonTextVariants = tv({
-  base: "inline-flex items-center gap-1 cursor-pointer transition",
+  base: "inline-flex items-center gap-1 transition",
   variants: {
     variant: {
       primary: "bg-transparent",
+      secondary: "",
     },
     size: {
       md: "text-base",
       lg: "text-2xl",
+      xl: "text-3xl",
     },
   },
   defaultVariants: {
@@ -23,10 +25,12 @@ export const buttonTextIconVariants = tv({
   variants: {
     variant: {
       primary: "fill-icon-primary",
+      secondary: "",
     },
     size: {
       md: "w-4 h-4",
       lg: "w-8 h-8",
+      xl: "w-10 h-10",
     },
   },
   defaultVariants: {
@@ -38,11 +42,15 @@ export const buttonTextIconVariants = tv({
 export const buttonTextLabelVariants = tv({
   variants: {
     variant: {
-      primary: "text-icon-primary font-medium",
+      primary:
+        "text-icon-primary font-medium cursor-pointer hover:brightness-150",
+      secondary:
+        "text-btn-primary-text font-light cursor-pointer hover:brightness-150",
     },
     size: {
       md: "text-base",
       lg: "text-2xl",
+      xl: "text-3xl font-bold leading-tight",
     },
   },
   defaultVariants: {

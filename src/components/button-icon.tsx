@@ -11,7 +11,7 @@ export const buttonIconVariants = tv({
         "bg-btn-primary-bg hover:bg-btn-primary-bg-hover p-2 rounded-full",
     },
     size: {
-      md: "w-10 h-10",
+      md: "w-7 h-7",
       lg: "w-12 h-12",
     },
   },
@@ -24,11 +24,11 @@ export const buttonIconVariants = tv({
 export const buttonIconIconVariants = tv({
   variants: {
     variant: {
-      primary: "fill-fill-icon-button",
+      primary: "fill-fill-icon-button hover:fill-fill-icon-button-hover",
       secondary: "fill-btn-primary-text",
     },
     size: {
-      md: "w-10 h-10",
+      md: "w-8 h-8",
       lg: "w-12 h-12",
     },
   },

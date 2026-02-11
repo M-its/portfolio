@@ -1,6 +1,6 @@
 @import "tailwindcss";
 
-@theme {
+  @theme {
   --color-*: initial;
 
   /* Neutros */
@@ -15,6 +15,11 @@
   --color-sepia: #fdfaf3;
   --color-yellow-200: #fff085;
 
+  /* Fundo & texto */
+  --color-background: var(--color-sepia);
+  --color-text-primary: #2b2a28;
+  --color-text-secondary: var(--color-gray-200);
+
   /* Botão primário */
   --color-btn-primary-bg: #4a4035;
   --color-btn-primary-bg-hover: #3a322a;
@@ -26,24 +31,25 @@
   --color-btn-secondary-text: var(--color-black);
 
   /* Icons */
-  --color-icon-primary: #2b2a28;
+  --color-icon-primary: #3a322a;
   --color-fill-icon-button: #4a4035;
+  --color-fill-icon-button-hover: #3a322a;
 
   /* skeleton */
   --color-skeleton-bg: var(--color-btn-primary-bg);
 
-  /* Efeitos Glass */
-  --color-glass-light: rgba(255, 255, 255, 0.05);
-  --color-glass-border: rgba(255, 255, 255, 0.2);
-  --color-glass-hover: rgba(255, 255, 255, 0.1);
+  /* Glass Cards */
+  --color-card-bg: rgba(255, 255, 255, 0.3);
+  --color-card-border: rgba(255, 255, 255, 1);
+  --color-card-border-variant: #7a6e5f;
+  --color-card-glare: rgba(255, 255, 255, 0.9);
 
-  /* Fundo decorativo */
-  --color-light-blur: rgba(255, 255, 255, 0.05);
-  --color-silver-blur: rgba(200, 200, 200, 0.08);
+  --color-project-btn: var(--color-btn-primary-bg);
 
   /* Fontes */
   --font-sans: "Inter", sans-serif;
   --font-display: "Space Grotesk", sans-serif;
+  --font-condensed: "Oswald", sans-serif;
 
   /* Sombras */
   --shadow-sm: 0px 4px 8px 0px rgba(0, 0, 0, 0.2);
@@ -60,22 +66,21 @@
     inset 2px 2px 6px rgba(23, 23, 23, 1);
 
   --shadow-switcher-toggle-light: 
-    2px 2px 120px rgb(255, 255, 0) inset,
+    inset 2px 2px 120px rgb(255, 255, 0),
     0.5px 0.5px 15px rgb(255, 255, 0);
 
-  --shadow-switcher-toggle-dark: 
+    --shadow-switcher-toggle-dark: 
+    inset 5px -3px 1px rgba(255, 255, 255, 0.9),
+    inset -1px 2px 4px rgba(23, 23, 23, 0.9), 
     4px 4px 8px rgba(0, 0, 0, 0.6),
-    -4px -4px 6px rgba(30, 30, 30, 0.7),
-    5px -3px 0.3px rgb(255, 255, 255) inset,
-    -1px 2px 4px rgba(23, 23, 23, 0.9) inset;
+    -4px -4px 6px rgba(30, 30, 30, 0.7)
 }
 
 @layer base {
   :root {
-    /* Fundo & texto */
-    --color-background: var(--color-sepia);
-    --color-text-primary: #2b2a28; /* sépia escuro */
-    --color-text-secondary: var(--color-gray-200);
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+    -webkit-font-smoothing: antialiased;
 
     /* Aplicação */
     color: var(--color-text-primary);
@@ -83,10 +88,6 @@
 
     /* Layout base */
     min-height: 100vh;
-    margin: 0;
-    display: flex;
-    justify-content: center;
-    align-items: center;
 
     /* Transições suaves */
     transition: color 0.3s, background-color 0.3s;
@@ -95,6 +96,8 @@
     background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilterLight'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilterLight)' opacity='0.50'/%3E%3C/svg%3E");
     background-blend-mode: normal;
     background-size: 300px;
+
+    scroll-behavior: smooth;
   }
 
   .dark:root {
@@ -115,12 +118,102 @@
     /* Icon */
     --color-icon-primary: var(--color-gray-100);
     --color-fill-icon-button: var(--color-gray-100);
+    --color-fill-icon-button-hover: var(--color-white);
 
     /* skeleton */
     --color-skeleton-bg: var(--color-gray-700);
 
+    --color-card-bg: rgba(255, 255, 255, 0.02);
+    --color-card-border: rgba(255, 255, 255, 0.2);
+    --color-card-border-variant: var(--color-gray-700);
+    --color-card-glare: rgba(255, 255, 255, 0.1);
+
+    --color-project-btn: var(--color-black);
+
     /* Textura */
     background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilterDark'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilterDark)' opacity='0.15'/%3E%3C/svg%3E");
     background-blend-mode: normal;
+  }
+}
+
+@layer utilities {
+  .projects-grid {
+    display: grid;
+    column-gap: 2rem;
+    row-gap: 2rem;
+
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      "first"
+      "second"
+      "third"
+      "fourth";
+  }
+
+  .projects-grid > :nth-child(1) {
+    grid-area: first;
+    & img {
+      height: 248px;
+    }
+  }
+  .projects-grid > :nth-child(2) {
+    grid-area: second;
+  }
+  .projects-grid > :nth-child(3) {
+    grid-area: third;
+  }
+  .projects-grid > :nth-child(4) {
+    grid-area: fourth;
+  }
+
+  @media (min-width: 640px) {
+    .projects-grid {
+      grid-template-columns: repeat(2, 1fr);
+      grid-template-areas:
+        "first first"
+        "second third"
+        "fourth fourth";
+    }
+  }
+
+  @media (min-width: 1120px) {
+    .projects-grid {
+      grid-template-columns: repeat(3, 1fr);
+      grid-template-areas:
+        "first first first"
+        "second third fourth";
+    }
+  }
+
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 4px;
+    height: 4px;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-button {
+    display: none;
+    width: 0;
+    height: 0;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-track {
+    border-radius: 4px;
+    background: transparent;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: var(--color-btn-secondary-bg);
+    border-radius: 4px;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: var(--color-btn-secondary-bg-hover);
+  }
+
+  @supports not selector(::-webkit-scrollbar) {
+    .custom-scrollbar {
+      scrollbar-width: thin;
+      scrollbar-color: var(--color-btn-secondary-bg) transparent;
+    }
   }
 }

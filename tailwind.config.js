@@ -8,6 +8,7 @@ export default {
       fontFamily: {
         sans: "var(--font-sans)",
         display: "var(--font-display)",
+        condensed: "var(--font-condensed)",
       },
       boxShadow: {
         sm: "var(--shadow-sm)",
@@ -18,5 +19,5 @@ export default {
       },
     },
   },
-  plugins: [],
+  plugins: [require("@tailwindcss/line-clamp")],
 };

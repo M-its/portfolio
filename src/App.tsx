@@ -1,100 +1,54 @@
 import { useEffect, useState } from "react";
-import NodeIcon from "./assets/icons/nodedotjs.svg?react";
-import CSSIcon from "./assets/icons/css3.svg?react";
-import HTMLIcon from "./assets/icons/html5.svg?react";
-import SpinnerIcon from "./assets/icons/spinner.svg?react";
-import GitHubIcon from "./assets/icons/github.svg?react";
-import LinkedInIcon from "./assets/icons/linkedin.svg?react";
-import DiscordIcon from "./assets/icons/discord.svg?react";
-import ArrowLeftIcon from "./assets/icons/arrow-left.svg?react";
-import Icon from "./components/icon";
-import Text from "./components/text";
-import Button from "./components/button";
-import ThemeSwitcher from "./components/theme-switcher";
-import IntroSplash from "./components/intro-splash";
-import ButtonIcon from "./components/button-icon";
-import ButtonText from "./components/button-text";
-import Container from "./components/container";
-import Card from "./components/card";
-import TechCard from "./core-components/tech-card";
-import Skeleton from "./components/skeleton";
-import Divider from "./components/divider";
+import { Route, Routes } from "react-router-dom";
+import { AnimatePresence } from "framer-motion";
+import IntroSplash from "./core-components/intro-splash";
+import PageComponents from "./pages/page-components";
+import LayoutMain from "./pages/layout-main";
+import PageHome from "./pages/page-home";
 
 export default function App() {
-  const [showIntro, setShowIntro] = useState(false);
+  const [showIntro, setShowIntro] = useState(() => {
+    return !localStorage.getItem("visited");
+  });
 
   useEffect(() => {
-    // remove splash mínimo do index.html
-    const splash = document.getElementById("splash");
-    if (splash) splash.remove();
+    // Remove splash
+    const root = document.getElementById("root");
+    if (root) {
+      root.classList.add("loaded");
+      setTimeout(() => {
+        root.classList.add("loaded-complete");
+      }, 500);
+    }
 
-    // Verifica localStorage para intro
-    const alreadyVisited = localStorage.getItem("visited");
-    if (!alreadyVisited) {
+    if (showIntro) {
       localStorage.setItem("visited", "true");
     }
-    setShowIntro(true);
-  }, []);
-
-  if (showIntro) {
-    return <IntroSplash onFinish={() => setShowIntro(false)} />;
-  }
+  }, [showIntro]);
 
   return (
-    <Container className="grid gap-8 mt-4 mb-4">
-      <ThemeSwitcher />
-      <div className="flex flex-col gap-1">
-        <Text as="p" variant="heading-hero" className="mb-8">
-          Componentes
-        </Text>
-        <Text>Componente de texto</Text>
-      </div>
-      <div className="flex gap-1 h-8">
-        <Icon svg={SpinnerIcon} className="fill-icon-primary" animate="spin" />
-        <Icon svg={NodeIcon} className="fill-icon-primary" />
-        <Icon svg={CSSIcon} className="fill-icon-primary" />
-        <Icon svg={HTMLIcon} className="fill-icon-primary" />
-      </div>
-      <div className="flex gap-3">
-        <Button icon={GitHubIcon}>GitHub</Button>
-        <Button icon={LinkedInIcon}>LinkedIn</Button>
-        <Button>GitHub</Button>
-        <Button variant="secondary" size="lg">
-          Entre em contato
-        </Button>
-      </div>
+    <>
+      <AnimatePresence>
+        {showIntro && (
+          <IntroSplash
+            key="intro"
+            onFinish={() => {
+              setTimeout(() => {
+                setShowIntro(false);
+              }, 800);
+            }}
+          />
+        )}
+      </AnimatePresence>
 
-      <div className="flex gap-3 h-8">
-        <ButtonIcon icon={LinkedInIcon} />
-        <ButtonIcon icon={DiscordIcon} variant="secondary" />
+      <div className="h-full w-full">
+        <Routes>
+          <Route element={<LayoutMain />}>
+            <Route index element={<PageHome />} />
+            <Route path="/components" element={<PageComponents />} />
+          </Route>
+        </Routes>
       </div>
-
-      <div className="flex gap-3 h-8">
-        <ButtonText icon={ArrowLeftIcon}>Voltar</ButtonText>
-        <ButtonText>Ver mais</ButtonText>
-      </div>
-
-      <div className="flex gap-3">
-        <Card size="md" className="flex flex-col gap-4">
-          <Icon svg={NodeIcon} className="fill-btn-primary-text" />
-          <Text className="text-btn-primary-text">Node</Text>
-        </Card>
-      </div>
-
-      <div className="flex gap-3">
-        <TechCard size="md" className="flex flex-col gap-4">
-          <Icon svg={NodeIcon} className="fill-btn-primary-text" />
-          <Text className="text-btn-primary-text">Node</Text>
-        </TechCard>
-      </div>
-
-      <Divider />
-
-      <div className="flex flex-col gap-3">
-        <Skeleton className="w-full h-8" />
-        <Skeleton className="w-full h-8" />
-        <Skeleton className="w-full h-8" />
-      </div>
-    </Container>
+    </>
   );
 }

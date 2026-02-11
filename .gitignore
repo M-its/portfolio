@@ -22,3 +22,16 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# enviroment variables
+.env
+
+# unused components
+# Componentes de teste ou cópias.
+/src/components/button copy.tsx
+/src/components/button-test.tsx
+/src/components/button-icon.tsx
+/src/components/button-text.tsx
+
+# Arquivos de desenvolvimento
+TODO.md

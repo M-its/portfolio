@@ -6,6 +6,7 @@
   viewBox="0 0 64 64"
 >
   <!-- Left angle bracket "<" -->
+    <!-- points="22,16 8,32 22,48" -->
   <polyline
     points="18,16 4,32 18,48"
     fill="none"
@@ -16,6 +17,10 @@
   />
 
   <!-- Slash "/" -->
+  <!-- x1="34"
+    y1="16"
+    x2="26"
+    y2="48" -->
   <line
     x1="36"
     y1="16"
@@ -27,6 +32,7 @@
   />
 
   <!-- Right angle bracket ">" -->
+  <!-- points="38,16 54,32 38,48" -->
   <polyline
     points="44,16 60,32 44,48"
     fill="none"

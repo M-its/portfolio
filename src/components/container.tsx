@@ -2,10 +2,10 @@ import React from "react";
 import { tv, type VariantProps } from "tailwind-variants";
 
 export const containerVariants = tv({
-  base: "mx-auto",
+  base: "mx-auto px-12",
   variants: {
     size: {
-      md: "max-w-[62rem] px-2",
+      md: "max-w-7xl",
     },
   },
   defaultVariants: {

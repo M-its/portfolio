@@ -1,4 +1,4 @@
-import React from "react";
+import React, { forwardRef } from "react";
 import { tv, type VariantProps } from "tailwind-variants";
 
 export const textVariants = tv({
@@ -7,10 +7,11 @@ export const textVariants = tv({
     variant: {
       "label-header": "text-sm font-semibold", // Nome
       "heading-hero": "text-3xl font-bold leading-tight", // Bem Vindo
-      "heading-section": "text-xl font-bold leading-snug", // Tecnologias | projetos
-      subtitle: "text-lg font-medium",
-      "paragraph-medium": "text-base font-normal leading-relaxed", // texto padrão
-      "button-label": "text-sm font-semibold", // Botões de redes sociais
+      "heading-section": "text-2xl font-bold leading-snug", // Tecnologias | projetos
+      subtitle: "text-lg font-extralight tracking-wide",
+      "paragraph-medium": "text-lg font-normal leading-relaxed", // texto padrão
+      "paragraph-card": "text-normal font-normal leading-relaxed",
+      "button-label": "text-sm font-medium", // Botões de redes sociais
       "tech-label": "text-sm font-medium", // cards de tecnologias
     },
   },
@@ -25,19 +26,18 @@ interface TextProps extends VariantProps<typeof textVariants> {
   children?: React.ReactNode;
 }
 
-export default function Text({
-  as = "span",
-  variant,
-  className,
-  children,
-  ...props
-}: TextProps) {
-  return React.createElement(
-    as,
-    {
-      className: textVariants({ variant, className }),
-      props,
-    },
-    children,
-  );
-}
+const Text = forwardRef<HTMLElement, TextProps>(
+  ({ as = "span", variant, className, children, ...props }, ref) => {
+    return React.createElement(
+      as,
+      {
+        className: textVariants({ variant, className }),
+        ref,
+        ...props,
+      },
+      children,
+    );
+  },
+);
+
+export default Text;

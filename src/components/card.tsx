@@ -2,7 +2,7 @@ import { type VariantProps, tv } from "tailwind-variants";
 import React from "react";
 
 export const cardVariants = tv({
-  base: `
+  base: `transform-style-3d
 		rounded transition
 	`,
   variants: {
@@ -28,20 +28,20 @@ interface CardProps
   as?: keyof React.JSX.IntrinsicElements;
 }
 
-export default function Card({
-  as = "div",
-  size,
-  variant,
-  children,
-  className,
-  ...props
-}: CardProps) {
-  return React.createElement(
-    as,
-    {
-      className: cardVariants({ size, variant, className }),
-      ...props,
-    },
-    children,
-  );
-}
+const Card = React.forwardRef<HTMLDivElement, CardProps>(
+  ({ as = "div", size, variant, children, className, ...props }, ref) => {
+    return React.createElement(
+      as,
+      {
+        ref,
+        className: cardVariants({ size, variant, className }),
+        ...props,
+      },
+      children,
+    );
+  },
+);
+
+Card.displayName = "Card";
+
+export default Card;
