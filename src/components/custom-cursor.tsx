@@ -71,16 +71,14 @@ const CustomCursor: FC = () => {
   if (isUnsupported) return null;
 
   return (
-    <div className="pointer-events-none fixed inset-0 z-10000 overflow-hidden">
+    <div className="pointer-events-none fixed inset-0 z-9999 overflow-hidden mix-blend-difference">
       <div
         ref={innerRef}
-        className={`absolute top-0 left-0 w-1.5 h-1.5 rounded-full transition-colors duration-300 will-change-transform -translate-x-1/2 -translate-y-1/2 ${isDark ? "bg-white" : "bg-btn-primary-bg"}`}
+        className="absolute top-0 left-0 w-1.5 h-1.5 rounded-full bg-white will-change-transform -translate-x-1/2 -translate-y-1/2 transition-colors duration-300"
       />
       <div
         ref={outerRef}
-        className={`absolute top-0 left-0 rounded-full border transition-all duration-300 ease-out will-change-transform -translate-x-1/2 -translate-y-1/2 ${
-          isDark ? "border-white" : "border-btn-primary-bg"
-        } ${
+        className={`absolute top-0 left-0 rounded-full border border-white will-change-transform transition-all duration-300 ease-out -translate-x-1/2 -translate-y-1/2 ${
           isHovering
             ? isClicked
               ? "w-8 h-8 border-2"

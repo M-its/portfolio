@@ -1,5 +1,5 @@
 import { useRef } from "react";
-import type { VariantProps } from "tailwind-variants";
+import { tv, type VariantProps } from "tailwind-variants";
 import Button from "../components/button";
 import Card, { type cardVariants } from "../components/card";
 import Divider from "../components/divider";
@@ -9,6 +9,32 @@ import useMouseGlare from "../hooks/use-mouse-glare";
 import GitHubIcon from "../assets/icons/github.svg?react";
 import GlobeIcon from "../assets/icons/globe.svg?react";
 import { useTheme } from "../contexts/theme-context";
+
+const projectCardVariants = tv({
+  slots: {
+    container: "relative w-full h-full",
+    wrapper:
+      "relative group h-full w-full rounded-2xl overflow-hidden transition-all duration-500 ease-out bg-card-bg",
+    baseBorder: "absolute inset-0 rounded-2xl pointer-events-none z-1 border",
+    revealWrapper:
+      "absolute inset-0 rounded-2xl pointer-events-none z-2 transition-opacity duration-300",
+    revealBorder: "absolute inset-0 rounded-2xl border-[1.5px] border-white/40",
+    revealGlare: "absolute inset-0 bg-white/4",
+    content:
+      "relative z-10 bg-transparent border-0 p-5 flex flex-col gap-3 w-full h-full",
+  },
+  variants: {
+    isDark: {
+      true: {
+        baseBorder: "border-white/5",
+      },
+      false: {
+        baseBorder: "border-icon-primary/10",
+        wrapper: "hover:border-icon-primary/20",
+      },
+    },
+  },
+});
 
 interface ProjectCardProps
   extends VariantProps<typeof cardVariants>,
@@ -39,10 +65,20 @@ export default function ProjectCard({
   const cardRef = useRef<HTMLDivElement>(null);
   useMouseGlare(cardRef);
 
+  const {
+    container,
+    wrapper,
+    baseBorder,
+    revealWrapper,
+    revealBorder,
+    revealGlare,
+    content,
+  } = projectCardVariants({ isDark });
+
   return (
     <div
       ref={cardRef}
-      className="relative w-full h-full"
+      className={container()}
       style={
         {
           "--mouse-x": "-9999px",
@@ -52,26 +88,15 @@ export default function ProjectCard({
       }
     >
       <div
-        className={`
-          relative group h-full w-full rounded-2xl overflow-hidden
-          transition-all duration-500 ease-out
-          bg-card-bg
-          ${featured ? "hover:scale-[1.015]" : "hover:scale-[1.01]"}
-          ${className}
-        `}
+        className={`${wrapper()} ${featured ? "hover:scale-[1.015]" : "hover:scale-[1.01]"} ${className ?? ""}`}
       >
         {/* BORDA BASE */}
-        <div
-          className={`
-          absolute inset-0 rounded-2xl pointer-events-none z-1 border
-          ${isDark ? "border-white/5" : "border-icon-primary/10"}
-        `}
-        />
+        <div className={baseBorder()} />
 
         {/* EFEITO DE REVEAL */}
         {isDark && (
           <div
-            className="absolute inset-0 rounded-2xl pointer-events-none z-2 transition-opacity duration-300"
+            className={revealWrapper()}
             style={{
               opacity: "var(--mouse-opacity)",
               maskImage:
@@ -81,17 +106,13 @@ export default function ProjectCard({
             }}
           >
             {/* BORDA DE REVEAL */}
-            <div className="absolute inset-0 rounded-2xl border-[1.5px] border-white/40" />
-
+            <div className={revealBorder()} />
             {/* GLARE DE FUNDO */}
-            <div className="absolute inset-0 bg-white/4" />
+            <div className={revealGlare()} />
           </div>
         )}
 
-        <Card
-          {...props}
-          className={`relative z-10 bg-transparent border-0 p-5 flex flex-col gap-3 w-full h-full ${className ?? ""}`}
-        >
+        <Card {...props} className={content()}>
           {/* Cabeçalho do Card */}
           <div className="flex justify-between items-start w-full">
             <Button

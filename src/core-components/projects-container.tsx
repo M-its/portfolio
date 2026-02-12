@@ -50,7 +50,9 @@ export default function ProjectsContainer({
   if (loading) {
     return (
       <div className="flex justify-center items-center h-[60vh]">
-        <Text variant="heading-section" className="opacity-70">Carregando projetos...</Text>
+        <Text variant="heading-section" className="opacity-70">
+          Carregando projetos...
+        </Text>
       </div>
     );
   }
