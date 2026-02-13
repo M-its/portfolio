@@ -1,13 +1,10 @@
 import { useEffect, useRef, useState, type FC } from "react";
 import useBrowserFeatures from "../hooks/use-browser-features";
-import { useTheme } from "../contexts/theme-context";
 
 const CustomCursor: FC = () => {
   const innerRef = useRef<HTMLDivElement>(null);
   const outerRef = useRef<HTMLDivElement>(null);
   const { isUnsupported } = useBrowserFeatures();
-
-  const { isDark } = useTheme();
 
   const [isHovering, setIsHovering] = useState(false);
   const [isClicked, setIsClicked] = useState(false);
