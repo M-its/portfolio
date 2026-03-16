@@ -1,130 +1,98 @@
-import { motion, type Variants } from "framer-motion";
-import { techs } from "../data/techs";
-import Text from "../components/text";
+import { Swiper, SwiperSlide } from "swiper/react";
+import { Pagination, Autoplay } from "swiper/modules";
+import "swiper/css";
+import "swiper/css/pagination";
+
 import TechCard from "./tech-card";
-import Container from "../components/container";
+import Text from "../components/text";
+import type { techs as techsData } from "../data/techs";
+import AnimatedSection from "../components/animated-section";
+import { useTheme } from "../contexts/theme-context";
 
-const CATEGORY_MAP = {
-  frontend: [
-    "React",
-    "Axios",
-    "React Router",
-    "Next",
-    "HTML",
-    "CSS",
-    "Tailwind",
-    "Vite",
-    "Sass",
-    "Styled Components",
-  ],
-  languages: ["TypeScript", "JavaScript"],
-  backend: [
-    "Node.js",
-    "Express",
-    "Fastify",
-    "FastAPI",
-    "JWT",
-    "Swagger",
-    "Dotenv",
-  ],
-  database: ["SQL", "SQLite", "Knex.js"],
-  tools: ["Git", "GitHub", "Jest", "Vitest", "Zod", "Swiper"],
-};
-
-const containerVariants: Variants = {
-  hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: { staggerChildren: 0.1, delayChildren: 0.1 },
+const CATEGORIES = [
+  {
+    id: "frontend",
+    title: "Frontend & Interface",
+    keys: ["React", "Next", "TypeScript", "Tailwind", "Vite", "React Router"],
   },
-};
+  {
+    id: "backend",
+    title: "Backend & APIs",
+    keys: ["Node", "Express", "Fastify", "Postgre SQL", "Zod", "JWT"],
+  },
+  {
+    id: "tools",
+    title: "Tools & DevOps",
+    keys: ["Git", "GitHub", "Docker", "Vitest", "Jest", "Swagger"],
+  },
+];
 
-const itemVariants: Variants = {
-  hidden: { opacity: 0, y: 20 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.1 } },
-};
+type TechItem = (typeof techsData)[0];
 
-const BentoCard = ({
-  title,
-  children,
-  className = "",
-}: { title: string; children: React.ReactNode; className?: string }) => (
-  <Container
-    className={`relative mx-0 overflow-hidden rounded-2xl border border-card-border-variant bg-card-bg p-5 ${className}`}
-  >
-    <Text
-      as="h3"
-      className="mb-5 text-[12px] uppercase tracking-[0.2em] font-bold"
-    >
-      {title}
-    </Text>
-    {children}
-  </Container>
-);
-
-export default function Techs() {
-  const getTechsByNames = (names: string[]) =>
-    techs.filter((t) => names.includes(t.name));
+export default function TechsContainer({ techs }: { techs: TechItem[] }) {
+  const { isDark } = useTheme();
+  const getTechs = (keys: string[]) =>
+    techs.filter((t) => keys.includes(t.name));
 
   return (
-    <div className="w-full max-w-7xl mx-auto">
-      <Text as="h2" variant="heading-section" className="mb-10">
-        Tech Stack
-      </Text>
-
-      <motion.div
-        className="grid grid-cols-1 md:grid-cols-12 gap-4"
-        variants={containerVariants}
-        initial="hidden"
-        whileInView="visible"
+    <div className="w-full min-w-0 h-full flex flex-col">
+      <AnimatedSection className="lg:hidden">
+        <div className="flex items-center gap-4 opacity-70 mb-10">
+          <Text as="span" className="text-[13px] font-black tracking-[0.4em]">
+            02
+          </Text>
+          <div className="h-px w-10 bg-current" />
+          <Text
+            as="h2"
+            variant="heading-section"
+            className="font-bold uppercase tracking-[0.4em]"
+          >
+            Stack
+          </Text>
+        </div>
+      </AnimatedSection>
+      <AnimatedSection
+        delay={0.3}
+        className={`w-full min-w-0 rounded-3xl shadow-2xl flex-1 ${isDark ? "bg-white/2 border-btn-primary-bg-hover" : "bg-white/50 border-btn-primary-bg-hover/50"} border`}
       >
-        {/* Frontend */}
-        <BentoCard title="Frontend & Core" className="md:col-span-8">
-          <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-3">
-            {[
-              ...getTechsByNames(CATEGORY_MAP.languages),
-              ...getTechsByNames(CATEGORY_MAP.frontend),
-            ].map((t) => (
-              <motion.div key={t.name} variants={itemVariants} className="h-20">
-                <TechCard tech={t} size="sm" />
-              </motion.div>
+        <div className="p-8 rounded-3xl overflow-hidden h-full">
+          <Swiper
+            modules={[Pagination, Autoplay]}
+            spaceBetween={20}
+            slidesPerView={1}
+            autoplay={{
+              delay: 5000,
+              disableOnInteraction: true,
+              pauseOnMouseEnter: true,
+            }}
+            pagination={{ clickable: true }}
+            className="w-full h-full tech-swiper pb-8"
+          >
+            {CATEGORIES.map((cat) => (
+              <SwiperSlide key={cat.id} className="h-full">
+                <div className="flex flex-col gap-6 pb-2 h-full">
+                  <Text
+                    as="h3"
+                    className="text-xs uppercase tracking-[0.4em] opacity-40 font-bold border-b border-card-border/50 pb-3"
+                  >
+                    {cat.title}
+                  </Text>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-2 gap-4 flex-1">
+                    {getTechs(cat.keys).map((t) => (
+                      <TechCard
+                        key={t.name}
+                        tech={t}
+                        size="lg"
+                        className="min-h-28"
+                      />
+                    ))}
+                  </div>
+                </div>
+              </SwiperSlide>
             ))}
-          </div>
-        </BentoCard>
-
-        {/* Backend */}
-        <BentoCard title="Backend & APIs" className="md:col-span-4">
-          <div className="grid grid-cols-2 lg:grid-cols-3 gap-3">
-            {getTechsByNames(CATEGORY_MAP.backend).map((t) => (
-              <motion.div key={t.name} variants={itemVariants} className="h-20">
-                <TechCard tech={t} size="sm" />
-              </motion.div>
-            ))}
-          </div>
-        </BentoCard>
-
-        {/* Database */}
-        <BentoCard title="Database" className="md:col-span-4">
-          <div className="grid grid-cols-2 gap-3">
-            {getTechsByNames(CATEGORY_MAP.database).map((t) => (
-              <motion.div key={t.name} variants={itemVariants} className="h-20">
-                <TechCard tech={t} size="sm" />
-              </motion.div>
-            ))}
-          </div>
-        </BentoCard>
-
-        {/* Tools */}
-        <BentoCard title="Tools & Testing" className="md:col-span-8">
-          <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-3">
-            {getTechsByNames(CATEGORY_MAP.tools).map((t) => (
-              <motion.div key={t.name} variants={itemVariants} className="h-20">
-                <TechCard tech={t} size="sm" />
-              </motion.div>
-            ))}
-          </div>
-        </BentoCard>
-      </motion.div>
+          </Swiper>
+        </div>
+      </AnimatedSection>
     </div>
   );
 }

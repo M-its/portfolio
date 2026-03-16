@@ -35,7 +35,7 @@ export default function ScrollIndicator({ onClick }: { onClick: () => void }) {
             animate={{ opacity: isHovered ? 1 : 0 }}
             transition={{ duration: 0.3, ease: "easeInOut" }}
             className={`uppercase tracking-widest font-display font-medium ${
-              isHovered ? "text-text-primary-bg" : "text-text-primary/80"
+              isHovered ? "text-text-primary" : "text-text-primary/80"
             }`}
           >
             Scroll for more

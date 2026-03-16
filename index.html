@@ -1,27 +1,88 @@
 <!doctype html>
-<html lang="en">
+<html lang="pt-BR">
 
 <head>
   <meta charset="UTF-8" />
-  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+  <link rel="manifest" href="/site.webmanifest" />
+
+  <!-- Primary SEO -->
+  <title>Mitsrael Souza | Desenvolvedor Full-Stack React & Node.js</title>
+  <meta name="description"
+    content="Portfólio de Mitsrael Souza — Desenvolvedor Full-Stack especialista em React, TypeScript e Node.js. Criando interfaces de alta performance e arquiteturas robustas." />
+  <meta name="keywords"
+    content="desenvolvedor full-stack, React, TypeScript, Node.js, portfólio, frontend, backend, JavaScript" />
+  <meta name="author" content="Mitsrael Souza" />
+  <meta name="robots" content="index, follow, max-image-preview:large" />
+  <meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)" />
+  <meta name="theme-color" content="#fdfaf3" media="(prefers-color-scheme: light)" />
+  <link rel="canonical" href="https://mitsrael.dev" />
+
+  <!-- Open Graph (LinkedIn, Facebook, WhatsApp) -->
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://mitsrael.dev" />
+  <meta property="og:title" content="Mitsrael Souza | Desenvolvedor Full-Stack" />
+  <meta property="og:description"
+    content="Portfólio de Mitsrael Souza — Desenvolvedor Full-Stack especialista em React, TypeScript e Node.js." />
+  <meta property="og:image" content="https://mitsrael.dev/og-image.png" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:image:alt" content="Mitsrael Souza — Desenvolvedor Full-Stack" />
+  <meta property="og:locale" content="pt_BR" />
+  <meta property="og:site_name" content="Mitsrael Souza" />
+
+  <!-- Twitter / X -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:url" content="https://mitsrael.dev" />
+  <meta name="twitter:title" content="Mitsrael Souza | Desenvolvedor Full-Stack" />
+  <meta name="twitter:description"
+    content="Portfólio de Mitsrael Souza — Desenvolvedor Full-Stack especialista em React, TypeScript e Node.js." />
+  <meta name="twitter:image" content="https://mitsrael.dev/og-image.png" />
+  <meta name="twitter:image:alt" content="Mitsrael Souza — Desenvolvedor Full-Stack" />
+
+  <!-- Fontes -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="preload" as="style"
+    href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Space+Grotesk:wght@300..700&display=swap" />
   <link
     href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Space+Grotesk:wght@300..700&display=swap"
     rel="stylesheet" />
-  <title>Mitsrael Souza | Portfólio</title>
-  <script>
-    // Define o tema inicial com base na preferência do sistema ou no localStorage
-    if (
-      localStorage.theme === "dark" ||
-      (!("theme" in localStorage) && window.matchMedia("(prefers-color-scheme: dark)").matches)
-    ) {
-      document.documentElement.classList.add("dark");
-    }
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Person",
+    "name": "Mitsrael Souza",
+    "url": "https://mitsrael.dev",
+    "sameAs": [
+      "https://github.com/M-its",
+      "https://www.linkedin.com/in/mitsrael-souza-410415162/"
+    ],
+    "jobTitle": "Desenvolvedor Full-Stack",
+    "description": "Desenvolvedor Full-Stack especialista em React, TypeScript e Node.js, focado na criação de interfaces de alta performance e arquiteturas robustas.",
+    "knowsAbout": ["React", "TypeScript", "Node.js", "JavaScript", "Tailwind CSS", "PostgreSQL"],
+    "image": "https://mitsrael.dev/og-image.png"
+  }
   </script>
+
+  <!-- Tema inicial (evita flash) -->
+  <script>
+    try {
+      if (
+        localStorage.theme === "dark" ||
+        (!("theme" in localStorage) && window.matchMedia("(prefers-color-scheme: dark)").matches)
+      ) {
+        document.documentElement.classList.add("dark");
+      }
+    } catch (_) { }
+  </script>
+
   <style>
-    /* Splash */
     #root::before {
       content: '';
       position: fixed;

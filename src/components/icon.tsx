@@ -5,7 +5,6 @@ export const iconVariants = tv({
   variants: {
     animate: {
       false: "",
-      //TODO: leave only true or false if other types of animation is no needed
       spin: "animate-spin",
     },
     size: {

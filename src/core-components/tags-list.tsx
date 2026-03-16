@@ -7,6 +7,8 @@ interface TagsListProps {
   className?: string;
 }
 
+const SKELETON_TAGS = Array.from({ length: 4 }, (_, i) => `skeleton-tag-${i}`);
+
 export default function TagsList({ tags, className }: TagsListProps) {
   const [showAll, setShowAll] = useState(false);
   const overflowItemsRef = useRef<string[]>([]);
@@ -34,14 +36,8 @@ export default function TagsList({ tags, className }: TagsListProps) {
   if (!tags?.length) {
     return (
       <div className={`flex gap-2 overflow-hidden ${className || ""}`}>
-        {[...Array(4)].map((_, i) => (
-          <Tag
-            key={`tag-${
-              // biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
-              i
-            }`}
-            loading
-          />
+        {SKELETON_TAGS.map((id) => (
+          <Tag key={id} loading />
         ))}
       </div>
     );

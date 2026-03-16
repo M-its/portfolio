@@ -1,0 +1,17 @@
+{
+  "name": "Mitsrael Souza | Desenvolvedor Full-Stack",
+  "short_name": "M-its",
+  "description": "Portfólio de Mitsrael Souza — Desenvolvedor Full-Stack especialista em React, TypeScript e Node.js.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#000000",
+  "theme_color": "#000000",
+  "lang": "pt-BR",
+  "icons": [
+    {
+      "src": "/apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png"
+    }
+  ]
+}

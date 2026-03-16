@@ -1,16 +1,29 @@
 import { useEffect, useRef, useState, type FC } from "react";
-import useBrowserFeatures from "../hooks/use-browser-features";
+import useCustomCursor from "../hooks/use-custom-cursor";
+
+const REDUCED_MOTION_QUERY = "(prefers-reduced-motion: reduce)";
 
 const CustomCursor: FC = () => {
   const innerRef = useRef<HTMLDivElement>(null);
   const outerRef = useRef<HTMLDivElement>(null);
-  const { isUnsupported } = useBrowserFeatures();
-
+  const { isUnsupported } = useCustomCursor();
+  const [prefersReducedMotion, setPrefersReducedMotion] = useState(
+    () => window.matchMedia(REDUCED_MOTION_QUERY).matches,
+  );
   const [isHovering, setIsHovering] = useState(false);
   const [isClicked, setIsClicked] = useState(false);
 
+  // Respeita mudanças em tempo real na preferência do sistema
   useEffect(() => {
-    if (isUnsupported) return;
+    const media = window.matchMedia(REDUCED_MOTION_QUERY);
+    const handler = (e: MediaQueryListEvent) =>
+      setPrefersReducedMotion(e.matches);
+    media.addEventListener("change", handler);
+    return () => media.removeEventListener("change", handler);
+  }, []);
+
+  useEffect(() => {
+    if (isUnsupported || prefersReducedMotion) return;
 
     const inner = innerRef.current;
     const outer = outerRef.current;
@@ -35,6 +48,16 @@ const CustomCursor: FC = () => {
       setIsHovering(!!interactive);
     };
 
+    const handleMouseLeave = () => {
+      if (inner) inner.style.opacity = "0";
+      if (outer) outer.style.opacity = "0";
+    };
+
+    const handleMouseEnter = () => {
+      if (inner) inner.style.opacity = "1";
+      if (outer) outer.style.opacity = "1";
+    };
+
     const handleMouseDown = () => setIsClicked(true);
     const handleMouseUp = () => setIsClicked(false);
 
@@ -55,23 +78,39 @@ const CustomCursor: FC = () => {
     window.addEventListener("mousemove", handleMouseMove, { passive: true });
     window.addEventListener("mousedown", handleMouseDown);
     window.addEventListener("mouseup", handleMouseUp);
+    document.addEventListener("mouseleave", handleMouseLeave);
+    document.addEventListener("mouseenter", handleMouseEnter);
     rafId = requestAnimationFrame(animate);
 
     return () => {
       window.removeEventListener("mousemove", handleMouseMove);
       window.removeEventListener("mousedown", handleMouseDown);
       window.removeEventListener("mouseup", handleMouseUp);
+      document.removeEventListener("mouseleave", handleMouseLeave);
+      document.removeEventListener("mouseenter", handleMouseEnter);
       cancelAnimationFrame(rafId);
     };
-  }, [isUnsupported]);
+  }, [isUnsupported, prefersReducedMotion]);
 
-  if (isUnsupported) return null;
+  // Esconde o cursor nativo apenas quando o custom cursor está ativo
+  useEffect(() => {
+    const shouldHide = !isUnsupported && !prefersReducedMotion;
+    document.documentElement.style.cursor = shouldHide ? "none" : "auto";
+    return () => {
+      document.documentElement.style.cursor = "auto";
+    };
+  }, [isUnsupported, prefersReducedMotion]);
+
+  if (isUnsupported || prefersReducedMotion) return null;
 
   return (
-    <div className="pointer-events-none fixed inset-0 z-9999 overflow-hidden mix-blend-difference">
+    <div
+      className="pointer-events-none fixed inset-0 z-9999 overflow-hidden mix-blend-difference"
+      aria-hidden="true"
+    >
       <div
         ref={innerRef}
-        className="absolute top-0 left-0 w-1.5 h-1.5 rounded-full bg-white will-change-transform -translate-x-1/2 -translate-y-1/2 transition-colors duration-300"
+        className="absolute top-0 left-0 w-1.5 h-1.5 rounded-full bg-white will-change-transform -translate-x-1/2 -translate-y-1/2 transition-opacity duration-300"
       />
       <div
         ref={outerRef}

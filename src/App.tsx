@@ -1,10 +1,11 @@
-import { useEffect, useState } from "react";
+import { Suspense, lazy, useEffect, useState } from "react";
 import { Route, Routes } from "react-router-dom";
 import { AnimatePresence } from "framer-motion";
 import IntroSplash from "./core-components/intro-splash";
-import PageComponents from "./pages/page-components";
 import LayoutMain from "./pages/layout-main";
 import PageHome from "./pages/page-home";
+
+const PageComponents = lazy(() => import("./pages/page-components"));
 
 export default function App() {
   const [showIntro, setShowIntro] = useState(() => {
@@ -45,7 +46,14 @@ export default function App() {
         <Routes>
           <Route element={<LayoutMain />}>
             <Route index element={<PageHome />} />
-            <Route path="/components" element={<PageComponents />} />
+            <Route
+              path="/components"
+              element={
+                <Suspense fallback={<div />}>
+                  <PageComponents />
+                </Suspense>
+              }
+            />
           </Route>
         </Routes>
       </div>

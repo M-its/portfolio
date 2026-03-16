@@ -4,9 +4,10 @@ import Divider from "../components/divider.tsx";
 import ThemeSwitcher from "../components/theme-switcher.tsx";
 
 const links = [
-  { label: "About", section: "about" },
-  { label: "Tech", section: "techs" },
-  { label: "Projects", section: "projects" },
+  { label: "Sobre", section: "about" },
+  { label: "Stack", section: "stack" },
+  { label: "Projetos", section: "projects" },
+  { label: "Contato", section: "contact" },
 ];
 
 export default function DesktopNav() {

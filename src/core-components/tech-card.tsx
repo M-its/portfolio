@@ -1,54 +1,48 @@
-import { useRef } from "react";
+import { useRef, useState } from "react";
+import { Suspense } from "react";
+
 import { tv, type VariantProps } from "tailwind-variants";
 import Card from "../components/card";
 import Text from "../components/text";
 import Icon from "../components/icon";
 import useMouseGlare from "../hooks/use-mouse-glare";
-import type { techs } from "../data/techs";
+import { type techs, SpinnerIcon } from "../data/techs";
 import { useTheme } from "../contexts/theme-context";
 
 const techCardVariants = tv({
   slots: {
     card: `
       relative group h-full w-full rounded-xl flex flex-col items-center justify-center p-2
-      transition-all duration-300 ease-in-out border-0
+      border-0
     `,
-    icon: "fill-btn-primary-text transition-transform duration-300 group-hover:scale-110",
-    text: "text-btn-primary-text opacity-70 group-hover:opacity-100 transition-all uppercase tracking-wider text-center",
+    icon: `
+      text-btn-primary-text
+      [.group:not(:hover)_&_path]:fill-current 
+      [.group:not(:hover)_&_circle]:fill-current
+      [.group:not(:hover)_&_rect]:fill-current 
+    `,
+    text: "text-btn-primary-text opacity-70 uppercase tracking-wider text-center",
     baseBorder: "absolute inset-0 rounded-2xl pointer-events-none z-1 border",
     revealWrapper:
-      "absolute inset-0 rounded-xl pointer-events-none z-10 transition-opacity duration-300 overflow-hidden",
+      "absolute inset-0 rounded-xl pointer-events-none z-10 overflow-hidden",
     revealBorder: "absolute inset-0 rounded-2xl border-[1.5px] border-white/40",
     revealBg: "absolute inset-0 bg-white/5",
   },
   variants: {
     size: {
-      sm: {
-        icon: "w-5 h-5",
-        text: "text-[10px]",
-      },
-      md: {
-        icon: "w-7 h-7",
-        text: "text-[11px]",
-      },
-      lg: {
-        icon: "w-10 h-10",
-        text: "text-sm",
-      },
+      sm: { icon: "w-5 h-5", text: "text-[10px]" },
+      md: { icon: "w-7 h-7", text: "text-[11px]" },
+      lg: { icon: "w-11 h-11", text: "text-sm" },
     },
     isDark: {
-      true: {
-        baseBorder: "border-white/5",
-      },
+      true: { baseBorder: "border-white/5" },
       false: {
         card: "hover:bg-btn-primary-bg-hover hover:border-icon-primary/20",
         baseBorder: "border-icon-primary/10",
       },
     },
   },
-  defaultVariants: {
-    size: "sm",
-  },
+  defaultVariants: { size: "lg" },
 });
 
 interface TechCardProps extends Omit<React.ComponentProps<"div">, "size"> {
@@ -59,6 +53,7 @@ interface TechCardProps extends Omit<React.ComponentProps<"div">, "size"> {
 export default function TechCard({ tech, size, className }: TechCardProps) {
   const { isDark } = useTheme();
   const cardRef = useRef<HTMLDivElement>(null);
+  const [isHovered, setIsHovered] = useState(false);
   useMouseGlare(cardRef);
 
   const {
@@ -75,23 +70,28 @@ export default function TechCard({ tech, size, className }: TechCardProps) {
     <Card
       ref={cardRef}
       className={card({ className })}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
       style={
         {
           "--mouse-x": "-9999px",
           "--mouse-y": "-9999px",
           "--mouse-opacity": "0",
+          transition: "background-color 0.3s ease-in-out",
         } as React.CSSProperties
       }
     >
-      {/* BORDA BASE */}
-      <div className={baseBorder()} />
+      <div
+        className={baseBorder()}
+        style={{ transition: "border-color 0.3s" }}
+      />
 
-      {/* REVEAL (Dark Mode) */}
       {isDark && (
         <div
           className={revealWrapper()}
           style={{
             opacity: "var(--mouse-opacity)",
+            transition: "opacity 0.3s",
             maskImage:
               "radial-gradient(100px circle at var(--mouse-x) var(--mouse-y), black, transparent)",
             WebkitMaskImage:
@@ -103,10 +103,33 @@ export default function TechCard({ tech, size, className }: TechCardProps) {
         </div>
       )}
 
-      {/* CONTEÚDO */}
-      <div className="relative z-20 flex flex-col items-center gap-2">
-        <Icon svg={tech.icon} className={icon()} />
-        <Text variant="tech-label" className={text()}>
+      <div
+        className="relative z-20 flex flex-col items-center gap-5"
+        style={{
+          transform: isHovered ? "scale(1.1)" : "scale(1)",
+          transition: "transform 0.3s ease-out",
+        }}
+      >
+        <Suspense fallback={<Icon svg={SpinnerIcon} className={icon()} />}>
+          <Icon
+            svg={tech.icon}
+            className={icon()}
+            style={{
+              filter: isHovered
+                ? "drop-shadow(0 0 8px rgba(255,255,255,0.5))"
+                : "none",
+              transition: "filter 0.3s",
+            }}
+          />
+        </Suspense>
+        <Text
+          variant="tech-label"
+          className={text()}
+          style={{
+            opacity: isHovered ? 1 : 0.7,
+            transition: "opacity 0.3s",
+          }}
+        >
           {tech.name}
         </Text>
       </div>

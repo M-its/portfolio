@@ -62,8 +62,10 @@ const buttonVariants = tv({
       variant: "outline",
       mode: "button",
       class: `
-        border border-btn-primary-bg/40
-        hover:bg-btn-primary-bg/5 hover:border-btn-primary-bg/80
+        border border-current/20
+        hover:border-current/60
+        hover:bg-current/5
+        backdrop-blur-sm
       `,
     },
     {
@@ -90,7 +92,7 @@ export const buttonTextVariants = tv({
     variant: {
       primary: "text-btn-primary-text",
       secondary: "text-btn-secondary-text",
-      outline: "text-text-primary dark:text-btn-primary-text",
+      outline: "text-text-primary",
     },
     size: {
       md: "text-xl font-light tracking-wide",

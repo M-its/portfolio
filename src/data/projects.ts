@@ -5,7 +5,6 @@ export interface ProjectData {
   github_repo: string;
   homepage: string;
   languages: string[];
-  featured?: boolean;
 }
 
 export const projectsBase: ProjectData[] = [
@@ -29,12 +28,11 @@ export const projectsBase: ProjectData[] = [
       "JSON Web Token",
       "Swiper",
     ],
-    featured: true,
   },
   {
     repository: "gallery-plus",
     description: "Projeto de galeria do curso da RocketSeat.",
-    image: "images/gallery-plus.png",
+    image: "/images/gallery-plus.png",
     github_repo: "https://github.com/M-its/gallery-plus",
     homepage: "https://mits-food-explorer-web.netlify.app/",
     languages: [

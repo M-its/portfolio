@@ -1,20 +1,5 @@
 import { motion, type Variants } from "framer-motion";
-import { useOnScreen } from "../hooks/useOnScreen";
-
-const defaultVariants: Variants = {
-  hidden: {
-    opacity: 0,
-    y: 30,
-  },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: {
-      duration: 0.3,
-      ease: "easeOut",
-    },
-  },
-};
+import { useOnScreen } from "../hooks/use-on-screen";
 
 interface AnimatedSectionProps {
   children: React.ReactNode;
@@ -81,10 +66,10 @@ export default function AnimatedSection({
   id,
   className = "",
   delay = 0,
-  variants = defaultVariants,
-  viewport = { once: true, margin: "-100px" },
+  variants = animationVariants.blur,
+  viewport = { margin: "-100px" },
   animateOnMount = false,
-  repeatOnView = false,
+  repeatOnView = true,
   as = "section",
 }: AnimatedSectionProps) {
   const Component = motion[as] as React.ElementType;

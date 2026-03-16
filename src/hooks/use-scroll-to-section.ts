@@ -1,6 +1,6 @@
 import { useCallback } from "react";
 
-export default function useScrollToSection(offset = -80) {
+export default function useScrollToSection(offset = -120) {
   const scrollToSection = useCallback(
     (sectionId: string) => {
       const element = document.getElementById(sectionId);

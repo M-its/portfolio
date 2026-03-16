@@ -2,13 +2,10 @@ import { type VariantProps, tv } from "tailwind-variants";
 import React from "react";
 
 export const cardVariants = tv({
-  base: `transform-style-3d
-		rounded transition
-	`,
+  base: "transform-style-3d rounded transition",
   variants: {
     variant: {
       default: "bg-btn-primary-bg border border-btn-primary-bg-hover",
-      primary: "bg-btn-secondary-bg",
     },
     size: {
       none: "",

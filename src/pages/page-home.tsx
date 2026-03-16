@@ -1,63 +1,24 @@
 import Button from "../components/button";
 import Container from "../components/container";
 import Text from "../components/text";
-import TechsContainer from "../core-components/techs-container";
 import ProjectsContainer from "../core-components/projects-container";
-import About from "../core-components/about-container";
 import ScrollIndicator from "../components/scroll-indicator";
-
-import GitHubIcon from "../assets/icons/github.svg?react";
-import LinkedInIcon from "../assets/icons/linkedin.svg?react";
-import CVIcon from "../assets/icons/cv.svg?react";
 
 import useScrollToSection from "../hooks/use-scroll-to-section.ts";
 import useMediaQuery from "../hooks/use-media-query.ts";
 import { motion, type Variants } from "framer-motion";
-import AnimatedSection, {
-  animationVariants,
-} from "../components/animated-section.tsx";
+import AnimatedSection from "../components/animated-section.tsx";
 import { useEffect } from "react";
-
-const SOCIAL_LINKS = [
-  {
-    href: "https://github.com/M-its",
-    icon: GitHubIcon,
-    label: "GitHub",
-  },
-  {
-    href: "https://www.linkedin.com/in/mitsrael-souza-410415162/",
-    icon: LinkedInIcon,
-    label: "LinkedIn",
-  },
-  {
-    href: "../../public/resume.pdf",
-    icon: CVIcon,
-    label: "Resume",
-    download: true,
-  },
-];
-
-const BUTTON_CONFIG = {
-  mobile: {
-    mode: "icon" as const,
-    iconVariant: "secondary" as const,
-    size: "xl" as const,
-  },
-  desktop: {
-    mode: "button" as const,
-    iconVariant: "primary" as const,
-    size: "md" as const,
-  },
-};
+import TechsContainer from "../core-components/techs-container.tsx";
+import { techs } from "../data/techs.ts";
+import { BUTTON_CONFIG, SOCIAL_LINKS } from "../data/constants.ts";
+import AboutSection from "../core-components/about-section.tsx";
 
 const buttonContainerVariants = {
   hidden: { opacity: 0 },
   visible: {
     opacity: 1,
-    transition: {
-      staggerChildren: 0.1,
-      delayChildren: 0.3,
-    },
+    transition: { staggerChildren: 0.1, delayChildren: 0.3 },
   },
 };
 
@@ -71,70 +32,80 @@ const buttonVariants: Variants = {
 };
 
 export default function PageHome() {
-  const isMobile = useMediaQuery("(max-width: 640px)");
+  const isMobile = useMediaQuery("(max-width: 639px)");
+  const isSquished = useMediaQuery(
+    "(min-width: 1024px) and (max-width: 1080px)",
+  );
+  const isCompact = isMobile || isSquished;
+  const buttonConfig = isCompact ? BUTTON_CONFIG.icon : BUTTON_CONFIG.button;
   const scrollToSection = useScrollToSection();
-  const buttonConfig = isMobile ? BUTTON_CONFIG.mobile : BUTTON_CONFIG.desktop;
 
-  // Fix page scroll jump caused by whileInView from motion
   useEffect(() => {
     window.scrollTo(0, 0);
     document.documentElement.style.scrollBehavior = "auto";
-
     const timer = setTimeout(() => {
       document.documentElement.style.scrollBehavior = "smooth";
     }, 100);
-
     return () => clearTimeout(timer);
   }, []);
 
   return (
-    <Container className="mt-46 md:mt-60 flex flex-col gap-16 md:gap-20">
-      <AnimatedSection id="home" animateOnMount>
-        <Text as="h1" variant="heading-hero" className="mb-2 tracking-wider">
-          Mitsrael Souza
-        </Text>
-        <Text variant="subtitle">Full-Stack Developer</Text>
+    <Container
+      as="main"
+      className="pt-56 lg:pt-60 xl:pt-68 flex flex-col gap-24 md:gap-28"
+    >
+      <div className="grid grid-cols-1 lg:grid-cols-[1fr_420px] gap-24 lg:gap-16 xl:gap-20 items-stretch">
+        <div className="flex flex-col gap-24 md:gap-24">
+          <AnimatedSection id="home">
+            <Text
+              as="h1"
+              variant="heading-hero"
+              className="mb-2 tracking-wider"
+            >
+              Mitsrael Souza
+            </Text>
+            <Text variant="subtitle">Desenvolvedor Full-Stack</Text>
 
-        <motion.div
-          className="flex gap-6 mt-6 md:mt-12"
-          variants={buttonContainerVariants}
-          initial="hidden"
-          animate="visible"
-        >
-          {SOCIAL_LINKS.map(({ label, ...linkProps }) => (
-            <motion.div key={label} variants={buttonVariants}>
-              <Button as="a" target="_blank" {...buttonConfig} {...linkProps}>
-                <span className="hidden sm:block">{label}</span>
-              </Button>
+            <motion.div
+              className="flex gap-4 xl:gap-6 mt-6 md:mt-8"
+              variants={buttonContainerVariants}
+              initial="hidden"
+              animate="visible"
+            >
+              {SOCIAL_LINKS.map(({ label, ...linkProps }) => (
+                <motion.div key={label} variants={buttonVariants}>
+                  <Button
+                    as="a"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    {...buttonConfig}
+                    {...linkProps}
+                  >
+                    {!isCompact && label}
+                  </Button>
+                </motion.div>
+              ))}
             </motion.div>
-          ))}
-        </motion.div>
-      </AnimatedSection>
+          </AnimatedSection>
 
-      <AnimatedSection id="about" delay={0.2}>
-        <About />
-      </AnimatedSection>
+          <div id="about">
+            <AboutSection />
+          </div>
+        </div>
 
-      <AnimatedSection
-        variants={animationVariants.fadeDown}
-        delay={0.6}
-        as="div"
-        viewport={{ once: true, margin: "-50px" }}
-        repeatOnView
-        className="sm:block hidden"
-      >
-        <ScrollIndicator onClick={() => scrollToSection("techs")} />
-      </AnimatedSection>
+        <div id="stack">
+          <TechsContainer techs={techs} />
+        </div>
+      </div>
 
       <AnimatedSection
-        variants={animationVariants.blur}
-        id="techs"
-        repeatOnView
+        animateOnMount={true}
+        className="hidden lg:block self-center -mt-12"
       >
-        <TechsContainer />
+        <ScrollIndicator onClick={() => scrollToSection("projects")} />
       </AnimatedSection>
 
-      <AnimatedSection id="projects" delay={0.2} repeatOnView>
+      <AnimatedSection id="projects">
         <ProjectsContainer />
       </AnimatedSection>
     </Container>

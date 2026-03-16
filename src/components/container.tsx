@@ -2,7 +2,7 @@ import React from "react";
 import { tv, type VariantProps } from "tailwind-variants";
 
 export const containerVariants = tv({
-  base: "mx-auto px-12",
+  base: "mx-auto px-6 md:px-12",
   variants: {
     size: {
       md: "max-w-7xl",

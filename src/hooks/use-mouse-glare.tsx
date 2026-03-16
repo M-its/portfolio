@@ -3,9 +3,11 @@ import {
   useContext,
   useEffect,
   useRef,
+  useState,
   type RefObject,
   type ReactNode,
 } from "react";
+import useMediaQuery from "./use-media-query";
 
 type MouseHandler = (x: number, y: number) => void;
 
@@ -18,12 +20,33 @@ const MouseGlareContext = createContext<MouseGlareContextType | null>(null);
 
 export function MouseGlareProvider({ children }: { children: ReactNode }) {
   const handlers = useRef<Set<MouseHandler>>(new Set());
+  const isMobile = useMediaQuery("(hover: none) and (pointer: coarse)");
+  const isChromium = !!(window as unknown as { chrome: unknown }).chrome;
+  const [isDevToolsOpen, setIsDevToolsOpen] = useState(false);
 
   useEffect(() => {
-    let frameId: number | undefined;
+    if (!isChromium) return;
+
+    const threshold = 160;
+    const detectDevTools = () => {
+      const widthDiff = Math.abs(window.outerWidth - window.innerWidth);
+      const heightDiff = Math.abs(window.outerHeight - window.innerHeight);
+      setIsDevToolsOpen(widthDiff > threshold || heightDiff > threshold);
+    };
+
+    window.addEventListener("resize", detectDevTools, { passive: true });
+    detectDevTools();
+
+    return () => window.removeEventListener("resize", detectDevTools);
+  }, [isChromium]);
+
+  useEffect(() => {
+    if (isMobile || (isChromium && isDevToolsOpen)) return;
+
     let lastX = 0;
     let lastY = 0;
     let ticking = false;
+    let frameId: number;
 
     const update = () => {
       for (const handler of handlers.current) {
@@ -46,17 +69,12 @@ export function MouseGlareProvider({ children }: { children: ReactNode }) {
     document.addEventListener("mousemove", handleInteraction, {
       passive: true,
     });
-    window.addEventListener("scroll", handleInteraction, {
-      passive: true,
-      capture: true,
-    });
 
     return () => {
       document.removeEventListener("mousemove", handleInteraction);
-      window.removeEventListener("scroll", handleInteraction);
-      if (frameId !== undefined) cancelAnimationFrame(frameId);
+      cancelAnimationFrame(frameId);
     };
-  }, []);
+  }, [isMobile, isChromium, isDevToolsOpen]);
 
   const register = (handler: MouseHandler) => handlers.current.add(handler);
   const unregister = (handler: MouseHandler) =>
@@ -80,9 +98,20 @@ export default function useMouseGlare<T extends HTMLElement>(
     if (!context) return;
     const { register, unregister } = context;
 
+    let isVisible = false;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        isVisible = entry.isIntersecting;
+      },
+      { threshold: 0 },
+    );
+
+    if (ref.current) observer.observe(ref.current);
+
     const handleMove = (clientX: number, clientY: number) => {
       const element = ref.current;
-      if (!element) return;
+      if (!element || !isVisible) return;
 
       const rect = element.getBoundingClientRect();
       const x = clientX - rect.left;
@@ -98,7 +127,6 @@ export default function useMouseGlare<T extends HTMLElement>(
         y < 0 ? -y : y > rect.height ? y - rect.height : 0,
       );
       const distance = Math.sqrt(distX * distX + distY * distY);
-
       const proximity = Math.max(0, 1 - distance / margin);
 
       if (proximity > 0) {
@@ -111,6 +139,10 @@ export default function useMouseGlare<T extends HTMLElement>(
     };
 
     register(handleMove);
-    return () => unregister(handleMove);
+
+    return () => {
+      unregister(handleMove);
+      observer.disconnect();
+    };
   }, [context, ref]);
 }

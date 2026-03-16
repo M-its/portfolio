@@ -8,7 +8,6 @@ import LogoIcon from "../assets/images/logo-plain.svg?react";
 import cx from "classnames";
 import { motion, AnimatePresence } from "framer-motion";
 
-import useBrowserFeatures from "../hooks/use-browser-features.ts";
 import useScrolled from "../hooks/use-scrolled.ts";
 import { useTheme } from "../contexts/theme-context.tsx";
 
@@ -26,7 +25,6 @@ export default function Header({ className, ...props }: HeaderProps) {
   const menuRef = useRef<HTMLDivElement>(null);
   const { isDark } = useTheme();
   const [scrollbarWidth, setScrollbarWidth] = useState(0);
-  const { isUnsupported } = useBrowserFeatures();
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -79,12 +77,12 @@ export default function Header({ className, ...props }: HeaderProps) {
           floating: {
             top: 16,
             width: "90%",
-            maxWidth: "1400px",
+            maxWidth: "1200px",
             borderRadius: "16px",
             backgroundColor: isDark
               ? "rgba(255,255,255,0.05)"
               : "rgba(255,255,255,0.35)",
-            backdropFilter: isUnsupported ? "none" : "blur(15px)",
+            backdropFilter: "blur(15px)",
             boxShadow: "0px 4px 30px rgba(0,0,0,0.1)",
           },
         }}

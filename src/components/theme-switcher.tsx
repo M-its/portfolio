@@ -56,11 +56,11 @@ export default function ThemeSwitcher() {
       <button
         className={container({ theme: isDark ? "dark" : "light" })}
         type="button"
-        aria-label="theme-switcher"
+        aria-label={isDark ? "Mudar para tema claro" : "Mudar para tema escuro"}
         aria-pressed={isDark}
         onClick={handleToggle}
-        onKeyDown={(event) => {
-          if (event.key === "Enter" || event.key === " ") handleToggle();
+        onKeyDown={(e) => {
+          if (e.key === "Enter" || e.key === " ") handleToggle();
         }}
       >
         <div className={border({ theme: isDark ? "dark" : "light" })}>

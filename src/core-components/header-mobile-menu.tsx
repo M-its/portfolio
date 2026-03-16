@@ -4,7 +4,6 @@ import useScrollToSection from "../hooks/use-scroll-to-section.ts";
 import Button from "../components/button.tsx";
 import ThemeSwitcher from "../components/theme-switcher.tsx";
 
-// Variantes de animação para o menu
 const menuVariants: Variants = {
   hidden: {
     opacity: 0,
@@ -28,8 +27,7 @@ const menuVariants: Variants = {
   },
 };
 
-// Variantes para os Links
-const itemVariants: Variants = {
+const LinkVariants: Variants = {
   hidden: { opacity: 0, y: 40 },
   visible: {
     opacity: 1,
@@ -39,9 +37,10 @@ const itemVariants: Variants = {
 };
 
 const links = [
-  { label: "About", section: "about", number: "01" },
-  { label: "Tech", section: "techs", number: "02" },
-  { label: "Projects", section: "projects", number: "03" },
+  { label: "Sobre", section: "about", number: "01" },
+  { label: "Stack", section: "stack", number: "02" },
+  { label: "Projetos", section: "projects", number: "03" },
+  { label: "Contato", section: "contact", number: "04" },
 ];
 
 interface MobileMenuProps {
@@ -60,7 +59,7 @@ const MobileMenu = forwardRef<HTMLDivElement, MobileMenuProps>(
         initial="hidden"
         animate="visible"
         exit="exit"
-        className="fixed inset-0 z-40 bg-background/95 backdrop-blur-2xl flex flex-col justify-between"
+        className="fixed inset-0 z-40 bg-background flex flex-col justify-between"
       >
         <div className="h-24 md:h-32" />
 
@@ -69,7 +68,7 @@ const MobileMenu = forwardRef<HTMLDivElement, MobileMenuProps>(
           {links.map((link) => (
             <motion.div
               key={`mobile-${link.section}`}
-              variants={itemVariants}
+              variants={LinkVariants}
               className="group border-b border-icon-primary/15 last:border-none"
             >
               <Button
@@ -96,7 +95,7 @@ const MobileMenu = forwardRef<HTMLDivElement, MobileMenuProps>(
 
         {/* RODAPÉ DO MENU */}
         <motion.div
-          variants={itemVariants}
+          variants={LinkVariants}
           className="p-8 md:p-12 flex justify-between items-end border-t border-card-border/50 bg-linear-to-t from-black/5 to-transparent"
         >
           <div className="flex flex-col gap-2">
@@ -107,7 +106,7 @@ const MobileMenu = forwardRef<HTMLDivElement, MobileMenuProps>(
           </div>
 
           <div className="text-right opacity-30 text-xs md:text-sm">
-            <p>&copy; 2024 M-its Portfolio</p>
+            <p>&copy; {new Date().getFullYear()} M-its Portfolio</p>
             <p>Designed with passion.</p>
           </div>
         </motion.div>

@@ -1,25 +1,36 @@
 import Text from "../components/text";
+import AnimatedSection from "../components/animated-section";
 
-export default function About() {
+export default function AboutContainer() {
   return (
-    <div className="max-w-3xl">
-      <Text as="h2" variant="heading-section" className="mb-10 tracking-wider">
-        About me
+    <AnimatedSection className="flex flex-col gap-6">
+      <Text
+        as="h3"
+        className="text-xl lg:text-2xl font-semibold tracking-tight leading-snug"
+      >
+        Resolvendo problemas complexos <br />
+        <span className="text-text-primary/60 italic font-light">
+          com codigo elegante e escalavel.
+        </span>
       </Text>
-      <Text as="p" variant="paragraph-medium" className="mb-6">
-        I have been developing applications since 2021 as a full-stack
-        JavaScript developer. I create modern, scalable, and high-performing
-        solutions using fundamental technologies like React, TypeScript, NodeJS,
-        and SQL.
-      </Text>
-      <Text as="p" variant="paragraph-medium">
-        I'm enthusiastic about every step of the development process, from
-        creating user interfaces to creating backend architecture, and I
-        constantly strive to combine excellent user experience with high
-        technical quality. I'm a firm believer in the value of teamwork and
-        lifelong learning, and I'm always looking for innovative approaches to
-        creating things that have an impact.
-      </Text>
-    </div>
+
+      <div className="space-y-4">
+        <Text as="p" className="text-base leading-relaxed text-text-primary/90">
+          Full-stack developer especialista no ecossistema{" "}
+          <strong className="font-medium">JavaScript</strong>. Foco na criação
+          de interfaces de alta performance e arquiteturas robustas utilizando{" "}
+          <strong className="font-medium">React, TypeScript e Node.js</strong>.
+        </Text>
+
+        <Text
+          as="p"
+          className="text-sm leading-relaxed text-text-primary/80 font-light"
+        >
+          Transformo requisitos técnicos em produtos digitais sustentáveis,
+          priorizando sempre a manutenibilidade e a experiência final do
+          usuário.
+        </Text>
+      </div>
+    </AnimatedSection>
   );
 }

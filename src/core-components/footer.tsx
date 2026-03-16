@@ -16,8 +16,9 @@ export default function Footer({ className, ...props }: FooterProps) {
   return (
     <Container
       as="footer"
+      id="contact"
       className={cx(
-        "flex flex-col justify-between items-center mt-36",
+        "flex flex-col justify-between items-center mt-42",
         className,
       )}
       {...props}
@@ -56,6 +57,7 @@ export default function Footer({ className, ...props }: FooterProps) {
             as="a"
             href="https://www.github.com/m-its"
             target="_blank"
+            rel="noopener noreferrer"
             className="opacity-70 hover:opacity-100"
             aria-label="Visitar meu perfil no GitHub"
             icon={GitHubIcon}
@@ -64,8 +66,7 @@ export default function Footer({ className, ...props }: FooterProps) {
             mode="icon"
             size="lg"
             as="a"
-            href="https://www.github.com/m-its"
-            target="_blank"
+            href="mailto:mitsrael9@gmail.com?subject=Oportunidade%20de%20trabalho%20-%20Desenvolvedor%20Full-Stack&body=Olá%20Mitsrael%2C%0A%0AEncontrei%20seu%20portfólio%20e%20gostaria%20de%20conversar%20sobre%20uma%20oportunidade."
             aria-label="Enviar um e-mail"
             className="opacity-70 hover:opacity-100"
             icon={MailIcon}
@@ -76,6 +77,7 @@ export default function Footer({ className, ...props }: FooterProps) {
             as="a"
             href="https://www.linkedin.com/in/mitsrael-souza-410415162/"
             target="_blank"
+            rel="noopener noreferrer"
             aria-label="Visitar meu perfil no LinkedIn"
             className="opacity-70 hover:opacity-100"
             icon={LinkedInIcon}
@@ -83,7 +85,7 @@ export default function Footer({ className, ...props }: FooterProps) {
         </div>
 
         <Text className="md:absolute md:left-0 opacity-70 ">
-          © 2025 - Mitsrael Souza
+          &copy; {new Date().getFullYear()} - Mitsrael Souza
         </Text>
       </div>
     </Container>
