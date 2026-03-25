@@ -42,6 +42,7 @@ interface ProjectCardProps
   extends VariantProps<typeof cardVariants>,
     React.ComponentProps<typeof Card> {
   repository: string;
+  name: string;
   image: string;
   description: string;
   github_repo: string;
@@ -53,6 +54,7 @@ export default function ProjectCard({
   size,
   variant,
   repository,
+  name,
   image,
   description,
   github_repo,
@@ -117,9 +119,9 @@ export default function ProjectCard({
               target="_blank"
               rel="noopener noreferrer"
               href={homepage}
-              aria-label={`Visitar o site do projeto ${repository} (abre em nova aba)`}
+              aria-label={`Visitar o site do projeto ${name} (abre em nova aba)`}
             >
-              {repository}
+              {name}
             </Button>
           </div>
 

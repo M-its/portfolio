@@ -118,6 +118,7 @@ export default function ProjectsContainer({
               >
                 <ProjectCard
                   repository={project.repository}
+                  name={project.name}
                   description={project.description || "Sem descrição"}
                   image={project.image}
                   languages={project.languages}
