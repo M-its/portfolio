@@ -1,7 +1,7 @@
+import { lazy, Suspense } from "react";
 import Button from "../components/button";
 import Container from "../components/container";
 import Text from "../components/text";
-import ProjectsContainer from "../core-components/projects-container";
 import ScrollIndicator from "../components/scroll-indicator";
 
 import useScrollToSection from "../hooks/use-scroll-to-section.ts";
@@ -9,10 +9,16 @@ import useMediaQuery from "../hooks/use-media-query.ts";
 import { motion, type Variants } from "framer-motion";
 import AnimatedSection from "../components/animated-section.tsx";
 import { useEffect } from "react";
-import TechsContainer from "../core-components/techs-container.tsx";
 import { techs } from "../data/techs.ts";
 import { BUTTON_CONFIG, SOCIAL_LINKS } from "../data/constants.ts";
 import AboutSection from "../core-components/about-section.tsx";
+
+const TechsContainer = lazy(
+  () => import("../core-components/techs-container.tsx"),
+);
+const ProjectsContainer = lazy(
+  () => import("../core-components/projects-container.tsx"),
+);
 
 const buttonContainerVariants = {
   hidden: { opacity: 0 },
@@ -94,7 +100,9 @@ export default function PageHome() {
         </div>
 
         <div id="stack">
-          <TechsContainer techs={techs} />
+          <Suspense fallback={<div className="min-h-[400px]" />}>
+            <TechsContainer techs={techs} />
+          </Suspense>
         </div>
       </div>
 
@@ -106,7 +114,9 @@ export default function PageHome() {
       </AnimatedSection>
 
       <AnimatedSection id="projects">
-        <ProjectsContainer />
+        <Suspense fallback={<div className="min-h-[600px]" />}>
+          <ProjectsContainer />
+        </Suspense>
       </AnimatedSection>
     </Container>
   );

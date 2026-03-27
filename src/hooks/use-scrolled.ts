@@ -1,13 +1,16 @@
-import { useScroll } from "framer-motion";
-import { useEffect, useState } from "react";
+import { useScroll, useMotionValueEvent } from "framer-motion";
+import { useState } from "react";
 
 export default function useScrolled(limit = 50) {
   const { scrollY } = useScroll();
   const [scrolled, setScrolled] = useState(false);
-  useEffect(() => {
-    const unsub = scrollY.on("change", (y) => setScrolled(y > limit));
-    return () => unsub();
-  }, [scrollY, limit]);
+
+  useMotionValueEvent(scrollY, "change", (latest) => {
+    const isOverLimit = latest > limit;
+    if (isOverLimit !== scrolled) {
+      setScrolled(isOverLimit);
+    }
+  });
 
   return scrolled;
 }

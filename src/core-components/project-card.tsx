@@ -86,6 +86,7 @@ export default function ProjectCard({
           "--mouse-x": "-9999px",
           "--mouse-y": "-9999px",
           "--mouse-opacity": "0",
+          willChange: "transform",
         } as React.CSSProperties
       }
     >

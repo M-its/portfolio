@@ -13,7 +13,7 @@ const CustomCursor: FC = () => {
   const [isHovering, setIsHovering] = useState(false);
   const [isClicked, setIsClicked] = useState(false);
 
-  // Respeita mudanças em tempo real na preferência do sistema
+  // Respeita mudanças de preferência do sistema
   useEffect(() => {
     const media = window.matchMedia(REDUCED_MOTION_QUERY);
     const handler = (e: MediaQueryListEvent) =>
@@ -29,9 +29,9 @@ const CustomCursor: FC = () => {
     const outer = outerRef.current;
     if (!inner || !outer) return;
 
-    const pos = { x: 0, y: 0 };
-    const dot = { x: 0, y: 0 };
-    const circle = { x: 0, y: 0 };
+    const pos = { x: window.innerWidth / 2, y: window.innerHeight / 2 };
+    const dot = { x: pos.x, y: pos.y };
+    const circle = { x: pos.x, y: pos.y };
     let rafId: number;
 
     const lerp = (start: number, end: number, factor: number) =>
@@ -46,6 +46,10 @@ const CustomCursor: FC = () => {
         "a, button, input, select, textarea, [data-cursor-clickable], [role='button']",
       );
       setIsHovering(!!interactive);
+
+      // Reinicia o loop se ele tiver parado
+      cancelAnimationFrame(rafId);
+      rafId = requestAnimationFrame(animate);
     };
 
     const handleMouseLeave = () => {
@@ -72,7 +76,13 @@ const CustomCursor: FC = () => {
       if (outer)
         outer.style.transform = `translate3d(${circle.x}px, ${circle.y}px, 0)`;
 
-      rafId = requestAnimationFrame(animate);
+      const deltaX = Math.abs(pos.x - circle.x);
+      const deltaY = Math.abs(pos.y - circle.y);
+
+      // Só continua o loop se ainda houver movimento visível
+      if (deltaX > 0.1 || deltaY > 0.1) {
+        rafId = requestAnimationFrame(animate);
+      }
     };
 
     window.addEventListener("mousemove", handleMouseMove, { passive: true });

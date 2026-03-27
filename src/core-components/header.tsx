@@ -66,11 +66,10 @@ export default function Header({ className, ...props }: HeaderProps) {
   return (
     <>
       <motion.div
-        layout
-        initial={false}
         animate={scrolled ? "floating" : "default"}
         style={{
           paddingRight: scrollbarWidth,
+          willChange: "transform, top, width, border-radius, background-color",
         }}
         variants={{
           default: { top: 0, width: "100%", maxWidth: "1400px" },

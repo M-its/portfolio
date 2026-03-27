@@ -78,6 +78,8 @@ export default function TechCard({ tech, size, className }: TechCardProps) {
           "--mouse-y": "-9999px",
           "--mouse-opacity": "0",
           transition: "background-color 0.3s ease-in-out",
+          willChange: "transform, background-color, border-color",
+          contain: "layout style paint",
         } as React.CSSProperties
       }
     >

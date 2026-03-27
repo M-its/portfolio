@@ -15,31 +15,39 @@ interface AnimatedSectionProps {
   animateOnMount?: boolean;
   repeatOnView?: boolean;
   as?: keyof typeof motion;
+  style?: React.CSSProperties;
 }
 
 export const animationVariants: Record<string, Variants> = {
+  fadeIn: {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: { duration: 0.4, ease: "easeOut" },
+    },
+  },
   fadeUp: {
-    hidden: { opacity: 0, y: 30 },
+    hidden: { opacity: 0, y: 20 },
     visible: {
       opacity: 1,
       y: 0,
-      transition: { duration: 0.3, ease: "easeOut" },
+      transition: { duration: 0.4, ease: "easeOut" },
     },
   },
   fadeDown: {
-    hidden: { opacity: 0, y: -30 },
+    hidden: { opacity: 0, y: -20 },
     visible: {
       opacity: 1,
       y: 0,
-      transition: { duration: 0.3, ease: "easeOut" },
+      transition: { duration: 0.4, ease: "easeOut" },
     },
   },
   blur: {
-    hidden: { opacity: 0, filter: "blur(10px)" },
+    hidden: { opacity: 0, filter: "blur(8px)" },
     visible: {
       opacity: 1,
       filter: "blur(0px)",
-      transition: { duration: 0.4, ease: "easeOut" },
+      transition: { duration: 0.5, ease: "easeOut" },
     },
   },
 };
@@ -71,6 +79,7 @@ export default function AnimatedSection({
   animateOnMount = false,
   repeatOnView = true,
   as = "section",
+  style = {},
 }: AnimatedSectionProps) {
   const Component = motion[as] as React.ElementType;
   const mergedVariants = mergeVariantsWithDelay(variants, delay);
@@ -105,7 +114,16 @@ export default function AnimatedSection({
       };
 
   return (
-    <Component id={id} className={className} ref={ref} {...animationProps}>
+    <Component
+      id={id}
+      className={className}
+      ref={ref}
+      {...animationProps}
+      style={{
+        ...style,
+        willChange: "opacity, transform",
+      }}
+    >
       {children}
     </Component>
   );
