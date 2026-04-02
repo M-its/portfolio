@@ -119,10 +119,7 @@ export default function AnimatedSection({
       className={className}
       ref={ref}
       {...animationProps}
-      style={{
-        ...style,
-        willChange: "opacity, transform",
-      }}
+      style={style}
     >
       {children}
     </Component>

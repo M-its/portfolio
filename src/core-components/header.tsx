@@ -66,6 +66,7 @@ export default function Header({ className, ...props }: HeaderProps) {
   return (
     <>
       <motion.div
+        initial="default"
         animate={scrolled ? "floating" : "default"}
         style={{
           paddingRight: scrollbarWidth,

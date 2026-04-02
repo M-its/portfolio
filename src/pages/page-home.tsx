@@ -84,6 +84,7 @@ export default function PageHome() {
                     as="a"
                     target="_blank"
                     rel="noopener noreferrer"
+                    aria-label={`Acessar meu ${label}`}
                     {...buttonConfig}
                     {...linkProps}
                   >

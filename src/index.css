@@ -128,7 +128,7 @@
   }
 
   .tech-swiper .swiper-slide:hover svg {
-    will-change: filter, transform;
+    /* Removed will-change to avoid surface area limits */
   }
 
   .tech-swiper .swiper-pagination {

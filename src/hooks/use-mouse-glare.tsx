@@ -9,7 +9,7 @@ import {
 } from "react";
 import useMediaQuery from "./use-media-query";
 
-type MouseHandler = (x: number, y: number) => void;
+type MouseHandler = (x: number, y: number) => void | (() => void);
 
 interface MouseGlareContextType {
   register: (handler: MouseHandler) => void;
@@ -49,8 +49,13 @@ export function MouseGlareProvider({ children }: { children: ReactNode }) {
     let frameId: number;
 
     const update = () => {
+      const writes: (() => void)[] = [];
       for (const handler of handlers.current) {
-        handler(lastX, lastY);
+        const writeFn = handler(lastX, lastY);
+        if (writeFn) writes.push(writeFn);
+      }
+      for (const write of writes) {
+        write();
       }
       ticking = false;
     };
@@ -130,11 +135,15 @@ export default function useMouseGlare<T extends HTMLElement>(
       const proximity = Math.max(0, 1 - distance / margin);
 
       if (proximity > 0) {
-        element.style.setProperty("--mouse-x", `${x}px`);
-        element.style.setProperty("--mouse-y", `${y}px`);
-        element.style.setProperty("--mouse-opacity", proximity.toFixed(2));
+        return () => {
+          element.style.setProperty("--mouse-x", `${x}px`);
+          element.style.setProperty("--mouse-y", `${y}px`);
+          element.style.setProperty("--mouse-opacity", proximity.toFixed(2));
+        };
       } else {
-        element.style.setProperty("--mouse-opacity", "0");
+        return () => {
+          element.style.setProperty("--mouse-opacity", "0");
+        };
       }
     };
 

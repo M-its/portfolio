@@ -9,7 +9,7 @@ export default function AboutContainer() {
         className="text-xl lg:text-2xl font-semibold tracking-tight leading-snug"
       >
         Resolvendo problemas complexos <br />
-        <span className="text-text-primary/60 italic font-light">
+        <span className="text-text-primary/80 italic font-light">
           com codigo elegante e escalavel.
         </span>
       </Text>

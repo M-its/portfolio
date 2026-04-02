@@ -86,7 +86,6 @@ export default function ProjectCard({
           "--mouse-x": "-9999px",
           "--mouse-y": "-9999px",
           "--mouse-opacity": "0",
-          willChange: "transform",
         } as React.CSSProperties
       }
     >
@@ -135,6 +134,8 @@ export default function ProjectCard({
                   className="project-card-img w-full object-cover object-top transition-transform duration-700 group-hover:scale-105"
                   loading="lazy"
                   decoding="async"
+                  width="1280"
+                  height="720"
                 />
               </div>
             </div>
