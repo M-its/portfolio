@@ -33,37 +33,13 @@ const CustomCursor: FC = () => {
     const dot = { x: pos.x, y: pos.y };
     const circle = { x: pos.x, y: pos.y };
     let rafId: number;
+    let isHidden = false;
+    let isAnimating = true;
+    let lastTarget: Element | null = null;
+    let lastHoverState = false;
 
     const lerp = (start: number, end: number, factor: number) =>
       start + (end - start) * factor;
-
-    const handleMouseMove = (e: MouseEvent) => {
-      pos.x = e.clientX;
-      pos.y = e.clientY;
-
-      const target = e.target as Element;
-      const interactive = target.closest(
-        "a, button, input, select, textarea, [data-cursor-clickable], [role='button']",
-      );
-      setIsHovering(!!interactive);
-
-      // Reinicia o loop se ele tiver parado
-      cancelAnimationFrame(rafId);
-      rafId = requestAnimationFrame(animate);
-    };
-
-    const handleMouseLeave = () => {
-      if (inner) inner.style.opacity = "0";
-      if (outer) outer.style.opacity = "0";
-    };
-
-    const handleMouseEnter = () => {
-      if (inner) inner.style.opacity = "1";
-      if (outer) outer.style.opacity = "1";
-    };
-
-    const handleMouseDown = () => setIsClicked(true);
-    const handleMouseUp = () => setIsClicked(false);
 
     const animate = () => {
       dot.x = lerp(dot.x, pos.x, 0.3);
@@ -82,13 +58,69 @@ const CustomCursor: FC = () => {
       // Só continua o loop se ainda houver movimento visível
       if (deltaX > 0.1 || deltaY > 0.1) {
         rafId = requestAnimationFrame(animate);
+      } else {
+        isAnimating = false;
       }
     };
+
+    const handleMouseMove = (e: MouseEvent) => {
+      // Força a exibição do cursor caso ele tenha sido ocultado pelo mouseleave/mouseout
+      if (isHidden) {
+        isHidden = false;
+        if (inner) inner.style.opacity = "1";
+        if (outer) outer.style.opacity = "1";
+      }
+
+      pos.x = e.clientX;
+      pos.y = e.clientY;
+
+      const target = e.target as Element;
+      // Cache de alvo minimiza chamadas caras de reflow/DOM parsing nos cards
+      if (target !== lastTarget) {
+        lastTarget = target;
+        const interactive = !!target.closest(
+          "a, button, input, select, textarea, [data-cursor-clickable], [role='button']",
+        );
+        
+        if (interactive !== lastHoverState) {
+          lastHoverState = interactive;
+          setIsHovering(interactive);
+        }
+      }
+
+      // Reinicia o loop de animação de forma segura sem cancelar frames em andamento
+      if (!isAnimating) {
+        isAnimating = true;
+        rafId = requestAnimationFrame(animate);
+      }
+    };
+
+    const handleMouseLeave = (e: Event) => {
+      // No Firefox, "mouseout" com relatedTarget nulo indica que o mouse saiu da janela.
+      if (
+        e.type === "mouseleave" ||
+        (e.type === "mouseout" && (e as MouseEvent).relatedTarget === null)
+      ) {
+        isHidden = true;
+        if (inner) inner.style.opacity = "0";
+        if (outer) outer.style.opacity = "0";
+      }
+    };
+
+    const handleMouseEnter = () => {
+      isHidden = false;
+      if (inner) inner.style.opacity = "1";
+      if (outer) outer.style.opacity = "1";
+    };
+
+    const handleMouseDown = () => setIsClicked(true);
+    const handleMouseUp = () => setIsClicked(false);
 
     window.addEventListener("mousemove", handleMouseMove, { passive: true });
     window.addEventListener("mousedown", handleMouseDown);
     window.addEventListener("mouseup", handleMouseUp);
     document.addEventListener("mouseleave", handleMouseLeave);
+    document.addEventListener("mouseout", handleMouseLeave);
     document.addEventListener("mouseenter", handleMouseEnter);
     rafId = requestAnimationFrame(animate);
 
@@ -97,6 +129,7 @@ const CustomCursor: FC = () => {
       window.removeEventListener("mousedown", handleMouseDown);
       window.removeEventListener("mouseup", handleMouseUp);
       document.removeEventListener("mouseleave", handleMouseLeave);
+      document.removeEventListener("mouseout", handleMouseLeave);
       document.removeEventListener("mouseenter", handleMouseEnter);
       cancelAnimationFrame(rafId);
     };

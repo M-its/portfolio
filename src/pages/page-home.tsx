@@ -7,7 +7,7 @@ import ScrollIndicator from "../components/scroll-indicator";
 import useScrollToSection from "../hooks/use-scroll-to-section.ts";
 import useMediaQuery from "../hooks/use-media-query.ts";
 import { motion, type Variants } from "framer-motion";
-import AnimatedSection from "../components/animated-section.tsx";
+import AnimatedSection, { animationVariants } from "../components/animated-section.tsx";
 import { useEffect } from "react";
 import { techs } from "../data/techs.ts";
 import { BUTTON_CONFIG, SOCIAL_LINKS } from "../data/constants.ts";
@@ -114,7 +114,7 @@ export default function PageHome() {
         <ScrollIndicator onClick={() => scrollToSection("projects")} />
       </AnimatedSection>
 
-      <AnimatedSection id="projects">
+      <AnimatedSection id="projects" variants={animationVariants.fadeUp}>
         <Suspense fallback={<div className="min-h-[600px]" />}>
           <ProjectsContainer />
         </Suspense>
