@@ -96,6 +96,9 @@ importers:
       vite:
         specifier: ^7.1.2
         version: 7.2.2(jiti@2.6.1)(lightningcss@1.30.2)
+      vite-plugin-css-injected-by-js:
+        specifier: ^4.0.1
+        version: 4.0.1(vite@7.2.2(jiti@2.6.1)(lightningcss@1.30.2))
       vite-plugin-image-optimizer:
         specifier: ^2.0.3
         version: 2.0.3(sharp@0.34.5)(svgo@4.0.1)(vite@7.2.2(jiti@2.6.1)(lightningcss@1.30.2))
@@ -2016,6 +2019,11 @@ packages:
   uri-js@4.4.1:
     resolution: {integrity: sha512-7rKUyy33Q1yc98pQ1DAmLtwX109F7TIfWlW1Ydo8Wl1ii1SeHieeh0HHfPeL2fMXK6z0s8ecKs9frCuLJvndBg==}
 
+  vite-plugin-css-injected-by-js@4.0.1:
+    resolution: {integrity: sha512-WfyRojojQyAO/KzWf+efcXpTPv6zJPXaRmr9EYq5a4v5I3PWCR7kR01hiri2lW6+rHm3a57kpwsf+iahIJi1Qw==}
+    peerDependencies:
+      vite: '>2.0.0-0'
+
   vite-plugin-image-optimizer@2.0.3:
     resolution: {integrity: sha512-1vrFOTcpSvv6DCY7h8UXab4wqMAjTJB/ndOzG/Kmj1oDOuPF6mbjkNQoGzzCEYeWGe7qU93jc8oQqvoJ57al3A==}
     engines: {node: '>=18.17.0'}
@@ -3751,6 +3759,10 @@ snapshots:
   uri-js@4.4.1:
     dependencies:
       punycode: 2.3.1
+
+  vite-plugin-css-injected-by-js@4.0.1(vite@7.2.2(jiti@2.6.1)(lightningcss@1.30.2)):
+    dependencies:
+      vite: 7.2.2(jiti@2.6.1)(lightningcss@1.30.2)
 
   vite-plugin-image-optimizer@2.0.3(sharp@0.34.5)(svgo@4.0.1)(vite@7.2.2(jiti@2.6.1)(lightningcss@1.30.2)):
     dependencies:
