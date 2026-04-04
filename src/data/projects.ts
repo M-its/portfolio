@@ -14,8 +14,7 @@ export const projectsBase: ProjectData[] = [
     name: "Food Explorer",
     description:
       "Uma aplicação de ponta a ponta com front-end e back-end, utilizando as teconologias aprendidas no Explorer, simulando um restaurante.",
-    image:
-      "https://raw.githubusercontent.com/M-its/food-explorer-web/refs/heads/main/src/assets/home.png",
+    image: "/images/food-explorer-screenshot.png",
     github_repo: "https://github.com/M-its/food-explorer-web",
     homepage: "https://mits-food-explorer-web.netlify.app/",
     languages: [
@@ -56,10 +55,9 @@ export const projectsBase: ProjectData[] = [
     name: "Weather App",
     description:
       "Simple weather app inspired by florinpop17 app-ideas repository to pratice coding.",
+    image: "/images/weather-app-screenshot.png",
     github_repo: "https://github.com/M-its/weather-appJS",
     homepage: "https://wheather-app-mauve.vercel.app/",
-    image:
-      "https://raw.githubusercontent.com/M-its/weather-appJS/refs/heads/main/weather.png",
     languages: ["JavaScript", "HTML", "CSS", "Custom Router", "Tailwind"],
   },
   {
@@ -67,10 +65,9 @@ export const projectsBase: ProjectData[] = [
     name: "Rocket Movies",
     description:
       "Front-end da aplicação RocketMovies para o curso da RocketSeat.",
+    image: "/images/rocketmovies-screenshot.png",
     github_repo: "https://github.com/M-its/RocketMovies",
     homepage: "https://mits-rocketmovies.netlify.app/",
-    image:
-      "https://raw.githubusercontent.com/M-its/RocketMovies/refs/heads/main/src/assets/home.png",
     languages: [
       "React",
       "Vite",

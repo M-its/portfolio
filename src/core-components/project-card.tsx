@@ -1,4 +1,4 @@
-import { useRef } from "react";
+import { useRef, useState, useEffect } from "react";
 import { tv, type VariantProps } from "tailwind-variants";
 import Button from "../components/button";
 import Card, { type cardVariants } from "../components/card";
@@ -65,6 +65,27 @@ export default function ProjectCard({
 }: ProjectCardProps) {
   const { isDark } = useTheme();
   const cardRef = useRef<HTMLDivElement>(null);
+  const textRef = useRef<HTMLElement>(null);
+  const [isExpanded, setIsExpanded] = useState(false);
+  const [isClamped, setIsClamped] = useState(false);
+
+  useEffect(() => {
+    const checkClamp = () => {
+      const el = textRef.current;
+      if (el) {
+        setIsClamped(el.scrollHeight > el.clientHeight);
+      }
+    };
+    
+    // Pequeno atraso para garantir que a renderização inicial aconteceu e as fontes etc foram carregadas
+    const timeout = setTimeout(checkClamp, 100);
+    window.addEventListener("resize", checkClamp);
+    return () => {
+      clearTimeout(timeout);
+      window.removeEventListener("resize", checkClamp);
+    };
+  }, [description, isExpanded]);
+
   useMouseGlare(cardRef);
 
   const {
@@ -127,11 +148,11 @@ export default function ProjectCard({
 
           <div className="project-card-body flex flex-col gap-3.5 flex-1">
             <div className="project-card-image w-full">
-              <div className="relative overflow-hidden rounded-md border border-btn-primary-bg-hover/30">
+              <div className="relative overflow-hidden rounded-md border border-btn-primary-bg-hover/30 aspect-video">
                 <img
                   src={image}
                   alt={`Capa do projeto ${repository}`}
-                  className="project-card-img w-full object-cover object-top transition-transform duration-700 group-hover:scale-105"
+                  className="project-card-img w-full h-full object-cover object-top transition-transform duration-700 group-hover:scale-105"
                   loading="lazy"
                   decoding="async"
                   width="1280"
@@ -142,12 +163,30 @@ export default function ProjectCard({
 
             <div className="project-card-content flex flex-col gap-3 sm:gap-4 min-w-0 w-full h-full">
               <div className="flex flex-col gap-5">
-                <Text
-                  variant="paragraph-card"
-                  className="project-card-description line-clamp-2 h-14"
-                >
-                  {description}
-                </Text>
+                <div className="flex flex-col items-start gap-1">
+                  <Text
+                    ref={textRef}
+                    as="p"
+                    variant="paragraph-card"
+                    className={`project-card-description ${
+                      isExpanded ? "" : "line-clamp-3 h-20"
+                    } transition-all duration-300`}
+                  >
+                    {description}
+                  </Text>
+                  {(isClamped || isExpanded) && (
+                    <button
+                      onClick={(e) => {
+                        e.preventDefault();
+                        setIsExpanded(!isExpanded);
+                      }}
+                      className="project-card-read-more text-xs font-semibold opacity-60 hover:opacity-100 transition-opacity cursor-pointer mt-1"
+                      aria-expanded={isExpanded}
+                    >
+                      {isExpanded ? "Menos" : "Ler mais"}
+                    </button>
+                  )}
+                </div>
 
                 <TagsList
                   tags={languages}
