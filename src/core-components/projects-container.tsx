@@ -1,8 +1,7 @@
 import { motion, type Variants } from "framer-motion";
 import type React from "react";
-import useProjects from "../hooks/use-projects";
+import { projectsBase } from "../data/projects";
 import ProjectCard from "./project-card";
-import ProjectCardSkeleton from "./project-card-skeleton";
 import AnimatedSection from "../components/animated-section";
 import Text from "../components/text";
 
@@ -36,12 +35,6 @@ const cardVariants: Variants = {
   },
 };
 
-const SKELETON_COUNT = 4;
-const SKELETON_IDS = Array.from(
-  { length: SKELETON_COUNT },
-  (_, i) => `skeleton-${i}`,
-);
-
 export default function ProjectsContainer({
   staggerDelay = 0.3,
   cardAnimationDuration = 0.5,
@@ -49,8 +42,6 @@ export default function ProjectsContainer({
   className,
   ...props
 }: ProjectsContainerProps) {
-  const { projects, loading } = useProjects();
-
   const customContainerVariants: Variants = {
     ...containerVariants,
     visible: {
@@ -98,35 +89,25 @@ export default function ProjectsContainer({
         initial="hidden"
         animate="visible"
       >
-        {loading
-          ? SKELETON_IDS.map((id) => (
-              <motion.div
-                key={id}
-                variants={customCardVariants}
-                className="min-w-0 w-full shadow-2xl rounded-3xl"
-              >
-                <ProjectCardSkeleton />
-              </motion.div>
-            ))
-          : projects.map((project) => (
-              <motion.div
-                key={project.repository}
-                initial="hidden"
-                animate="visible"
-                variants={customCardVariants}
-                className="min-w-0 w-full shadow-2xl rounded-3xl"
-              >
-                <ProjectCard
-                  repository={project.repository}
-                  name={project.name}
-                  description={project.description || "Sem descrição"}
-                  image={project.image}
-                  languages={project.languages}
-                  github_repo={project.github_repo}
-                  homepage={project.homepage}
-                />
-              </motion.div>
-            ))}
+        {projectsBase.map((project) => (
+          <motion.div
+            key={project.repository}
+            initial="hidden"
+            animate="visible"
+            variants={customCardVariants}
+            className="min-w-0 w-full shadow-2xl rounded-3xl"
+          >
+            <ProjectCard
+              repository={project.repository}
+              name={project.name}
+              description={project.description || "Sem descrição"}
+              image={project.image}
+              languages={project.languages}
+              github_repo={project.github_repo}
+              homepage={project.homepage}
+            />
+          </motion.div>
+        ))}
       </motion.div>
     </div>
   );

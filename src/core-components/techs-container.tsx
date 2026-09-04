@@ -1,13 +1,17 @@
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Pagination, Autoplay } from "swiper/modules";
+import type { Swiper as SwiperInstance } from "swiper";
 import "swiper/css";
 import "swiper/css/pagination";
+import { useEffect, useRef, useState } from "react";
 
 import TechCard from "./tech-card";
 import Text from "../components/text";
 import type { techs as techsData } from "../data/techs";
 import AnimatedSection from "../components/animated-section";
 import { useTheme } from "../contexts/theme-context";
+import useMediaQuery from "../hooks/use-media-query";
+import { useOnScreen } from "../hooks/use-on-screen";
 
 const CATEGORIES = [
   {
@@ -31,11 +35,41 @@ type TechItem = (typeof techsData)[0];
 
 export default function TechsContainer({ techs }: { techs: TechItem[] }) {
   const { isDark } = useTheme();
+  const prefersReducedMotion = useMediaQuery(
+    "(prefers-reduced-motion: reduce)",
+  );
+  const [containerRef, isInView] = useOnScreen({
+    threshold: 0.1,
+    rootMargin: "100px",
+    triggerOnce: false,
+  });
+  const [isDocumentVisible, setIsDocumentVisible] = useState(
+    () => document.visibilityState === "visible",
+  );
+  const swiperRef = useRef<SwiperInstance | null>(null);
+  const shouldAutoplay = isInView && isDocumentVisible && !prefersReducedMotion;
+
+  useEffect(() => {
+    const handleVisibilityChange = () =>
+      setIsDocumentVisible(document.visibilityState === "visible");
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    return () =>
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+  }, []);
+
+  useEffect(() => {
+    const swiper = swiperRef.current;
+    if (!swiper?.autoplay) return;
+
+    if (shouldAutoplay) swiper.autoplay.start();
+    else swiper.autoplay.stop();
+  }, [shouldAutoplay]);
+
   const getTechs = (keys: string[]) =>
     techs.filter((t) => keys.includes(t.name));
 
   return (
-    <div className="w-full min-w-0 h-full flex flex-col">
+    <div ref={containerRef} className="w-full min-w-0 h-full flex flex-col">
       <AnimatedSection className="lg:hidden">
         <div className="flex items-center gap-4 opacity-70 mb-10">
           <Text as="span" className="text-[13px] font-black tracking-[0.4em]">
@@ -58,6 +92,10 @@ export default function TechsContainer({ techs }: { techs: TechItem[] }) {
         <div className="p-8 rounded-3xl overflow-hidden h-full">
           <Swiper
             modules={[Pagination, Autoplay]}
+            onSwiper={(swiper) => {
+              swiperRef.current = swiper;
+              if (!shouldAutoplay) swiper.autoplay.stop();
+            }}
             spaceBetween={20}
             slidesPerView={1}
             autoplay={{

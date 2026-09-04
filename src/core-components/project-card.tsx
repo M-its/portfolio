@@ -76,7 +76,7 @@ export default function ProjectCard({
         setIsClamped(el.scrollHeight > el.clientHeight);
       }
     };
-    
+
     // Pequeno atraso para garantir que a renderização inicial aconteceu e as fontes etc foram carregadas
     const timeout = setTimeout(checkClamp, 100);
     window.addEventListener("resize", checkClamp);
@@ -97,6 +97,9 @@ export default function ProjectCard({
     revealGlare,
     content,
   } = projectCardVariants({ isDark });
+  const optimizedImageBase = image.endsWith(".png")
+    ? image.slice(0, -".png".length)
+    : null;
 
   return (
     <div
@@ -149,15 +152,24 @@ export default function ProjectCard({
           <div className="project-card-body flex flex-col gap-3.5 flex-1">
             <div className="project-card-image w-full">
               <div className="relative overflow-hidden rounded-md border border-btn-primary-bg-hover/30 aspect-video">
-                <img
-                  src={image}
-                  alt={`Capa do projeto ${repository}`}
-                  className="project-card-img w-full h-full object-cover object-top transition-transform duration-700 group-hover:scale-105"
-                  loading="lazy"
-                  decoding="async"
-                  width="1280"
-                  height="720"
-                />
+                <picture className="block h-full w-full">
+                  {optimizedImageBase && (
+                    <source
+                      type="image/webp"
+                      srcSet={`${optimizedImageBase}-640.webp 640w, ${optimizedImageBase}-1280.webp 1280w`}
+                      sizes="(min-width: 1120px) 40vw, (min-width: 640px) 45vw, 100vw"
+                    />
+                  )}
+                  <img
+                    src={image}
+                    alt={`Capa do projeto ${repository}`}
+                    className="project-card-img block w-full h-full object-cover object-top transition-transform duration-700 group-hover:scale-105"
+                    loading="lazy"
+                    decoding="async"
+                    width="1280"
+                    height="720"
+                  />
+                </picture>
               </div>
             </div>
 

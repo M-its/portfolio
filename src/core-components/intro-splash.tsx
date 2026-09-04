@@ -1,4 +1,4 @@
-import { memo, useEffect, useRef } from "react";
+import { memo, useCallback, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import Icon from "../components/icon";
 import LogoIcon from "../assets/images/logo-plain.svg?react";
@@ -34,9 +34,14 @@ const Particles = memo(() => {
       phase: Math.random() * Math.PI * 2,
     }));
 
-    let rafId: number;
+    let rafId: number | null = null;
 
     const draw = () => {
+      if (document.visibilityState !== "visible") {
+        rafId = null;
+        return;
+      }
+
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
       for (const p of particles) {
@@ -58,11 +63,28 @@ const Particles = memo(() => {
       rafId = requestAnimationFrame(draw);
     };
 
-    rafId = requestAnimationFrame(draw);
+    const start = () => {
+      if (rafId === null && document.visibilityState === "visible") {
+        rafId = requestAnimationFrame(draw);
+      }
+    };
+
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === "visible") {
+        start();
+      } else if (rafId !== null) {
+        cancelAnimationFrame(rafId);
+        rafId = null;
+      }
+    };
+
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    start();
 
     return () => {
-      cancelAnimationFrame(rafId);
+      if (rafId !== null) cancelAnimationFrame(rafId);
       window.removeEventListener("resize", resize);
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
     };
   }, [isMobile]);
 
@@ -175,8 +197,15 @@ interface IntroSplashProps {
 
 export default function IntroSplash({
   onFinish,
-  duration = 2,
+  duration = 0.9,
 }: IntroSplashProps) {
+  const hasFinishedRef = useRef(false);
+  const finish = useCallback(() => {
+    if (hasFinishedRef.current) return;
+    hasFinishedRef.current = true;
+    onFinish();
+  }, [onFinish]);
+
   useEffect(() => {
     document.body.style.overflow = "hidden";
     document.documentElement.style.overflow = "hidden";
@@ -187,15 +216,22 @@ export default function IntroSplash({
   }, []);
 
   useEffect(() => {
-    const timer = setTimeout(onFinish, duration * 1000);
-    return () => clearTimeout(timer);
-  }, [onFinish, duration]);
+    const timer = setTimeout(finish, duration * 1000);
+    const handleKeyDown = () => finish();
+
+    document.addEventListener("keydown", handleKeyDown);
+    return () => {
+      clearTimeout(timer);
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [duration, finish]);
 
   return (
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      exit={{ opacity: 0, transition: { duration: 0.4 } }}
+      exit={{ opacity: 0, transition: { duration: 0.2 } }}
+      onClick={finish}
       className="fixed inset-0 z-100 flex flex-col items-center justify-center bg-background overflow-hidden"
     >
       <Particles />

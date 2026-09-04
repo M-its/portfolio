@@ -10,24 +10,23 @@ export interface ProjectData {
 
 export const projectsBase: ProjectData[] = [
   {
-    repository: "food-explorer-web",
-    name: "Food Explorer",
+    repository: "taxsim",
+    name: "TaxSim",
     description:
-      "Uma aplicação de ponta a ponta com front-end e back-end, utilizando as teconologias aprendidas no Explorer, simulando um restaurante.",
-    image: "/images/food-explorer-screenshot.png",
-    github_repo: "https://github.com/M-its/food-explorer-web",
-    homepage: "https://mits-food-explorer-web.netlify.app/",
+      "SaaS fiscal multi-tenant para simular e comparar os impactos da Reforma Tributária brasileira, integrado à calculadora oficial da Receita Federal.",
+    image: "/images/taxsim-screenshot.png",
+    github_repo: "https://github.com/M-its/taxsim",
+    homepage: "https://taxsim-web.duckdns.org",
     languages: [
-      "NodeJS",
-      "ReactJS",
-      "JavaScript",
-      "Express",
-      "Knex",
-      "SQLite",
-      "Multer",
-      "styled-components",
-      "JSON Web Token",
-      "Swiper",
+      "Next.js",
+      "TypeScript",
+      "Fastify",
+      "Prisma",
+      "PostgreSQL",
+      "Zod",
+      "Docker",
+      "Caddy",
+      "Vitest",
     ],
   },
   {
@@ -51,6 +50,27 @@ export const projectsBase: ProjectData[] = [
     ],
   },
   {
+    repository: "food-explorer-web",
+    name: "Food Explorer",
+    description:
+      "Uma aplicação de ponta a ponta com front-end e back-end, utilizando as tecnologias aprendidas no Explorer, simulando um restaurante.",
+    image: "/images/food-explorer-screenshot.png",
+    github_repo: "https://github.com/M-its/food-explorer-web",
+    homepage: "https://mits-food-explorer-web.netlify.app/",
+    languages: [
+      "NodeJS",
+      "ReactJS",
+      "JavaScript",
+      "Express",
+      "Knex",
+      "SQLite",
+      "Multer",
+      "styled-components",
+      "JSON Web Token",
+      "Swiper",
+    ],
+  },
+  {
     repository: "weather-appJS",
     name: "Weather App",
     description:
@@ -59,22 +79,5 @@ export const projectsBase: ProjectData[] = [
     github_repo: "https://github.com/M-its/weather-appJS",
     homepage: "https://wheather-app-mauve.vercel.app/",
     languages: ["JavaScript", "HTML", "CSS", "Custom Router", "Tailwind"],
-  },
-  {
-    repository: "RocketMovies",
-    name: "Rocket Movies",
-    description:
-      "Front-end da aplicação RocketMovies para o curso da RocketSeat.",
-    image: "/images/rocketmovies-screenshot.png",
-    github_repo: "https://github.com/M-its/RocketMovies",
-    homepage: "https://mits-rocketmovies.netlify.app/",
-    languages: [
-      "React",
-      "Vite",
-      "React-DOM",
-      "React-icons",
-      "React-router-DOM",
-      "Styled-components",
-    ],
   },
 ];

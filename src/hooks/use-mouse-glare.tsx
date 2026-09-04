@@ -17,12 +17,25 @@ interface MouseGlareContextType {
 }
 
 const MouseGlareContext = createContext<MouseGlareContextType | null>(null);
+const REDUCED_MOTION_QUERY = "(prefers-reduced-motion: reduce)";
 
 export function MouseGlareProvider({ children }: { children: ReactNode }) {
   const handlers = useRef<Set<MouseHandler>>(new Set());
   const isMobile = useMediaQuery("(hover: none) and (pointer: coarse)");
+  const prefersReducedMotion = useMediaQuery(REDUCED_MOTION_QUERY);
   const isChromium = !!(window as unknown as { chrome: unknown }).chrome;
   const [isDevToolsOpen, setIsDevToolsOpen] = useState(false);
+  const [isDocumentVisible, setIsDocumentVisible] = useState(
+    () => document.visibilityState === "visible",
+  );
+
+  useEffect(() => {
+    const handleVisibilityChange = () =>
+      setIsDocumentVisible(document.visibilityState === "visible");
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    return () =>
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+  }, []);
 
   useEffect(() => {
     if (!isChromium) return;
@@ -41,7 +54,13 @@ export function MouseGlareProvider({ children }: { children: ReactNode }) {
   }, [isChromium]);
 
   useEffect(() => {
-    if (isMobile || (isChromium && isDevToolsOpen)) return;
+    if (
+      isMobile ||
+      prefersReducedMotion ||
+      !isDocumentVisible ||
+      (isChromium && isDevToolsOpen)
+    )
+      return;
 
     let lastX = 0;
     let lastY = 0;
@@ -79,7 +98,13 @@ export function MouseGlareProvider({ children }: { children: ReactNode }) {
       document.removeEventListener("mousemove", handleInteraction);
       cancelAnimationFrame(frameId);
     };
-  }, [isMobile, isChromium, isDevToolsOpen]);
+  }, [
+    isMobile,
+    prefersReducedMotion,
+    isDocumentVisible,
+    isChromium,
+    isDevToolsOpen,
+  ]);
 
   const register = (handler: MouseHandler) => handlers.current.add(handler);
   const unregister = (handler: MouseHandler) =>
@@ -104,23 +129,48 @@ export default function useMouseGlare<T extends HTMLElement>(
     const { register, unregister } = context;
 
     let isVisible = false;
+    let rect: {
+      left: number;
+      top: number;
+      width: number;
+      height: number;
+    } | null = null;
+
+    const updateRect = () => {
+      const element = ref.current;
+      if (!element) return;
+      const nextRect = element.getBoundingClientRect();
+      rect = {
+        left: nextRect.left + window.scrollX,
+        top: nextRect.top + window.scrollY,
+        width: nextRect.width,
+        height: nextRect.height,
+      };
+    };
 
     const observer = new IntersectionObserver(
       ([entry]) => {
         isVisible = entry.isIntersecting;
+        if (isVisible) updateRect();
       },
       { threshold: 0 },
     );
 
-    if (ref.current) observer.observe(ref.current);
+    const resizeObserver = new ResizeObserver(updateRect);
+    if (ref.current) {
+      observer.observe(ref.current);
+      resizeObserver.observe(ref.current);
+      updateRect();
+    }
+
+    window.addEventListener("resize", updateRect, { passive: true });
 
     const handleMove = (clientX: number, clientY: number) => {
       const element = ref.current;
-      if (!element || !isVisible) return;
+      if (!element || !isVisible || !rect) return;
 
-      const rect = element.getBoundingClientRect();
-      const x = clientX - rect.left;
-      const y = clientY - rect.top;
+      const x = clientX + window.scrollX - rect.left;
+      const y = clientY + window.scrollY - rect.top;
 
       const margin = 300;
       const distX = Math.max(
@@ -152,6 +202,8 @@ export default function useMouseGlare<T extends HTMLElement>(
     return () => {
       unregister(handleMove);
       observer.disconnect();
+      resizeObserver.disconnect();
+      window.removeEventListener("resize", updateRect);
     };
   }, [context, ref]);
 }

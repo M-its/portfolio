@@ -66,30 +66,21 @@ export default function Header({ className, ...props }: HeaderProps) {
   return (
     <>
       <motion.div
-        initial="default"
-        animate={scrolled ? "floating" : "default"}
+        layout
+        initial={false}
         style={{
           paddingRight: scrollbarWidth,
-          willChange: "transform, top, width, border-radius, background-color",
+          willChange: "transform",
         }}
-        variants={{
-          default: { top: 0, width: "100%", maxWidth: "1400px" },
-          floating: {
-            top: 16,
-            width: "90%",
-            maxWidth: "1200px",
-            borderRadius: "16px",
-            backgroundColor: isDark
-              ? "rgba(255,255,255,0.05)"
-              : "rgba(255,255,255,0.35)",
-            backdropFilter: "blur(15px)",
-            boxShadow: "0px 4px 30px rgba(0,0,0,0.1)",
-          },
-        }}
-        transition={{ duration: 0.4, ease: [0.25, 0.1, 0.25, 1] }}
+        transition={{ layout: { duration: 0.4, ease: [0.25, 0.1, 0.25, 1] } }}
         className={cx(
-          "fixed left-1/2 -translate-x-1/2 z-50 transition-colors duration-300",
-          scrolled ? "py-2 border" : "py-6 sm:py-8 md:py-10 border-b",
+          "fixed inset-x-0 mx-auto z-50 transition-[background-color,border-color,box-shadow,backdrop-filter] duration-300",
+          scrolled
+            ? cx(
+                "top-4 w-[90%] max-w-[1200px] rounded-2xl border py-2 backdrop-blur-[15px] shadow-[0_4px_30px_rgba(0,0,0,0.1)]",
+                isDark ? "bg-white/5" : "bg-white/35",
+              )
+            : "top-0 w-full max-w-[1400px] border-b py-6 sm:py-8 md:py-10",
           menuOpen ? "border-transparent" : "border-icon-primary/20",
         )}
       >

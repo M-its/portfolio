@@ -31,14 +31,7 @@ export default function App() {
     <>
       <AnimatePresence>
         {showIntro && (
-          <IntroSplash
-            key="intro"
-            onFinish={() => {
-              setTimeout(() => {
-                setShowIntro(false);
-              }, 800);
-            }}
-          />
+          <IntroSplash key="intro" onFinish={() => setShowIntro(false)} />
         )}
       </AnimatePresence>
 
