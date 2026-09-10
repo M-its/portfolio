@@ -1,9 +1,11 @@
+import { AnimatePresence } from "framer-motion";
 import { Suspense, lazy, useEffect, useState } from "react";
 import { Route, Routes } from "react-router-dom";
-import { AnimatePresence } from "framer-motion";
 import IntroSplash from "./core-components/intro-splash";
 import LayoutMain from "./pages/layout-main";
 import PageHome from "./pages/page-home";
+import PageProjectDetails from "./pages/page-project-details";
+import PageProjectNotFound from "./pages/page-project-not-found";
 
 const PageComponents = lazy(() => import("./pages/page-components"));
 
@@ -39,6 +41,7 @@ export default function App() {
         <Routes>
           <Route element={<LayoutMain />}>
             <Route index element={<PageHome />} />
+            <Route path="projects/:slug" element={<PageProjectDetails />} />
             <Route
               path="/components"
               element={
@@ -47,6 +50,7 @@ export default function App() {
                 </Suspense>
               }
             />
+            <Route path="*" element={<PageProjectNotFound />} />
           </Route>
         </Routes>
       </div>

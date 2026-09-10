@@ -1,17 +1,21 @@
-import { lazy, Suspense } from "react";
+import { Suspense, lazy, useEffect, useLayoutEffect } from "react";
+import { useLocation } from "react-router-dom";
 import Button from "../components/button";
 import Container from "../components/container";
-import Text from "../components/text";
 import ScrollIndicator from "../components/scroll-indicator";
+import Text from "../components/text";
 
-import useScrollToSection from "../hooks/use-scroll-to-section.ts";
-import useMediaQuery from "../hooks/use-media-query.ts";
-import { motion, type Variants } from "framer-motion";
-import AnimatedSection, { animationVariants } from "../components/animated-section.tsx";
-import { useEffect } from "react";
-import { techs } from "../data/techs.ts";
-import { BUTTON_CONFIG, SOCIAL_LINKS } from "../data/constants.ts";
+import { type Variants, motion } from "framer-motion";
+import AnimatedSection, {
+  animationVariants,
+} from "../components/animated-section.tsx";
 import AboutSection from "../core-components/about-section.tsx";
+import { BUTTON_CONFIG, SOCIAL_LINKS } from "../data/constants.ts";
+import { projectsBase } from "../data/projects.ts";
+import { preloadTechIcons, techs } from "../data/techs.ts";
+import useMediaQuery from "../hooks/use-media-query.ts";
+import { initializeHomeScroll } from "../hooks/use-project-transition.ts";
+import useScrollToSection from "../hooks/use-scroll-to-section.ts";
 
 const TechsContainer = lazy(
   () => import("../core-components/techs-container.tsx"),
@@ -38,6 +42,7 @@ const buttonVariants: Variants = {
 };
 
 export default function PageHome() {
+  const location = useLocation();
   const isMobile = useMediaQuery("(max-width: 639px)");
   const isSquished = useMediaQuery(
     "(min-width: 1024px) and (max-width: 1080px)",
@@ -46,13 +51,34 @@ export default function PageHome() {
   const buttonConfig = isCompact ? BUTTON_CONFIG.icon : BUTTON_CONFIG.button;
   const scrollToSection = useScrollToSection();
 
+  useLayoutEffect(() => {
+    // O coordenador restaura antes do paint e remove o scroll global — bugs #2 e #3.
+    return initializeHomeScroll(location.hash);
+  }, [location.hash]);
+
   useEffect(() => {
-    window.scrollTo(0, 0);
-    document.documentElement.style.scrollBehavior = "auto";
-    const timer = setTimeout(() => {
-      document.documentElement.style.scrollBehavior = "smooth";
-    }, 100);
-    return () => clearTimeout(timer);
+    const preloadNonCriticalAssets = () => {
+      void preloadTechIcons();
+
+      for (const project of projectsBase) {
+        const image = new Image();
+        image.decoding = "async";
+        image.src = project.image.endsWith(".png")
+          ? `${project.image.slice(0, -4)}-640.webp`
+          : project.image;
+        void image.decode().catch(() => undefined);
+      }
+    };
+
+    if ("requestIdleCallback" in window) {
+      const idleId = window.requestIdleCallback(preloadNonCriticalAssets, {
+        timeout: 1800,
+      });
+      return () => window.cancelIdleCallback(idleId);
+    }
+
+    const timeoutId = globalThis.setTimeout(preloadNonCriticalAssets, 1000);
+    return () => globalThis.clearTimeout(timeoutId);
   }, []);
 
   return (

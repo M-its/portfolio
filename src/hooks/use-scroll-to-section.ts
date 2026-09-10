@@ -1,6 +1,9 @@
 import { useCallback } from "react";
+import { useNavigate } from "react-router-dom";
 
 export default function useScrollToSection(offset = -120) {
+  const navigate = useNavigate();
+
   const scrollToSection = useCallback(
     (sectionId: string) => {
       const element = document.getElementById(sectionId);
@@ -13,9 +16,11 @@ export default function useScrollToSection(offset = -120) {
           top: offsetPosition,
           behavior: "smooth",
         });
+      } else {
+        navigate(`/#${sectionId}`);
       }
     },
-    [offset],
+    [navigate, offset],
   );
 
   return scrollToSection;

@@ -1,14 +1,17 @@
-import { useRef, useState, useEffect } from "react";
-import { tv, type VariantProps } from "tailwind-variants";
-import Button from "../components/button";
-import Card, { type cardVariants } from "../components/card";
-import Divider from "../components/divider";
-import Text from "../components/text";
-import TagsList from "./tags-list";
-import useMouseGlare from "../hooks/use-mouse-glare";
+import { useRef } from "react";
+import { Link } from "react-router-dom";
+import { type VariantProps, tv } from "tailwind-variants";
+import FileTextIcon from "../assets/icons/file-text.svg?react";
 import GitHubIcon from "../assets/icons/github.svg?react";
 import GlobeIcon from "../assets/icons/globe.svg?react";
+import Button from "../components/button";
+import Card, { type cardVariants } from "../components/card";
+import Text from "../components/text";
 import { useTheme } from "../contexts/theme-context";
+import type { ProjectData } from "../data/projects";
+import useMouseGlare from "../hooks/use-mouse-glare";
+import useProjectTransition from "../hooks/use-project-transition";
+import TagsList from "./tags-list";
 
 const projectCardVariants = tv({
   slots: {
@@ -16,23 +19,21 @@ const projectCardVariants = tv({
     wrapper:
       "relative group h-full w-full rounded-3xl overflow-hidden transition-all duration-500 ease-out hover:scale-[1.01]",
     baseBorder:
-      "absolute inset-0 rounded-3xl pointer-events-none z-1 border border-white/5",
+      "absolute inset-px rounded-[calc(1.5rem-1px)] pointer-events-none z-20 border border-card-border/50",
     revealWrapper:
-      "absolute inset-0 rounded-3xl pointer-events-none z-2 transition-opacity duration-300",
+      "absolute inset-px rounded-[calc(1.5rem-1px)] pointer-events-none z-30 transition-opacity duration-300",
     revealBorder: "absolute inset-0 rounded-3xl border-[1.5px] border-white/30",
     revealGlare: "absolute inset-0 bg-white/3",
     content:
-      "relative z-10 bg-transparent border-0 p-6 flex flex-col gap-4 w-full h-full",
+      "relative z-10 bg-transparent border-0 p-5 flex flex-col gap-4 w-full h-full",
   },
   variants: {
     isDark: {
       true: {
         wrapper: "bg-white/2 backdrop-blur-md hover:bg-white/4",
-        baseBorder: "border-btn-primary-bg-hover",
       },
       false: {
         wrapper: "bg-white/50 backdrop-blur-md hover:bg-white/80",
-        baseBorder: "border-btn-primary-bg-hover/50",
       },
     },
   },
@@ -41,50 +42,20 @@ const projectCardVariants = tv({
 interface ProjectCardProps
   extends VariantProps<typeof cardVariants>,
     React.ComponentProps<typeof Card> {
-  repository: string;
-  name: string;
-  image: string;
-  description: string;
-  github_repo: string;
-  homepage: string;
-  languages: string[];
+  project: ProjectData;
 }
 
 export default function ProjectCard({
   size,
   variant,
-  repository,
-  name,
-  image,
-  description,
-  github_repo,
-  homepage,
-  languages,
+  project,
   className,
   ...props
 }: ProjectCardProps) {
   const { isDark } = useTheme();
   const cardRef = useRef<HTMLDivElement>(null);
-  const textRef = useRef<HTMLElement>(null);
-  const [isExpanded, setIsExpanded] = useState(false);
-  const [isClamped, setIsClamped] = useState(false);
-
-  useEffect(() => {
-    const checkClamp = () => {
-      const el = textRef.current;
-      if (el) {
-        setIsClamped(el.scrollHeight > el.clientHeight);
-      }
-    };
-
-    // Pequeno atraso para garantir que a renderização inicial aconteceu e as fontes etc foram carregadas
-    const timeout = setTimeout(checkClamp, 100);
-    window.addEventListener("resize", checkClamp);
-    return () => {
-      clearTimeout(timeout);
-      window.removeEventListener("resize", checkClamp);
-    };
-  }, [description, isExpanded]);
+  const imageFrameRef = useRef<HTMLDivElement>(null);
+  const handleProjectNavigation = useProjectTransition(imageFrameRef);
 
   useMouseGlare(cardRef);
 
@@ -97,8 +68,8 @@ export default function ProjectCard({
     revealGlare,
     content,
   } = projectCardVariants({ isDark });
-  const optimizedImageBase = image.endsWith(".png")
-    ? image.slice(0, -".png".length)
+  const optimizedImageBase = project.image.endsWith(".png")
+    ? project.image.slice(0, -".png".length)
     : null;
 
   return (
@@ -113,7 +84,8 @@ export default function ProjectCard({
         } as React.CSSProperties
       }
     >
-      <div className={`${wrapper()} ${className ?? ""}`}>
+      {/* A classe project-card permite congelar o hover antes do snapshot — bug #4. */}
+      <div className={`project-card ${wrapper()} ${className ?? ""}`}>
         <div className={baseBorder()} />
 
         {isDark && (
@@ -133,88 +105,91 @@ export default function ProjectCard({
         )}
 
         <Card {...props} className={content()}>
-          <div className="flex justify-between items-start w-full">
-            <Button
-              mode="text"
-              size="lg"
-              align="left"
-              className="project-card-title capitalize"
-              as="a"
-              target="_blank"
-              rel="noopener noreferrer"
-              href={homepage}
-              aria-label={`Visitar o site do projeto ${name} (abre em nova aba)`}
+          <div className="project-card-header flex items-center justify-between gap-4 w-full">
+            <Text
+              as="h3"
+              variant="heading-section"
+              className="project-card-title capitalize font-medium tracking-wider"
             >
-              {name}
-            </Button>
+              {project.name}
+            </Text>
+            <Button
+              mode="icon"
+              size="md"
+              as={Link}
+              to={`/projects/${project.slug}`}
+              onClick={(event) =>
+                handleProjectNavigation(event, `/projects/${project.slug}`)
+              }
+              icon={FileTextIcon}
+              variant="outline"
+              title={`Ver estudo de caso de ${project.name}`}
+              aria-label={`Ver estudo de caso do projeto ${project.name}`}
+              className="project-card-case-link rounded-md border border-current/20 bg-white/3 p-1 text-text-primary opacity-65 hover:opacity-100 hover:scale-105"
+            />
           </div>
 
-          <div className="project-card-body flex flex-col gap-3.5 flex-1">
+          <div className="project-card-body flex flex-col gap-4 flex-1 min-h-0">
             <div className="project-card-image w-full">
-              <div className="relative overflow-hidden rounded-md border border-btn-primary-bg-hover/30 aspect-video">
-                <picture className="block h-full w-full">
-                  {optimizedImageBase && (
-                    <source
-                      type="image/webp"
-                      srcSet={`${optimizedImageBase}-640.webp 640w, ${optimizedImageBase}-1280.webp 1280w`}
-                      sizes="(min-width: 1120px) 40vw, (min-width: 640px) 45vw, 100vw"
+              <div
+                ref={imageFrameRef}
+                className="project-card-image-frame relative overflow-hidden rounded-md border border-btn-primary-bg-hover/30 aspect-video"
+              >
+                <Link
+                  to={`/projects/${project.slug}`}
+                  onClick={(event) =>
+                    handleProjectNavigation(event, `/projects/${project.slug}`)
+                  }
+                  className="block h-full w-full focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary"
+                  aria-label={`Ver estudo de caso do projeto ${project.name}`}
+                >
+                  <picture className="block h-full w-full">
+                    {optimizedImageBase && (
+                      <source
+                        type="image/webp"
+                        srcSet={`${optimizedImageBase}-1280.webp`}
+                      />
+                    )}
+                    <img
+                      src={project.image}
+                      alt={project.imageAlt}
+                      className="project-card-img block w-full h-full object-cover object-top transition-transform duration-700 group-hover:scale-105"
+                      loading="lazy"
+                      decoding="async"
+                      width="1280"
+                      height="720"
                     />
-                  )}
-                  <img
-                    src={image}
-                    alt={`Capa do projeto ${repository}`}
-                    className="project-card-img block w-full h-full object-cover object-top transition-transform duration-700 group-hover:scale-105"
-                    loading="lazy"
-                    decoding="async"
-                    width="1280"
-                    height="720"
-                  />
-                </picture>
+                  </picture>
+                </Link>
               </div>
             </div>
 
-            <div className="project-card-content flex flex-col gap-3 sm:gap-4 min-w-0 w-full h-full">
-              <div className="flex flex-col gap-5">
-                <div className="flex flex-col items-start gap-1">
-                  <Text
-                    ref={textRef}
-                    as="p"
-                    variant="paragraph-card"
-                    className={`project-card-description ${
-                      isExpanded ? "" : "line-clamp-3 h-20"
-                    } transition-all duration-300`}
-                  >
-                    {description}
-                  </Text>
-                  {(isClamped || isExpanded) && (
-                    <button
-                      onClick={(e) => {
-                        e.preventDefault();
-                        setIsExpanded(!isExpanded);
-                      }}
-                      className="project-card-read-more text-xs font-semibold opacity-60 hover:opacity-100 transition-opacity cursor-pointer mt-1"
-                      aria-expanded={isExpanded}
-                    >
-                      {isExpanded ? "Menos" : "Ler mais"}
-                    </button>
-                  )}
-                </div>
-
-                <TagsList
-                  tags={languages}
-                  className="sm:h-16 sm:overflow-y-auto custom-scrollbar"
-                />
+            <div className="project-card-content flex flex-col gap-4 min-w-0 w-full h-full">
+              <div className="flex flex-col items-start">
+                <Text
+                  as="p"
+                  variant="paragraph-card"
+                  title={project.summary}
+                  className="project-card-description line-clamp-3 h-[4.875rem]"
+                >
+                  {project.summary}
+                </Text>
               </div>
 
-              <div className="flex flex-col gap-4 mt-auto pt-2">
-                <Divider className="w-full opacity-80" />
-                <div className="flex gap-4">
+              <div className="project-card-meta mt-auto flex flex-col gap-3">
+                <TagsList
+                  tags={project.technologies}
+                  maxVisibleItems={5}
+                  expandable={false}
+                  className="project-card-tags h-[4.5rem]"
+                />
+                <div className="project-card-actions flex gap-4 pt-4 border-t border-btn-primary-bg-hover/50">
                   <Button
                     as="a"
-                    href={github_repo}
+                    href={project.links.github}
                     target="_blank"
                     rel="noopener noreferrer"
-                    aria-label={`Ver código do projeto ${repository} no GitHub (abre em nova aba)`}
+                    aria-label={`Ver código do projeto ${project.name} no GitHub (abre em nova aba)`}
                     icon={GitHubIcon}
                     className="w-full border border-btn-primary-bg-hover"
                   >
@@ -222,10 +197,10 @@ export default function ProjectCard({
                   </Button>
                   <Button
                     as="a"
-                    href={homepage}
+                    href={project.links.live}
                     target="_blank"
                     rel="noopener noreferrer"
-                    aria-label={`Visitar o site do projeto ${repository} (abre em nova aba)`}
+                    aria-label={`Visitar o site do projeto ${project.name} (abre em nova aba)`}
                     icon={GlobeIcon}
                     className="border border-btn-primary-bg-hover w-full"
                   >

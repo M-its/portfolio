@@ -66,7 +66,7 @@ export default function ProjectsContainer({
 
   return (
     <div className={className} {...props}>
-      <AnimatedSection as="div" className="mb-12">
+      <AnimatedSection as="div" className="mb-8">
         <div className="flex items-center gap-4 opacity-70">
           <Text as="span" className="text-[13px] font-black tracking-[0.4em]">
             <span className="hidden lg:inline">02</span>
@@ -91,21 +91,13 @@ export default function ProjectsContainer({
       >
         {projectsBase.map((project) => (
           <motion.div
-            key={project.repository}
+            key={project.slug}
             initial="hidden"
             animate="visible"
             variants={customCardVariants}
             className="min-w-0 w-full shadow-2xl rounded-3xl"
           >
-            <ProjectCard
-              repository={project.repository}
-              name={project.name}
-              description={project.description || "Sem descrição"}
-              image={project.image}
-              languages={project.languages}
-              github_repo={project.github_repo}
-              homepage={project.homepage}
-            />
+            <ProjectCard project={project} />
           </motion.div>
         ))}
       </motion.div>

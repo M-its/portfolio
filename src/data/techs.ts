@@ -3,11 +3,19 @@ import SpinnerIcon from "../assets/icons/spinner.svg?react";
 
 type SvgComponent = React.FC<React.ComponentProps<"svg">>;
 type LazyIcon = React.LazyExoticComponent<SvgComponent>;
+type IconImporter = () => Promise<{ default: SvgComponent }>;
 
-function lazyIcon(
-  importFn: () => Promise<{ default: SvgComponent }>,
-): LazyIcon {
+const iconImporters = new Set<IconImporter>();
+
+function lazyIcon(importFn: IconImporter): LazyIcon {
+  iconImporters.add(importFn);
   return React.lazy(importFn);
+}
+
+export function preloadTechIcons() {
+  return Promise.allSettled(
+    [...iconImporters].map((importIcon) => importIcon()),
+  );
 }
 
 export const techs = [
