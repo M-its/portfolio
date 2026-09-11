@@ -1,0 +1,50 @@
+@layer utilities {
+  /* --- Scrollbar Styles --- */
+
+  /* Firefox */
+  @supports (scrollbar-color: auto) {
+    html {
+      scrollbar-width: thin;
+      /* Deixa a barra mais fina no Firefox */
+      scrollbar-color: var(--color-scrollbar-thumb) var(--color-scrollbar-track);
+    }
+
+    .custom-scrollbar {
+      scrollbar-width: thin;
+      scrollbar-color: var(--color-scrollbar-thumb) var(--color-scrollbar-track);
+    }
+  }
+
+  html::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  html::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  html::-webkit-scrollbar-thumb {
+    background-color: var(--color-scrollbar-thumb);
+    border-radius: 4px;
+    transition: background-color 0.2s ease-in-out;
+  }
+
+  html::-webkit-scrollbar-thumb:hover {
+    background-color: var(--color-scrollbar-thumb-hover);
+  }
+
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 4px;
+    height: 4px;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: var(--color-scrollbar-thumb);
+    border-radius: 4px;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: var(--color-scrollbar-thumb-hover);
+  }
+}

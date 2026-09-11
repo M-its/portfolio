@@ -1,0 +1,110 @@
+@layer utilities {
+  /* Fonte única de verdade do timing — resolve o bug #5 do diagnóstico. */
+  :root {
+    --hero-transition-duration: 500ms;
+    --hero-transition-easing: cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  /* Remove os transforms de hover antes da captura — resolve o bug #4. */
+  html.vt-freeze .project-card,
+  html.vt-freeze .project-card-img {
+    rotate: none !important;
+    scale: 1 !important;
+    transform: none !important;
+    translate: none !important;
+    transition: none !important;
+  }
+
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation: none;
+    mix-blend-mode: normal;
+  }
+
+  html[data-project-transition="active"]::view-transition-old(root) {
+    animation: project-page-dim var(--hero-transition-duration)
+      var(--hero-transition-easing) both;
+  }
+
+  html[data-project-transition="active"]::view-transition-new(root) {
+    animation: project-page-reveal var(--hero-transition-duration)
+      var(--hero-transition-easing) both;
+  }
+
+  ::view-transition-group(project-image) {
+    z-index: 2147483647;
+    animation-duration: var(--hero-transition-duration);
+    animation-timing-function: var(--hero-transition-easing);
+  }
+
+  ::view-transition-old(project-image),
+  ::view-transition-new(project-image) {
+    height: 100%;
+    mix-blend-mode: normal;
+    object-fit: fill;
+    width: 100%;
+  }
+
+  /*
+   * O snapshot antigo é rasterizado no tamanho pequeno do card. Usamos apenas
+   * o snapshot novo, capturado no tamanho da hero, para que a ampliação permaneça
+   * nítida durante todo o trajeto e não haja duas imagens sobrepostas.
+   */
+  ::view-transition-old(project-image) {
+    animation: none;
+    opacity: 0;
+  }
+
+  ::view-transition-new(project-image) {
+    animation: none;
+    opacity: 1;
+  }
+
+  .project-details-reveal {
+    opacity: 1;
+    translate: none;
+    transition:
+      opacity 480ms cubic-bezier(0.22, 1, 0.36, 1),
+      translate 480ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  html[data-project-transition="active"] .project-details-reveal {
+    opacity: 0;
+    translate: 0 14px;
+    transition: none;
+  }
+
+  @keyframes project-page-dim {
+    from {
+      filter: brightness(1);
+      opacity: 1;
+    }
+    to {
+      filter: brightness(0.35);
+      opacity: 0;
+    }
+  }
+
+  @keyframes project-page-reveal {
+    from {
+      filter: brightness(0.6);
+      opacity: 0;
+    }
+    to {
+      filter: brightness(1);
+      opacity: 1;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .project-details-reveal,
+    ::view-transition-group(project-image),
+    ::view-transition-old(project-image),
+    ::view-transition-new(project-image),
+    ::view-transition-old(root),
+    ::view-transition-new(root) {
+      animation-duration: 1ms;
+      animation-delay: 0ms;
+    }
+  }
+}

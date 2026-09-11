@@ -1,0 +1,38 @@
+@layer base {
+  .dark:root {
+    /* Fundo & texto */
+    --color-background: var(--color-black);
+    --color-text-primary: var(--color-white);
+    --color-text-secondary: var(--color-gray-800);
+
+    /* Botões */
+    --color-btn-primary-bg: var(--color-gray-800);
+    --color-btn-primary-bg-hover: var(--color-gray-700);
+    --color-btn-primary-text: var(--color-gray-100);
+
+    --color-btn-secondary-bg: var(--color-gray-100);
+    --color-btn-secondary-bg-hover: var(--color-white);
+    --color-btn-secondary-text: var(--color-black);
+
+    /* Icon */
+    --color-icon-primary: var(--color-gray-100);
+    --color-fill-icon-button: var(--color-gray-100);
+    --color-fill-icon-button-hover: var(--color-white);
+
+    /* skeleton */
+    --color-skeleton-bg: var(--color-gray-700);
+
+    --color-card-bg: rgba(255, 255, 255, 0.02);
+    --color-card-border: rgba(255, 255, 255, 0.2);
+    --color-card-border-variant: var(--color-gray-700);
+    --color-card-glare: rgba(255, 255, 255, 0.1);
+
+    /* Scrollbar */
+    --color-scrollbar-thumb: #ffffff22;
+    --color-scrollbar-thumb-hover: #ffffff44;
+
+    --color-project-btn: var(--color-black);
+
+    --noise-opacity: 0.15;
+  }
+}
