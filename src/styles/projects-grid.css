@@ -67,9 +67,6 @@
       font-size: clamp(1.5rem, 2.5vw, 2rem);
     }
 
-    .projects-grid > :nth-child(1) .project-card-read-more {
-      display: none;
-    }
   }
 
   @media (min-width: 640px) and (max-width: 1119px) {
@@ -93,9 +90,6 @@
       font-size: clamp(1.5rem, 2.5vw, 2rem);
     }
 
-    .projects-grid > :last-child .project-card-read-more {
-      display: none;
-    }
   }
 
   @media (min-width: 1120px) {

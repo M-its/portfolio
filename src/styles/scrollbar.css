@@ -9,10 +9,6 @@
       scrollbar-color: var(--color-scrollbar-thumb) var(--color-scrollbar-track);
     }
 
-    .custom-scrollbar {
-      scrollbar-width: thin;
-      scrollbar-color: var(--color-scrollbar-thumb) var(--color-scrollbar-track);
-    }
   }
 
   html::-webkit-scrollbar {
@@ -34,17 +30,4 @@
     background-color: var(--color-scrollbar-thumb-hover);
   }
 
-  .custom-scrollbar::-webkit-scrollbar {
-    width: 4px;
-    height: 4px;
-  }
-
-  .custom-scrollbar::-webkit-scrollbar-thumb {
-    background: var(--color-scrollbar-thumb);
-    border-radius: 4px;
-  }
-
-  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-    background: var(--color-scrollbar-thumb-hover);
-  }
 }
