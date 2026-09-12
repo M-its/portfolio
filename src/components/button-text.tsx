@@ -45,7 +45,7 @@ export const buttonTextLabelVariants = tv({
       primary:
         "text-icon-primary font-medium cursor-pointer hover:brightness-150",
       secondary:
-        "text-btn-primary-text font-light cursor-pointer hover:brightness-150",
+        "text-button-primary-content font-light cursor-pointer hover:brightness-150",
     },
     size: {
       md: "text-base",

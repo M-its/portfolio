@@ -24,7 +24,7 @@ export default function Footer({ className, ...props }: FooterProps) {
       {...props}
     >
       <Divider
-        className="bg-gradient-to-r from-transparent via-btn-primary-bg-hover to-transparent"
+        className="bg-gradient-to-r from-transparent via-button-primary-surface-hover to-transparent"
         style={{
           maskImage:
             "radial-gradient(circle 60px at center, transparent 50%, black 51%)",

@@ -5,7 +5,8 @@ export const cardVariants = tv({
   base: "transform-style-3d rounded transition",
   variants: {
     variant: {
-      default: "bg-btn-primary-bg border border-btn-primary-bg-hover",
+      default:
+        "bg-button-primary-surface border border-button-primary-surface-hover",
     },
     size: {
       none: "",

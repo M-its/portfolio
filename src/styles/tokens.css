@@ -60,20 +60,21 @@
   --color-text-primary: #2b2a28;
 
   /* Botão primário */
-  --color-btn-primary-bg: var(--palette-sepia-800);
-  --color-btn-primary-bg-hover: var(--palette-sepia-900);
-  --color-btn-primary-text: var(--palette-sepia-50);
+  --color-button-primary-surface: var(--palette-sepia-800);
+  --color-button-primary-surface-hover: var(--palette-sepia-900);
+  --color-button-primary-content: var(--palette-sepia-50);
 
   /* Botão secundário */
-  --color-btn-secondary-bg: var(--palette-sepia-200);
-  --color-btn-secondary-bg-hover: var(--palette-sepia-300);
-  --color-btn-secondary-text: var(--palette-black);
+  --color-button-secondary-surface: var(--palette-sepia-200);
+  --color-button-secondary-surface-hover: var(--palette-sepia-300);
+  --color-button-secondary-content: var(--palette-black);
 
   /* Ícones */
   --color-icon-primary: var(--palette-sepia-900);
+  --color-icon-primary-hover: var(--palette-sepia-900);
 
   /* Skeleton */
-  --color-skeleton-bg: var(--color-btn-primary-bg);
+  --color-skeleton-surface: var(--color-button-primary-surface);
 
   /* Scrollbar */
   --color-scrollbar-thumb: var(--palette-black-20);
@@ -81,9 +82,9 @@
   --color-scrollbar-track: transparent;
 
   /* Glass cards */
-  --color-card-bg: var(--palette-white-30);
+  --color-card-surface: var(--palette-white-30);
   --color-card-border: var(--palette-sepia-800);
-  --color-card-border-variant: var(--palette-sepia-700);
+  --color-tag-border: var(--palette-sepia-700);
 
   /* Fontes */
   --font-sans: "Inter", sans-serif;

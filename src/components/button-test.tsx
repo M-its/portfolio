@@ -8,7 +8,7 @@ export const buttonVariants = tv({
     variant: {
       primary: "bg-transparent",
       secondary:
-        "bg-btn-primary-bg hover:bg-btn-primary-bg-hover p-2 rounded-full ",
+        "bg-button-primary-surface hover:bg-button-primary-surface-hover p-2 rounded-full ",
     },
     size: {
       md: "text-base px-4 py-2",
@@ -29,8 +29,8 @@ export const buttonVariants = tv({
 export const buttonIconVariants = tv({
   variants: {
     variant: {
-      primary: "fill-fill-icon-button",
-      secondary: "fill-btn-primary-text",
+      primary: "fill-icon-primary",
+      secondary: "fill-button-primary-content",
     },
     size: {
       md: "w-4 h-4",
@@ -47,7 +47,7 @@ export const buttonTextLabelVariants = tv({
   variants: {
     variant: {
       primary: "text-icon-primary",
-      secondary: "text-btn-primary-text",
+      secondary: "text-button-primary-content",
     },
     size: {
       md: "text-base",

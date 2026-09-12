@@ -11,7 +11,7 @@
   
   <path 
     fill="url(#viteGradient2)" 
-    stroke="var(--color-btn-primary-bg-hover)" 
+    stroke="var(--color-button-primary-surface-hover)"
     stroke-width="3" 
     stroke-linejoin="round"
     style="transition: stroke 0.3s ease;"

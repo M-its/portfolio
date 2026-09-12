@@ -133,7 +133,7 @@ export default function ProjectCard({
             <div className="project-card-image w-full">
               <div
                 ref={imageFrameRef}
-                className="project-card-image-frame relative overflow-hidden rounded-md border border-btn-primary-bg-hover/30 aspect-video"
+                className="project-card-image-frame relative overflow-hidden rounded-md border border-button-primary-surface-hover/30 aspect-video"
               >
                 <Link
                   to={`/projects/${project.slug}`}
@@ -183,7 +183,7 @@ export default function ProjectCard({
                   expandable={false}
                   className="project-card-tags h-[4.5rem]"
                 />
-                <div className="project-card-actions flex gap-4 pt-4 border-t border-btn-primary-bg-hover/50">
+                <div className="project-card-actions flex gap-4 pt-4 border-t border-button-primary-surface-hover/50">
                   <Button
                     as="a"
                     href={project.links.github}
@@ -191,7 +191,7 @@ export default function ProjectCard({
                     rel="noopener noreferrer"
                     aria-label={`Ver código do projeto ${project.name} no GitHub (abre em nova aba)`}
                     icon={GitHubIcon}
-                    className="w-full border border-btn-primary-bg-hover"
+                    className="w-full border border-button-primary-surface-hover"
                   >
                     GitHub
                   </Button>
@@ -202,7 +202,7 @@ export default function ProjectCard({
                     rel="noopener noreferrer"
                     aria-label={`Visitar o site do projeto ${project.name} (abre em nova aba)`}
                     icon={GlobeIcon}
-                    className="border border-btn-primary-bg-hover w-full"
+                    className="border border-button-primary-surface-hover w-full"
                   >
                     Site
                   </Button>

@@ -50,7 +50,9 @@ export default function ScrollIndicator({ onClick }: { onClick: () => void }) {
               ease: "easeInOut",
             }}
             className={`transition-colors ${
-              isHovered ? "text-btn-secondary-bg" : "text-text-primary/80"
+              isHovered
+                ? "text-button-secondary-surface"
+                : "text-text-primary/80"
             }`}
           >
             <Icon svg={ArrowDownIcon} size="md" />

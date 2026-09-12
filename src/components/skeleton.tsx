@@ -1,7 +1,7 @@
 import { tv, type VariantProps } from "tailwind-variants";
 
 export const skeletonVariants = tv({
-  base: "animate-pulse bg-skeleton-bg pointer-events-none",
+  base: "animate-pulse bg-skeleton-surface pointer-events-none",
   variants: {
     rounded: {
       sm: "rounded-sm",

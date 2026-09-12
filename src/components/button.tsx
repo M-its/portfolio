@@ -13,12 +13,12 @@ const buttonVariants = tv({
   variants: {
     variant: {
       primary: `
-        bg-btn-primary-bg text-btn-primary-text
-        hover:bg-btn-primary-bg-hover
+        bg-button-primary-surface text-button-primary-content
+        hover:bg-button-primary-surface-hover
       `,
       secondary: `
-        bg-btn-secondary-bg text-btn-secondary-text
-        hover:bg-btn-secondary-bg-hover
+        bg-button-secondary-surface text-button-secondary-content
+        hover:bg-button-secondary-surface-hover
         hover:shadow-[0_0_10px_2px_hsla(44,72%,82%,0.5)]
       `,
       outline: `
@@ -50,13 +50,14 @@ const buttonVariants = tv({
     {
       variant: "primary",
       mode: "button",
-      class: "border border-btn-primary-bg-hover hover:border-btn-primary-bg",
+      class:
+        "border border-button-primary-surface-hover hover:border-button-primary-surface",
     },
     {
       variant: "secondary",
       mode: "button",
       class:
-        "border border-btn-secondary-bg-hover hover:border-btn-secondary-bg",
+        "border border-button-secondary-surface-hover hover:border-button-secondary-surface",
     },
     {
       variant: "outline",
@@ -76,7 +77,8 @@ const buttonVariants = tv({
     {
       mode: "icon",
       variant: "secondary",
-      class: "bg-transparent text-btn-secondary-text hover:bg-transparent",
+      class:
+        "bg-transparent text-button-secondary-content hover:bg-transparent",
     },
   ],
   defaultVariants: {
@@ -90,8 +92,8 @@ const buttonVariants = tv({
 export const buttonTextVariants = tv({
   variants: {
     variant: {
-      primary: "text-btn-primary-text",
-      secondary: "text-btn-secondary-text",
+      primary: "text-button-primary-content",
+      secondary: "text-button-secondary-content",
       outline: "text-text-primary",
     },
     size: {
@@ -114,7 +116,7 @@ export const buttonTextVariants = tv({
     {
       variant: "secondary",
       mode: "text",
-      class: "text-btn-primary-text",
+      class: "text-button-primary-content",
     },
   ],
   defaultVariants: {
@@ -130,7 +132,7 @@ export const buttonIconWrapperVariants = tv({
     variant: {
       primary: "bg-transparent p-0",
       secondary:
-        "bg-btn-primary-bg hover:bg-btn-primary-bg-hover p-2 rounded-full",
+        "bg-button-primary-surface hover:bg-button-primary-surface-hover p-2 rounded-full",
     },
     size: {
       md: "w-7 h-7",
@@ -156,7 +158,7 @@ export const buttonIconVariants = tv({
       xl: "w-12 h-12",
     },
     mode: {
-      button: "fill-btn-primary-text",
+      button: "fill-button-primary-content",
       icon: "",
       text: "",
     },
@@ -165,7 +167,7 @@ export const buttonIconVariants = tv({
     {
       mode: "icon",
       variant: "secondary",
-      class: "fill-btn-primary-text p-1",
+      class: "fill-button-primary-content p-1",
     },
   ],
   defaultVariants: {

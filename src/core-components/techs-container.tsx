@@ -87,7 +87,7 @@ export default function TechsContainer({ techs }: { techs: TechItem[] }) {
       </AnimatedSection>
       <AnimatedSection
         delay={0.3}
-        className={`w-full min-w-0 rounded-3xl shadow-2xl flex-1 ${isDark ? "bg-white/2 border-btn-primary-bg-hover" : "bg-white/50 border-btn-primary-bg-hover/50"} border`}
+        className={`w-full min-w-0 rounded-3xl shadow-2xl flex-1 ${isDark ? "bg-white/2 border-button-primary-surface-hover" : "bg-white/50 border-button-primary-surface-hover/50"} border`}
       >
         <div className="p-8 rounded-3xl overflow-hidden h-full">
           <Swiper

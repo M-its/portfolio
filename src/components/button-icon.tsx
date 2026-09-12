@@ -8,7 +8,7 @@ export const buttonIconVariants = tv({
     variant: {
       primary: "bg-transparent",
       secondary:
-        "bg-btn-primary-bg hover:bg-btn-primary-bg-hover p-2 rounded-full",
+        "bg-button-primary-surface hover:bg-button-primary-surface-hover p-2 rounded-full",
     },
     size: {
       md: "w-7 h-7",
@@ -24,8 +24,8 @@ export const buttonIconVariants = tv({
 export const buttonIconIconVariants = tv({
   variants: {
     variant: {
-      primary: "fill-fill-icon-button hover:fill-fill-icon-button-hover",
-      secondary: "fill-btn-primary-text",
+      primary: "fill-icon-primary hover:fill-icon-primary-hover",
+      secondary: "fill-button-primary-content",
     },
     size: {
       md: "w-8 h-8",

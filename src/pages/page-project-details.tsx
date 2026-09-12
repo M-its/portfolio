@@ -174,7 +174,7 @@ export default function PageProjectDetails() {
 
         <div
           data-project-hero={project.slug}
-          className="order-1 overflow-hidden rounded-3xl border border-card-border bg-card-bg lg:order-2"
+          className="order-1 overflow-hidden rounded-3xl border border-card-border bg-card-surface lg:order-2"
           style={{ viewTransitionName: "project-image" }}
         >
           <picture className="block">

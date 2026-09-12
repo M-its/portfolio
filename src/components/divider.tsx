@@ -4,7 +4,7 @@ export const dividerVariants = tv({
   base: "w-full h-px mx-auto",
   variants: {
     variant: {
-      default: "bg-btn-primary-bg-hover",
+      default: "bg-button-primary-surface-hover",
     },
     orientation: {
       horizontal: "w-full h-px",

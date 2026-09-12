@@ -5,12 +5,12 @@ import cx from "classnames";
 import Skeleton from "./skeleton";
 
 export const tagVariants = tv({
-  base: "inline-flex items-center justify-center rounded-full border border-card-border-variant",
+  base: "inline-flex items-center justify-center rounded-full border border-tag-border",
   variants: {
     variant: {
       none: "",
-      primary: "bg-btn-primary-bg",
-      secondary: "bg-btn-secondary-bg",
+      primary: "bg-button-primary-surface",
+      secondary: "bg-button-secondary-surface",
     },
     size: {
       sm: "py-1 px-3 h-6",
@@ -28,8 +28,8 @@ export const tagTextVariants = tv({
   variants: {
     variant: {
       none: "",
-      primary: "text-btn-primary-text",
-      secondary: "text-btn-secondary-text",
+      primary: "text-button-primary-content",
+      secondary: "text-button-secondary-content",
     },
     size: {
       sm: "text-xs",

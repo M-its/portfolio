@@ -5,23 +5,24 @@
     --color-text-primary: var(--palette-white);
 
     /* Botões */
-    --color-btn-primary-bg: var(--palette-neutral-800);
-    --color-btn-primary-bg-hover: var(--palette-neutral-700);
-    --color-btn-primary-text: var(--palette-neutral-100);
+    --color-button-primary-surface: var(--palette-neutral-800);
+    --color-button-primary-surface-hover: var(--palette-neutral-700);
+    --color-button-primary-content: var(--palette-neutral-100);
 
-    --color-btn-secondary-bg: var(--palette-neutral-100);
-    --color-btn-secondary-bg-hover: var(--palette-white);
-    --color-btn-secondary-text: var(--palette-black);
+    --color-button-secondary-surface: var(--palette-neutral-100);
+    --color-button-secondary-surface-hover: var(--palette-white);
+    --color-button-secondary-content: var(--palette-black);
 
     /* Ícone */
     --color-icon-primary: var(--palette-neutral-100);
+    --color-icon-primary-hover: var(--palette-white);
 
     /* Skeleton */
-    --color-skeleton-bg: var(--palette-neutral-700);
+    --color-skeleton-surface: var(--palette-neutral-700);
 
-    --color-card-bg: var(--palette-white-02);
+    --color-card-surface: var(--palette-white-02);
     --color-card-border: var(--palette-white-20);
-    --color-card-border-variant: var(--palette-neutral-700);
+    --color-tag-border: var(--palette-neutral-700);
 
     /* Scrollbar */
     --color-scrollbar-thumb: var(--palette-scrollbar-dark);

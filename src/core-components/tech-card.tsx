@@ -16,12 +16,12 @@ const techCardVariants = tv({
       border-0
     `,
     icon: `
-      text-btn-primary-text
+      text-button-primary-content
       [.group:not(:hover)_&_path]:fill-current 
       [.group:not(:hover)_&_circle]:fill-current
       [.group:not(:hover)_&_rect]:fill-current 
     `,
-    text: "text-btn-primary-text opacity-70 uppercase tracking-wider text-center",
+    text: "text-button-primary-content opacity-70 uppercase tracking-wider text-center",
     baseBorder: "absolute inset-0 rounded-2xl pointer-events-none z-1 border",
     revealWrapper:
       "absolute inset-0 rounded-xl pointer-events-none z-10 overflow-hidden",
@@ -37,7 +37,8 @@ const techCardVariants = tv({
     isDark: {
       true: { baseBorder: "border-white/5" },
       false: {
-        card: "hover:bg-btn-primary-bg-hover hover:border-icon-primary/20",
+        card:
+          "hover:bg-button-primary-surface-hover hover:border-icon-primary/20",
         baseBorder: "border-icon-primary/10",
       },
     },

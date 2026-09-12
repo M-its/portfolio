@@ -234,7 +234,7 @@ export default function PageComponents() {
           </Example>
           <Example label="com gradient" wide>
             <div className="w-full">
-              <Divider className="bg-gradient-to-r from-transparent via-btn-primary-bg-hover to-transparent" />
+              <Divider className="bg-gradient-to-r from-transparent via-button-primary-surface-hover to-transparent" />
             </div>
           </Example>
           <Example label="vertical">
@@ -252,8 +252,10 @@ export default function PageComponents() {
         <div className="flex flex-wrap gap-6">
           <Example label={"Default card"}>
             <Card size="md" className="flex flex-col gap-4 h-28 w-40">
-              <Icon svg={NodeIcon} className="fill-btn-primary-text" />
-              <Text className="text-btn-primary-text capitalize">Default</Text>
+              <Icon svg={NodeIcon} className="fill-button-primary-content" />
+              <Text className="text-button-primary-content capitalize">
+                Default
+              </Text>
             </Card>
           </Example>
         </div>
