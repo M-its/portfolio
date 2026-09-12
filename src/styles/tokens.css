@@ -1,10 +1,12 @@
 /*
  * Convenção de tokens
  * -------------------
- * --palette-* guarda cada valor visual primitivo uma única vez.
- * --color-* e --shadow-* são aliases expostos ao Tailwind e descrevem o papel
- * do valor na interface. Os aliases legados de paleta permanecem apenas durante
- * a migração dos componentes e serão removidos no checkpoint de limpeza.
+ * --palette-* contém apenas valores visuais primitivos e não é consumido por
+ * componentes. --color-* e --shadow-* são tokens semânticos expostos ao
+ * Tailwind e referenciam as primitivas pelo papel na interface; variações de
+ * estado usam sufixos como -hover. Componentes consomem somente esses tokens
+ * semânticos, mantendo os valores de cada tema centralizados aqui e em
+ * themes.css.
  */
 :root {
   /* Cores opacas */
@@ -19,6 +21,7 @@
   --palette-sepia-700: #7a6e5f;
   --palette-sepia-800: #4a4035;
   --palette-sepia-900: #3a322a;
+  --palette-sepia-text: #2b2a28;
   --palette-yellow-200: #fff085;
   --palette-yellow-pure: rgb(255, 255, 0);
 
@@ -29,6 +32,7 @@
   --palette-white-50: rgba(255, 255, 255, 0.5);
   --palette-white-80: rgba(255, 255, 255, 0.8);
   --palette-white-90: rgba(255, 255, 255, 0.9);
+  --palette-black-10: rgba(0, 0, 0, 0.1);
   --palette-black-20: rgba(0, 0, 0, 0.2);
   --palette-black-33: #00000055;
   --palette-black-60: rgba(0, 0, 0, 0.6);
@@ -40,25 +44,16 @@
   --palette-scrollbar-dark: #ffffff22;
   --palette-scrollbar-dark-hover: #ffffff44;
   --palette-neutral-light-shadow: rgba(200, 200, 200, 0.9);
+  --palette-warm-200-50: hsla(44, 72%, 82%, 0.5);
   --palette-yellow-glow: rgba(255, 255, 0, 0.6);
 }
 
 @theme {
   --color-*: initial;
 
-  /* Aliases de paleta usados por utilities existentes durante a migração */
-  --color-white: var(--palette-white);
-  --color-black: var(--palette-black);
-  --color-gray-100: var(--palette-neutral-100);
-  --color-gray-200: var(--palette-sepia-700);
-  --color-gray-700: var(--palette-neutral-700);
-  --color-gray-800: var(--palette-neutral-800);
-  --color-sepia: var(--palette-sepia-50);
-  --color-yellow-200: var(--palette-yellow-200);
-
   /* Fundo & texto */
   --color-background: var(--palette-sepia-50);
-  --color-text-primary: #2b2a28;
+  --color-text-primary: var(--palette-sepia-text);
 
   /* Superfícies e efeitos estruturais */
   --color-header-surface: color-mix(
@@ -180,8 +175,8 @@
 
   /* Sombras */
   --shadow-sm: 0px 4px 8px 0px var(--palette-black-20);
-  --shadow-header-scrolled: 0 4px 30px rgba(0, 0, 0, 0.1);
-  --shadow-button-secondary-hover: 0 0 10px 2px hsla(44, 72%, 82%, 0.5);
+  --shadow-header-scrolled: 0 4px 30px var(--palette-black-10);
+  --shadow-button-secondary-hover: 0 0 10px 2px var(--palette-warm-200-50);
 
   /* Theme Switcher */
   --shadow-theme-switcher-container: var(--theme-switcher-container-shadow);
