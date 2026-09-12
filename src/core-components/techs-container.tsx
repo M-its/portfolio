@@ -102,7 +102,7 @@ export default function TechsContainer({ techs }: { techs: TechItem[] }) {
               pauseOnMouseEnter: true,
             }}
             pagination={{ clickable: true }}
-            className="w-full h-full tech-swiper pb-8"
+            className="w-full h-full tech-swiper"
           >
             {CATEGORIES.map((cat) => (
               <SwiperSlide key={cat.id} className="h-full">
