@@ -1,12 +1,19 @@
-export function initConsoleEasterEgg() {
+function writeConsoleEasterEgg() {
+  const rootStyles = getComputedStyle(document.documentElement);
+  const palette = (token: string) => rootStyles.getPropertyValue(token).trim();
+  const accent = palette("--palette-sepia-200");
+  const muted = palette("--palette-sepia-700");
+  const white = palette("--palette-white");
+  const black = palette("--palette-black");
+
   const styles = {
-    ascii: "color: #f3e2b3; font-family: monospace;",
+    ascii: `color: ${accent}; font-family: monospace;`,
     title:
-      "color: #fff; background: #000; padding: 4px 8px; border-radius: 4px; font-weight: bold; font-size: 12px;",
+      `color: ${white}; background: ${black}; padding: 4px 8px; border-radius: 4px; font-weight: bold; font-size: 12px;`,
     stackHeader:
-      "color: #7a6e5f; font-size: 10px; font-weight: bold; text-transform: uppercase; letter-spacing: 4px;",
-    highlight: "color: #f3e2b3; font-weight: bold;",
-    dim: "color: #7a6e5f;",
+      `color: ${muted}; font-size: 10px; font-weight: bold; text-transform: uppercase; letter-spacing: 4px;`,
+    highlight: `color: ${accent}; font-weight: bold;`,
+    dim: `color: ${muted};`,
   };
 
   // ── 1. Boas-vindas
@@ -54,4 +61,17 @@ export function initConsoleEasterEgg() {
     console.log("%cVamos construir algo juntos.", styles.highlight);
     return "Aguardando seu contato! 😉";
   };
+}
+
+export function initConsoleEasterEgg() {
+  const scheduleWrite = () => requestAnimationFrame(writeConsoleEasterEgg);
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", scheduleWrite, {
+      once: true,
+    });
+    return;
+  }
+
+  scheduleWrite();
 }

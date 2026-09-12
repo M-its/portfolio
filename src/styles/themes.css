@@ -1,37 +1,31 @@
 @layer base {
   .dark:root {
     /* Fundo & texto */
-    --color-background: var(--color-black);
-    --color-text-primary: var(--color-white);
-    --color-text-secondary: var(--color-gray-800);
+    --color-background: var(--palette-black);
+    --color-text-primary: var(--palette-white);
 
     /* Botões */
-    --color-btn-primary-bg: var(--color-gray-800);
-    --color-btn-primary-bg-hover: var(--color-gray-700);
-    --color-btn-primary-text: var(--color-gray-100);
+    --color-btn-primary-bg: var(--palette-neutral-800);
+    --color-btn-primary-bg-hover: var(--palette-neutral-700);
+    --color-btn-primary-text: var(--palette-neutral-100);
 
-    --color-btn-secondary-bg: var(--color-gray-100);
-    --color-btn-secondary-bg-hover: var(--color-white);
-    --color-btn-secondary-text: var(--color-black);
+    --color-btn-secondary-bg: var(--palette-neutral-100);
+    --color-btn-secondary-bg-hover: var(--palette-white);
+    --color-btn-secondary-text: var(--palette-black);
 
-    /* Icon */
-    --color-icon-primary: var(--color-gray-100);
-    --color-fill-icon-button: var(--color-gray-100);
-    --color-fill-icon-button-hover: var(--color-white);
+    /* Ícone */
+    --color-icon-primary: var(--palette-neutral-100);
 
-    /* skeleton */
-    --color-skeleton-bg: var(--color-gray-700);
+    /* Skeleton */
+    --color-skeleton-bg: var(--palette-neutral-700);
 
-    --color-card-bg: rgba(255, 255, 255, 0.02);
-    --color-card-border: rgba(255, 255, 255, 0.2);
-    --color-card-border-variant: var(--color-gray-700);
-    --color-card-glare: rgba(255, 255, 255, 0.1);
+    --color-card-bg: var(--palette-white-02);
+    --color-card-border: var(--palette-white-20);
+    --color-card-border-variant: var(--palette-neutral-700);
 
     /* Scrollbar */
-    --color-scrollbar-thumb: #ffffff22;
-    --color-scrollbar-thumb-hover: #ffffff44;
-
-    --color-project-btn: var(--color-black);
+    --color-scrollbar-thumb: var(--palette-scrollbar-dark);
+    --color-scrollbar-thumb-hover: var(--palette-scrollbar-dark-hover);
 
     --noise-opacity: 0.15;
   }

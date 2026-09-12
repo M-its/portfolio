@@ -1,80 +1,115 @@
+/*
+ * Convenção de tokens
+ * -------------------
+ * --palette-* guarda cada valor visual primitivo uma única vez.
+ * --color-* e --shadow-* são aliases expostos ao Tailwind e descrevem o papel
+ * do valor na interface. Os aliases legados de paleta permanecem apenas durante
+ * a migração dos componentes e serão removidos no checkpoint de limpeza.
+ */
+:root {
+  /* Cores opacas */
+  --palette-white: #ffffff;
+  --palette-black: #000000;
+  --palette-neutral-100: #e0e0e0;
+  --palette-neutral-700: #27272a;
+  --palette-neutral-800: #18181b;
+  --palette-sepia-50: #fdfaf3;
+  --palette-sepia-200: #f3e2b3;
+  --palette-sepia-300: #e0c783;
+  --palette-sepia-700: #7a6e5f;
+  --palette-sepia-800: #4a4035;
+  --palette-sepia-900: #3a322a;
+  --palette-yellow-200: #fff085;
+  --palette-yellow-pure: rgb(255, 255, 0);
+
+  /* Transparências recorrentes */
+  --palette-white-02: rgba(255, 255, 255, 0.02);
+  --palette-white-20: rgba(255, 255, 255, 0.2);
+  --palette-white-30: rgba(255, 255, 255, 0.3);
+  --palette-white-80: rgba(255, 255, 255, 0.8);
+  --palette-white-90: rgba(255, 255, 255, 0.9);
+  --palette-black-20: rgba(0, 0, 0, 0.2);
+  --palette-black-33: #00000055;
+  --palette-black-60: rgba(0, 0, 0, 0.6);
+  --palette-black-80: rgba(0, 0, 0, 0.8);
+  --palette-neutral-50-70: rgba(30, 30, 30, 0.7);
+  --palette-neutral-50-80: rgba(30, 30, 30, 0.8);
+  --palette-neutral-900-90: rgba(23, 23, 23, 0.9);
+  --palette-neutral-900: rgba(23, 23, 23, 1);
+  --palette-scrollbar-dark: #ffffff22;
+  --palette-scrollbar-dark-hover: #ffffff44;
+  --palette-neutral-light-shadow: rgba(200, 200, 200, 0.9);
+  --palette-yellow-glow: rgba(255, 255, 0, 0.6);
+}
+
 @theme {
   --color-*: initial;
 
-  /* Neutros */
-  --color-white: #ffffff;
-  --color-black: #000000;
-  --color-gray-100: #e0e0e0;
-  --color-gray-200: #7a6e5f;
-  --color-gray-700: #27272a;
-  --color-gray-800: #18181b;
-
-  /* Sépia / amarelos */
-  --color-sepia: #fdfaf3;
-  --color-yellow-200: #fff085;
+  /* Aliases de paleta usados por utilities existentes durante a migração */
+  --color-white: var(--palette-white);
+  --color-black: var(--palette-black);
+  --color-gray-100: var(--palette-neutral-100);
+  --color-gray-200: var(--palette-sepia-700);
+  --color-gray-700: var(--palette-neutral-700);
+  --color-gray-800: var(--palette-neutral-800);
+  --color-sepia: var(--palette-sepia-50);
+  --color-yellow-200: var(--palette-yellow-200);
 
   /* Fundo & texto */
-  --color-background: var(--color-sepia);
+  --color-background: var(--palette-sepia-50);
   --color-text-primary: #2b2a28;
-  --color-text-secondary: var(--color-gray-200);
 
   /* Botão primário */
-  --color-btn-primary-bg: #4a4035;
-  --color-btn-primary-bg-hover: #3a322a;
-  --color-btn-primary-text: #fdfaf3;
+  --color-btn-primary-bg: var(--palette-sepia-800);
+  --color-btn-primary-bg-hover: var(--palette-sepia-900);
+  --color-btn-primary-text: var(--palette-sepia-50);
 
   /* Botão secundário */
-  --color-btn-secondary-bg: #f3e2b3;
-  --color-btn-secondary-bg-hover: #e0c783;
-  --color-btn-secondary-text: var(--color-black);
+  --color-btn-secondary-bg: var(--palette-sepia-200);
+  --color-btn-secondary-bg-hover: var(--palette-sepia-300);
+  --color-btn-secondary-text: var(--palette-black);
 
-  /* Icons */
-  --color-icon-primary: #3a322a;
-  --color-fill-icon-button: #4a4035;
-  --color-fill-icon-button-hover: #3a322a;
+  /* Ícones */
+  --color-icon-primary: var(--palette-sepia-900);
 
-  /* skeleton */
+  /* Skeleton */
   --color-skeleton-bg: var(--color-btn-primary-bg);
 
   /* Scrollbar */
-  --color-scrollbar-thumb: #00000033;
-  --color-scrollbar-thumb-hover: #00000055;
+  --color-scrollbar-thumb: var(--palette-black-20);
+  --color-scrollbar-thumb-hover: var(--palette-black-33);
   --color-scrollbar-track: transparent;
 
-  /* Glass Cards */
-  --color-card-bg: rgba(255, 255, 255, 0.3);
-  --color-card-border: #4a4035;
-  --color-card-border-variant: #7a6e5f;
-  --color-card-glare: rgba(255, 255, 255, 0.9);
-
-  --color-project-btn: var(--color-btn-primary-bg);
+  /* Glass cards */
+  --color-card-bg: var(--palette-white-30);
+  --color-card-border: var(--palette-sepia-800);
+  --color-card-border-variant: var(--palette-sepia-700);
 
   /* Fontes */
   --font-sans: "Inter", sans-serif;
   --font-display: "Space Grotesk", sans-serif;
-  --font-condensed: "Oswald", sans-serif;
 
   /* Sombras */
-  --shadow-sm: 0px 4px 8px 0px rgba(0, 0, 0, 0.2);
+  --shadow-sm: 0px 4px 8px 0px var(--palette-black-20);
 
   /* Theme Switcher */
   --shadow-switcher-container-light:
-    4px 4px 8px rgba(200, 200, 200, 0.9),
-    -2px -2px 6px rgba(255, 255, 255, 0.8),
-    inset 2px 2px 6px rgba(255, 255, 0, 0.6);
+    4px 4px 8px var(--palette-neutral-light-shadow),
+    -2px -2px 6px var(--palette-white-80),
+    inset 2px 2px 6px var(--palette-yellow-glow);
 
   --shadow-switcher-container-dark:
-    6px 6px 8px rgba(0, 0, 0, 0.8),
-    -2px -2px 6px rgba(30, 30, 30, 0.8),
-    inset 2px 2px 6px rgba(23, 23, 23, 1);
+    6px 6px 8px var(--palette-black-80),
+    -2px -2px 6px var(--palette-neutral-50-80),
+    inset 2px 2px 6px var(--palette-neutral-900);
 
   --shadow-switcher-toggle-light:
-    inset 2px 2px 120px rgb(255, 255, 0),
-    0.5px 0.5px 15px rgb(255, 255, 0);
+    inset 2px 2px 120px var(--palette-yellow-pure),
+    0.5px 0.5px 15px var(--palette-yellow-pure);
 
   --shadow-switcher-toggle-dark:
-    inset 5px -3px 1px rgba(255, 255, 255, 0.9),
-    inset -1px 2px 4px rgba(23, 23, 23, 0.9),
-    4px 4px 8px rgba(0, 0, 0, 0.6),
-    -4px -4px 6px rgba(30, 30, 30, 0.7)
+    inset 5px -3px 1px var(--palette-white-90),
+    inset -1px 2px 4px var(--palette-neutral-900-90),
+    4px 4px 8px var(--palette-black-60),
+    -4px -4px 6px var(--palette-neutral-50-70);
 }
