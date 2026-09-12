@@ -19,7 +19,7 @@ const buttonVariants = tv({
       secondary: `
         bg-button-secondary-surface text-button-secondary-content
         hover:bg-button-secondary-surface-hover
-        hover:shadow-[0_0_10px_2px_hsla(44,72%,82%,0.5)]
+        hover:shadow-button-secondary-hover
       `,
       outline: `
         bg-transparent
@@ -34,7 +34,7 @@ const buttonVariants = tv({
       button: `
         before:content-[''] before:absolute before:top-0 before:-translate-x-full
         before:w-full before:h-full before:bg-linear-to-r
-        before:from-transparent before:via-white/10 before:to-transparent
+        before:from-transparent before:via-button-shine before:to-transparent
         before:transition-transform before:duration-1000 before:will-change-transform
         group-hover:before:translate-x-full`,
       icon: "bg-transparent p-0 shadow-none hover:shadow:none",

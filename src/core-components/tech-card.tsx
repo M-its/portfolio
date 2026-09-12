@@ -7,13 +7,12 @@ import Text from "../components/text";
 import Icon from "../components/icon";
 import useMouseGlare from "../hooks/use-mouse-glare";
 import { type techs, SpinnerIcon } from "../data/techs";
-import { useTheme } from "../contexts/theme-context";
 
 const techCardVariants = tv({
   slots: {
     card: `
       relative group h-full w-full rounded-xl flex flex-col items-center justify-center p-2
-      border-0
+      border-0 hover:bg-tech-card-surface-hover hover:border-tech-card-border-hover
     `,
     icon: `
       text-button-primary-content
@@ -22,25 +21,19 @@ const techCardVariants = tv({
       [.group:not(:hover)_&_rect]:fill-current 
     `,
     text: "text-button-primary-content opacity-70 uppercase tracking-wider text-center",
-    baseBorder: "absolute inset-0 rounded-2xl pointer-events-none z-1 border",
+    baseBorder:
+      "absolute inset-0 rounded-2xl pointer-events-none z-1 border border-tech-card-border",
     revealWrapper:
       "absolute inset-0 rounded-xl pointer-events-none z-10 overflow-hidden",
-    revealBorder: "absolute inset-0 rounded-2xl border-[1.5px] border-white/40",
-    revealBg: "absolute inset-0 bg-white/5",
+    revealBorder:
+      "absolute inset-0 rounded-2xl border-[1.5px] border-tech-card-reveal-border",
+    revealBg: "absolute inset-0 bg-tech-card-reveal-surface",
   },
   variants: {
     size: {
       sm: { icon: "w-5 h-5", text: "text-[10px]" },
       md: { icon: "w-7 h-7", text: "text-[11px]" },
       lg: { icon: "w-11 h-11", text: "text-sm" },
-    },
-    isDark: {
-      true: { baseBorder: "border-white/5" },
-      false: {
-        card:
-          "hover:bg-button-primary-surface-hover hover:border-icon-primary/20",
-        baseBorder: "border-icon-primary/10",
-      },
     },
   },
   defaultVariants: { size: "lg" },
@@ -52,7 +45,6 @@ interface TechCardProps extends Omit<React.ComponentProps<"div">, "size"> {
 }
 
 export default function TechCard({ tech, size, className }: TechCardProps) {
-  const { isDark } = useTheme();
   const cardRef = useRef<HTMLDivElement>(null);
   const [isHovered, setIsHovered] = useState(false);
   useMouseGlare(cardRef);
@@ -65,7 +57,7 @@ export default function TechCard({ tech, size, className }: TechCardProps) {
     revealWrapper,
     revealBorder,
     revealBg,
-  } = techCardVariants({ size, isDark });
+  } = techCardVariants({ size });
 
   return (
     <Card
@@ -89,22 +81,20 @@ export default function TechCard({ tech, size, className }: TechCardProps) {
         style={{ transition: "border-color 0.3s" }}
       />
 
-      {isDark && (
-        <div
-          className={revealWrapper()}
-          style={{
-            opacity: "var(--mouse-opacity)",
-            transition: "opacity 0.3s",
-            maskImage:
-              "radial-gradient(100px circle at var(--mouse-x) var(--mouse-y), black, transparent)",
-            WebkitMaskImage:
-              "radial-gradient(100px circle at var(--mouse-x) var(--mouse-y), black, transparent)",
-          }}
-        >
-          <div className={revealBorder()} />
-          <div className={revealBg()} />
-        </div>
-      )}
+      <div
+        className={`tech-card-theme-reveal ${revealWrapper()}`}
+        style={{
+          opacity: "var(--mouse-opacity)",
+          transition: "opacity 0.3s",
+          maskImage:
+            "radial-gradient(100px circle at var(--mouse-x) var(--mouse-y), black, transparent)",
+          WebkitMaskImage:
+            "radial-gradient(100px circle at var(--mouse-x) var(--mouse-y), black, transparent)",
+        }}
+      >
+        <div className={revealBorder()} />
+        <div className={revealBg()} />
+      </div>
 
       <div
         className="relative z-20 flex flex-col items-center gap-5"
@@ -119,7 +109,7 @@ export default function TechCard({ tech, size, className }: TechCardProps) {
             className={icon()}
             style={{
               filter: isHovered
-                ? "drop-shadow(0 0 8px rgba(255,255,255,0.5))"
+                ? "var(--filter-tech-icon-hover)"
                 : "none",
               transition: "filter 0.3s",
             }}

@@ -26,6 +26,7 @@
   --palette-white-02: rgba(255, 255, 255, 0.02);
   --palette-white-20: rgba(255, 255, 255, 0.2);
   --palette-white-30: rgba(255, 255, 255, 0.3);
+  --palette-white-50: rgba(255, 255, 255, 0.5);
   --palette-white-80: rgba(255, 255, 255, 0.8);
   --palette-white-90: rgba(255, 255, 255, 0.9);
   --palette-black-20: rgba(0, 0, 0, 0.2);
@@ -58,6 +59,93 @@
   /* Fundo & texto */
   --color-background: var(--palette-sepia-50);
   --color-text-primary: #2b2a28;
+
+  /* Superfícies e efeitos estruturais */
+  --color-header-surface: color-mix(
+    in oklab,
+    var(--palette-white) 35%,
+    transparent
+  );
+  --color-project-card-surface: color-mix(
+    in oklab,
+    var(--palette-white) 50%,
+    transparent
+  );
+  --color-project-card-surface-hover: color-mix(
+    in oklab,
+    var(--palette-white) 80%,
+    transparent
+  );
+  --color-project-card-reveal-border: color-mix(
+    in oklab,
+    var(--palette-white) 30%,
+    transparent
+  );
+  --color-project-card-reveal-surface: color-mix(
+    in oklab,
+    var(--palette-white) 3%,
+    transparent
+  );
+  --color-surface-subtle: color-mix(
+    in oklab,
+    var(--palette-white) 2%,
+    transparent
+  );
+  --color-surface-subtle-hover: color-mix(
+    in oklab,
+    var(--palette-white) 5%,
+    transparent
+  );
+  --color-icon-button-surface: color-mix(
+    in oklab,
+    var(--palette-white) 3%,
+    transparent
+  );
+  --color-tech-container-surface: color-mix(
+    in oklab,
+    var(--palette-white) 50%,
+    transparent
+  );
+  --color-tech-container-border: color-mix(
+    in oklab,
+    var(--palette-sepia-900) 50%,
+    transparent
+  );
+  --color-tech-card-border: color-mix(
+    in oklab,
+    var(--palette-sepia-900) 10%,
+    transparent
+  );
+  --color-tech-card-surface-hover: var(--palette-sepia-900);
+  --color-tech-card-border-hover: color-mix(
+    in oklab,
+    var(--palette-sepia-900) 20%,
+    transparent
+  );
+  --color-tech-card-reveal-border: color-mix(
+    in oklab,
+    var(--palette-white) 40%,
+    transparent
+  );
+  --color-tech-card-reveal-surface: color-mix(
+    in oklab,
+    var(--palette-white) 5%,
+    transparent
+  );
+  --color-theme-switcher-track: var(--palette-sepia-50);
+  --color-theme-switcher-toggle: var(--palette-yellow-200);
+  --color-theme-switcher-toggle-border: var(--palette-yellow-200);
+  --color-button-shine: color-mix(
+    in oklab,
+    var(--palette-white) 10%,
+    transparent
+  );
+  --color-mobile-menu-footer: color-mix(
+    in oklab,
+    var(--palette-black) 5%,
+    transparent
+  );
+  --color-cursor-contrast: var(--palette-white);
 
   /* Botão primário */
   --color-button-primary-surface: var(--palette-sepia-800);
@@ -92,25 +180,10 @@
 
   /* Sombras */
   --shadow-sm: 0px 4px 8px 0px var(--palette-black-20);
+  --shadow-header-scrolled: 0 4px 30px rgba(0, 0, 0, 0.1);
+  --shadow-button-secondary-hover: 0 0 10px 2px hsla(44, 72%, 82%, 0.5);
 
   /* Theme Switcher */
-  --shadow-switcher-container-light:
-    4px 4px 8px var(--palette-neutral-light-shadow),
-    -2px -2px 6px var(--palette-white-80),
-    inset 2px 2px 6px var(--palette-yellow-glow);
-
-  --shadow-switcher-container-dark:
-    6px 6px 8px var(--palette-black-80),
-    -2px -2px 6px var(--palette-neutral-50-80),
-    inset 2px 2px 6px var(--palette-neutral-900);
-
-  --shadow-switcher-toggle-light:
-    inset 2px 2px 120px var(--palette-yellow-pure),
-    0.5px 0.5px 15px var(--palette-yellow-pure);
-
-  --shadow-switcher-toggle-dark:
-    inset 5px -3px 1px var(--palette-white-90),
-    inset -1px 2px 4px var(--palette-neutral-900-90),
-    4px 4px 8px var(--palette-black-60),
-    -4px -4px 6px var(--palette-neutral-50-70);
+  --shadow-theme-switcher-container: var(--theme-switcher-container-shadow);
+  --shadow-theme-switcher-toggle: var(--theme-switcher-toggle-shadow);
 }

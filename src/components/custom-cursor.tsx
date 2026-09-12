@@ -153,11 +153,11 @@ const CustomCursor: FC = () => {
     >
       <div
         ref={innerRef}
-        className="absolute top-0 left-0 w-1.5 h-1.5 rounded-full bg-white will-change-transform -translate-x-1/2 -translate-y-1/2 transition-opacity duration-300"
+        className="absolute top-0 left-0 w-1.5 h-1.5 rounded-full bg-cursor-contrast will-change-transform -translate-x-1/2 -translate-y-1/2 transition-opacity duration-300"
       />
       <div
         ref={outerRef}
-        className={`absolute top-0 left-0 rounded-full border border-white will-change-transform transition-all duration-300 ease-out -translate-x-1/2 -translate-y-1/2 ${
+        className={`absolute top-0 left-0 rounded-full border border-cursor-contrast will-change-transform transition-all duration-300 ease-out -translate-x-1/2 -translate-y-1/2 ${
           isHovering
             ? isClicked
               ? "w-8 h-8 border-2"

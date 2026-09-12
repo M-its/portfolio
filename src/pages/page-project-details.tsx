@@ -42,7 +42,7 @@ function ProjectNavigation({ project }: { project: ProjectData }) {
       {previousProject ? (
         <Link
           to={`/projects/${previousProject.slug}`}
-          className="group rounded-2xl border border-card-border bg-white/2 p-5 transition-colors hover:bg-white/5 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary"
+          className="group rounded-2xl border border-card-border bg-surface-subtle p-5 transition-colors hover:bg-surface-subtle-hover focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary"
         >
           <span className="text-xs uppercase tracking-[0.24em] opacity-55">
             Projeto anterior
@@ -58,7 +58,7 @@ function ProjectNavigation({ project }: { project: ProjectData }) {
       {nextProject ? (
         <Link
           to={`/projects/${nextProject.slug}`}
-          className="group rounded-2xl border border-card-border bg-white/2 p-5 text-right transition-colors hover:bg-white/5 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary"
+          className="group rounded-2xl border border-card-border bg-surface-subtle p-5 text-right transition-colors hover:bg-surface-subtle-hover focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary"
         >
           <span className="text-xs uppercase tracking-[0.24em] opacity-55">
             Próximo projeto
@@ -273,7 +273,7 @@ export default function PageProjectDetails() {
           <AnimatedSection
             variants={animationVariants.fadeUp}
             repeatOnView={false}
-            className="rounded-2xl border border-card-border bg-white/2 p-6"
+            className="rounded-2xl border border-card-border bg-surface-subtle p-6"
           >
             <Text as="h2" variant="heading-section" className="text-xl">
               Stack
@@ -288,7 +288,7 @@ export default function PageProjectDetails() {
           <AnimatedSection
             variants={animationVariants.fadeUp}
             repeatOnView={false}
-            className="rounded-2xl border border-card-border bg-white/2 p-6"
+            className="rounded-2xl border border-card-border bg-surface-subtle p-6"
           >
             <Text as="h2" variant="heading-section" className="text-xl">
               Destaques
@@ -303,7 +303,7 @@ export default function PageProjectDetails() {
           <AnimatedSection
             variants={animationVariants.fadeUp}
             repeatOnView={false}
-            className="rounded-2xl border border-card-border bg-white/2 p-6"
+            className="rounded-2xl border border-card-border bg-surface-subtle p-6"
           >
             <Text as="h2" variant="heading-section" className="text-xl">
               Resultados e aprendizados

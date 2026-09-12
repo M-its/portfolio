@@ -9,7 +9,6 @@ import cx from "classnames";
 import { motion, AnimatePresence } from "framer-motion";
 
 import useScrolled from "../hooks/use-scrolled.ts";
-import { useTheme } from "../contexts/theme-context.tsx";
 
 import Container from "../components/container.tsx";
 import Button from "../components/button.tsx";
@@ -23,7 +22,6 @@ export default function Header({ className, ...props }: HeaderProps) {
   const [menuOpen, setMenuOpen] = useState(false);
   const scrolled = useScrolled(50);
   const menuRef = useRef<HTMLDivElement>(null);
-  const { isDark } = useTheme();
   const [scrollbarWidth, setScrollbarWidth] = useState(0);
 
   useEffect(() => {
@@ -76,10 +74,7 @@ export default function Header({ className, ...props }: HeaderProps) {
         className={cx(
           "fixed inset-x-0 mx-auto z-50 transition-[background-color,border-color,box-shadow,backdrop-filter] duration-300",
           scrolled
-            ? cx(
-                "top-4 w-[90%] max-w-[1200px] rounded-2xl border py-2 backdrop-blur-[15px] shadow-[0_4px_30px_rgba(0,0,0,0.1)]",
-                isDark ? "bg-white/5" : "bg-white/35",
-              )
+            ? "top-4 w-[90%] max-w-[1200px] rounded-2xl border bg-header-surface py-2 backdrop-blur-[15px] shadow-header-scrolled"
             : "top-0 w-full max-w-[1400px] border-b py-6 sm:py-8 md:py-10",
           menuOpen ? "border-transparent" : "border-icon-primary/20",
         )}

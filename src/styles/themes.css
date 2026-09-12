@@ -3,6 +3,37 @@
     /* Fundo & texto */
     --color-background: var(--palette-black);
     --color-text-primary: var(--palette-white);
+    --color-header-surface: color-mix(
+      in oklab,
+      var(--palette-white) 5%,
+      transparent
+    );
+    --color-project-card-surface: color-mix(
+      in oklab,
+      var(--palette-white) 2%,
+      transparent
+    );
+    --color-project-card-surface-hover: color-mix(
+      in oklab,
+      var(--palette-white) 4%,
+      transparent
+    );
+    --color-tech-container-surface: color-mix(
+      in oklab,
+      var(--palette-white) 2%,
+      transparent
+    );
+    --color-tech-container-border: var(--palette-neutral-700);
+    --color-tech-card-border: color-mix(
+      in oklab,
+      var(--palette-white) 5%,
+      transparent
+    );
+    --color-tech-card-surface-hover: var(--palette-neutral-800);
+    --color-tech-card-border-hover: var(--palette-neutral-700);
+    --color-theme-switcher-track: var(--palette-neutral-800);
+    --color-theme-switcher-toggle: var(--palette-neutral-800);
+    --color-theme-switcher-toggle-border: transparent;
 
     /* Botões */
     --color-button-primary-surface: var(--palette-neutral-800);
@@ -29,5 +60,33 @@
     --color-scrollbar-thumb-hover: var(--palette-scrollbar-dark-hover);
 
     --noise-opacity: 0.15;
+    --project-card-reveal-display: block;
+    --tech-card-reveal-display: block;
+    --theme-switcher-toggle-translate: 0px;
+    --theme-switcher-toggle-rotate: none;
+    --theme-switcher-container-shadow:
+      6px 6px 8px var(--palette-black-80),
+      -2px -2px 6px var(--palette-neutral-50-80),
+      inset 2px 2px 6px var(--palette-neutral-900);
+    --theme-switcher-toggle-shadow:
+      inset 5px -3px 1px var(--palette-white-90),
+      inset -1px 2px 4px var(--palette-neutral-900-90),
+      4px 4px 8px var(--palette-black-60),
+      -4px -4px 6px var(--palette-neutral-50-70);
+  }
+}
+
+@layer utilities {
+  .project-card-theme-reveal {
+    display: var(--project-card-reveal-display);
+  }
+
+  .tech-card-theme-reveal {
+    display: var(--tech-card-reveal-display);
+  }
+
+  .theme-switcher-toggle {
+    rotate: var(--theme-switcher-toggle-rotate);
+    translate: var(--theme-switcher-toggle-translate);
   }
 }

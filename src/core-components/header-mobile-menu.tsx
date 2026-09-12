@@ -96,7 +96,7 @@ const MobileMenu = forwardRef<HTMLDivElement, MobileMenuProps>(
         {/* RODAPÉ DO MENU */}
         <motion.div
           variants={LinkVariants}
-          className="p-8 md:p-12 flex justify-between items-end border-t border-card-border/50 bg-linear-to-t from-black/5 to-transparent"
+          className="p-8 md:p-12 flex justify-between items-end border-t border-card-border/50 bg-linear-to-t from-mobile-menu-footer to-transparent"
         >
           <div className="flex flex-col gap-2">
             <span className="text-xs uppercase tracking-widest opacity-40">

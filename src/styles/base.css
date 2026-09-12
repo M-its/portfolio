@@ -16,6 +16,21 @@
     min-height: 100vh;
 
     --noise-opacity: 0.5;
+    --project-card-reveal-display: none;
+    --tech-card-reveal-display: none;
+    --theme-switcher-toggle-translate: 30px;
+    --theme-switcher-toggle-rotate: 360deg;
+    --theme-switcher-container-shadow:
+      4px 4px 8px var(--palette-neutral-light-shadow),
+      -2px -2px 6px var(--palette-white-80),
+      inset 2px 2px 6px var(--palette-yellow-glow);
+    --theme-switcher-toggle-shadow:
+      inset 2px 2px 120px var(--palette-yellow-pure),
+      0.5px 0.5px 15px var(--palette-yellow-pure);
+    --filter-tech-icon-hover: drop-shadow(
+      0 0 8px var(--palette-white-50)
+    );
+    --intro-particle-rgb: 255, 255, 255;
     /* Scroll suave é opt-in nos controles; removê-lo globalmente resolve o bug #2. */
   }
 

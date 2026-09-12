@@ -9,7 +9,6 @@ import TechCard from "./tech-card";
 import Text from "../components/text";
 import type { techs as techsData } from "../data/techs";
 import AnimatedSection from "../components/animated-section";
-import { useTheme } from "../contexts/theme-context";
 import useMediaQuery from "../hooks/use-media-query";
 import { useOnScreen } from "../hooks/use-on-screen";
 
@@ -34,7 +33,6 @@ const CATEGORIES = [
 type TechItem = (typeof techsData)[0];
 
 export default function TechsContainer({ techs }: { techs: TechItem[] }) {
-  const { isDark } = useTheme();
   const prefersReducedMotion = useMediaQuery(
     "(prefers-reduced-motion: reduce)",
   );
@@ -87,7 +85,7 @@ export default function TechsContainer({ techs }: { techs: TechItem[] }) {
       </AnimatedSection>
       <AnimatedSection
         delay={0.3}
-        className={`w-full min-w-0 rounded-3xl shadow-2xl flex-1 ${isDark ? "bg-white/2 border-button-primary-surface-hover" : "bg-white/50 border-button-primary-surface-hover/50"} border`}
+        className="w-full min-w-0 flex-1 rounded-3xl border border-tech-container-border bg-tech-container-surface shadow-2xl"
       >
         <div className="p-8 rounded-3xl overflow-hidden h-full">
           <Swiper

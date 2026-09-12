@@ -14,6 +14,9 @@ const Particles = memo(() => {
     if (!canvas) return;
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
+    const particleRgb = getComputedStyle(canvas)
+      .getPropertyValue("--intro-particle-rgb")
+      .trim();
 
     const count = isMobile ? 20 : 60;
 
@@ -56,7 +59,7 @@ const Particles = memo(() => {
 
         ctx.beginPath();
         ctx.arc(p.x, p.y, p.size / 2, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(255, 255, 255, ${p.opacity * 0.3})`;
+        ctx.fillStyle = `rgba(${particleRgb}, ${p.opacity * 0.3})`;
         ctx.fill();
       }
 

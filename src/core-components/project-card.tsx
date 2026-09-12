@@ -7,7 +7,6 @@ import GlobeIcon from "../assets/icons/globe.svg?react";
 import Button from "../components/button";
 import Card, { type cardVariants } from "../components/card";
 import Text from "../components/text";
-import { useTheme } from "../contexts/theme-context";
 import type { ProjectData } from "../data/projects";
 import useMouseGlare from "../hooks/use-mouse-glare";
 import useProjectTransition from "../hooks/use-project-transition";
@@ -17,25 +16,16 @@ const projectCardVariants = tv({
   slots: {
     container: "relative w-full h-full",
     wrapper:
-      "relative group h-full w-full rounded-3xl overflow-hidden transition-all duration-500 ease-out hover:scale-[1.01]",
+      "relative group h-full w-full rounded-3xl overflow-hidden bg-project-card-surface backdrop-blur-md transition-all duration-500 ease-out hover:scale-[1.01] hover:bg-project-card-surface-hover",
     baseBorder:
       "absolute inset-px rounded-[calc(1.5rem-1px)] pointer-events-none z-20 border border-card-border/50",
     revealWrapper:
       "absolute inset-px rounded-[calc(1.5rem-1px)] pointer-events-none z-30 transition-opacity duration-300",
-    revealBorder: "absolute inset-0 rounded-3xl border-[1.5px] border-white/30",
-    revealGlare: "absolute inset-0 bg-white/3",
+    revealBorder:
+      "absolute inset-0 rounded-3xl border-[1.5px] border-project-card-reveal-border",
+    revealGlare: "absolute inset-0 bg-project-card-reveal-surface",
     content:
       "relative z-10 bg-transparent border-0 p-5 flex flex-col gap-4 w-full h-full",
-  },
-  variants: {
-    isDark: {
-      true: {
-        wrapper: "bg-white/2 backdrop-blur-md hover:bg-white/4",
-      },
-      false: {
-        wrapper: "bg-white/50 backdrop-blur-md hover:bg-white/80",
-      },
-    },
   },
 });
 
@@ -52,7 +42,6 @@ export default function ProjectCard({
   className,
   ...props
 }: ProjectCardProps) {
-  const { isDark } = useTheme();
   const cardRef = useRef<HTMLDivElement>(null);
   const imageFrameRef = useRef<HTMLDivElement>(null);
   const handleProjectNavigation = useProjectTransition(imageFrameRef);
@@ -67,7 +56,7 @@ export default function ProjectCard({
     revealBorder,
     revealGlare,
     content,
-  } = projectCardVariants({ isDark });
+  } = projectCardVariants();
   const optimizedImageBase = project.image.endsWith(".png")
     ? project.image.slice(0, -".png".length)
     : null;
@@ -88,21 +77,19 @@ export default function ProjectCard({
       <div className={`project-card ${wrapper()} ${className ?? ""}`}>
         <div className={baseBorder()} />
 
-        {isDark && (
-          <div
-            className={revealWrapper()}
-            style={{
-              opacity: "var(--mouse-opacity)",
-              maskImage:
-                "radial-gradient(180px circle at var(--mouse-x) var(--mouse-y), black, transparent)",
-              WebkitMaskImage:
-                "radial-gradient(180px circle at var(--mouse-x) var(--mouse-y), black, transparent)",
-            }}
-          >
-            <div className={revealBorder()} />
-            <div className={revealGlare()} />
-          </div>
-        )}
+        <div
+          className={`project-card-theme-reveal ${revealWrapper()}`}
+          style={{
+            opacity: "var(--mouse-opacity)",
+            maskImage:
+              "radial-gradient(180px circle at var(--mouse-x) var(--mouse-y), black, transparent)",
+            WebkitMaskImage:
+              "radial-gradient(180px circle at var(--mouse-x) var(--mouse-y), black, transparent)",
+          }}
+        >
+          <div className={revealBorder()} />
+          <div className={revealGlare()} />
+        </div>
 
         <Card {...props} className={content()}>
           <div className="project-card-header flex items-center justify-between gap-4 w-full">
@@ -125,7 +112,7 @@ export default function ProjectCard({
               variant="outline"
               title={`Ver estudo de caso de ${project.name}`}
               aria-label={`Ver estudo de caso do projeto ${project.name}`}
-              className="project-card-case-link rounded-md border border-current/20 bg-white/3 p-1 text-text-primary opacity-65 hover:opacity-100 hover:scale-105"
+              className="project-card-case-link rounded-md border border-current/20 bg-icon-button-surface p-1 text-text-primary opacity-65 hover:opacity-100 hover:scale-105"
             />
           </div>
 
