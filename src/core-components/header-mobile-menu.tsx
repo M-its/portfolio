@@ -81,10 +81,10 @@ const MobileMenu = forwardRef<HTMLDivElement, MobileMenuProps>(
                 className="w-full py-6 group-hover:pl-4 transition-all duration-300"
               >
                 <span className="flex items-baseline gap-4 w-full">
-                  <span className="text-sm font-mono opacity-50 text-primary">
+                  <span className="text-sm font-mono opacity-50 text-text-primary">
                     {link.number} .
                   </span>
-                  <span className="text-5xl md:text-7xl font-light tracking-tight group-hover:text-primary transition-colors">
+                  <span className="text-5xl md:text-7xl font-light tracking-tight group-hover:text-text-primary transition-colors">
                     {link.label}
                   </span>
                 </span>

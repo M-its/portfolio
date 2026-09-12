@@ -127,7 +127,7 @@ export default function ProjectCard({
                   onClick={(event) =>
                     handleProjectNavigation(event, `/projects/${project.slug}`)
                   }
-                  className="block h-full w-full focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary"
+                  className="block h-full w-full focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-text-primary"
                   aria-label={`Ver estudo de caso do projeto ${project.name}`}
                 >
                   <picture className="block h-full w-full">

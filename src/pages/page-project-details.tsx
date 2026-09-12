@@ -42,12 +42,12 @@ function ProjectNavigation({ project }: { project: ProjectData }) {
       {previousProject ? (
         <Link
           to={`/projects/${previousProject.slug}`}
-          className="group rounded-2xl border border-card-border bg-surface-subtle p-5 transition-colors hover:bg-surface-subtle-hover focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary"
+          className="group rounded-2xl border border-card-border bg-surface-subtle p-5 transition-colors hover:bg-surface-subtle-hover focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-text-primary"
         >
           <span className="text-xs uppercase tracking-[0.24em] opacity-55">
             Projeto anterior
           </span>
-          <span className="mt-2 block text-xl font-medium group-hover:text-primary">
+          <span className="mt-2 block text-xl font-medium group-hover:text-text-primary">
             ← {previousProject.name}
           </span>
         </Link>
@@ -58,12 +58,12 @@ function ProjectNavigation({ project }: { project: ProjectData }) {
       {nextProject ? (
         <Link
           to={`/projects/${nextProject.slug}`}
-          className="group rounded-2xl border border-card-border bg-surface-subtle p-5 text-right transition-colors hover:bg-surface-subtle-hover focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary"
+          className="group rounded-2xl border border-card-border bg-surface-subtle p-5 text-right transition-colors hover:bg-surface-subtle-hover focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-text-primary"
         >
           <span className="text-xs uppercase tracking-[0.24em] opacity-55">
             Próximo projeto
           </span>
-          <span className="mt-2 block text-xl font-medium group-hover:text-primary">
+          <span className="mt-2 block text-xl font-medium group-hover:text-text-primary">
             {nextProject.name} →
           </span>
         </Link>
@@ -107,7 +107,7 @@ export default function PageProjectDetails() {
             event.preventDefault();
             navigateBackToHome(navigate, fromCardTransition);
           }}
-          className="inline-flex items-center gap-2 text-sm font-medium opacity-70 transition-opacity hover:opacity-100 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary"
+          className="inline-flex items-center gap-2 text-sm font-medium opacity-70 transition-opacity hover:opacity-100 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-text-primary"
         >
           <span aria-hidden="true">←</span>
           Voltar ao início
@@ -238,7 +238,7 @@ export default function PageProjectDetails() {
                   <ul className="mt-5 space-y-3 leading-relaxed opacity-80">
                     {project.caseStudy.challenges.map((challenge) => (
                       <li key={challenge} className="flex gap-3">
-                        <span aria-hidden="true" className="text-primary">
+                        <span aria-hidden="true" className="text-text-primary">
                           —
                         </span>
                         {challenge}
@@ -256,7 +256,7 @@ export default function PageProjectDetails() {
                   <ul className="mt-5 space-y-3 leading-relaxed opacity-80">
                     {project.caseStudy.decisions.map((decision) => (
                       <li key={decision} className="flex gap-3">
-                        <span aria-hidden="true" className="text-primary">
+                        <span aria-hidden="true" className="text-text-primary">
                           —
                         </span>
                         {decision}
