@@ -4,11 +4,13 @@ import { Route, Routes } from "react-router-dom";
 import IntroSplash from "./core-components/intro-splash";
 import LayoutMain from "./pages/layout-main";
 import PageHome from "./pages/page-home";
-import PageProjectDetails from "./pages/page-project-details";
-import PageProjectNotFound from "./pages/page-project-not-found";
+import { loadProjectDetailsPage } from "./utils/project-details-loader";
 
 const PageComponents = lazy(() => import("./pages/page-components"));
-
+const PageProjectDetails = lazy(loadProjectDetailsPage);
+const PageProjectNotFound = lazy(
+  () => import("./pages/page-project-not-found"),
+);
 export default function App() {
   const [showIntro, setShowIntro] = useState(() => {
     return !localStorage.getItem("visited");
@@ -38,21 +40,19 @@ export default function App() {
       </AnimatePresence>
 
       <div className="h-full w-full">
-        <Routes>
-          <Route element={<LayoutMain />}>
-            <Route index element={<PageHome />} />
-            <Route path="projects/:slug" element={<PageProjectDetails />} />
-            <Route
-              path="/components"
-              element={
-                <Suspense fallback={<div />}>
-                  <PageComponents />
-                </Suspense>
-              }
-            />
-            <Route path="*" element={<PageProjectNotFound />} />
-          </Route>
-        </Routes>
+        <Suspense fallback={<div />}>
+          <Routes>
+            <Route element={<LayoutMain />}>
+              <Route index element={<PageHome />} />
+              <Route
+                path="projects/:slug"
+                element={<PageProjectDetails />}
+              />
+              <Route path="/components" element={<PageComponents />} />
+              <Route path="*" element={<PageProjectNotFound />} />
+            </Route>
+          </Routes>
+        </Suspense>
       </div>
     </>
   );

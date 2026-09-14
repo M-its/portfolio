@@ -1,5 +1,6 @@
 import { motion, type Variants } from "framer-motion";
 import { useOnScreen } from "../hooks/use-on-screen";
+import useMediaQuery from "../hooks/use-media-query";
 
 interface AnimatedSectionProps {
   children: React.ReactNode;
@@ -19,6 +20,10 @@ interface AnimatedSectionProps {
 }
 
 export const animationVariants: Record<string, Variants> = {
+  instant: {
+    hidden: { opacity: 1 },
+    visible: { opacity: 1, transition: { duration: 0 } },
+  },
   fadeIn: {
     hidden: { opacity: 0 },
     visible: {
@@ -82,7 +87,19 @@ export default function AnimatedSection({
   style = {},
 }: AnimatedSectionProps) {
   const Component = motion[as] as React.ElementType;
-  const mergedVariants = mergeVariantsWithDelay(variants, delay);
+  const isMobile = useMediaQuery("(max-width: 768px)");
+  const prefersReducedMotion = useMediaQuery(
+    "(prefers-reduced-motion: reduce)",
+  );
+  const effectiveVariants = prefersReducedMotion
+    ? animationVariants.instant
+    : isMobile && variants === animationVariants.blur
+      ? animationVariants.fadeIn
+      : variants;
+  const mergedVariants = mergeVariantsWithDelay(
+    effectiveVariants,
+    prefersReducedMotion ? 0 : delay,
+  );
 
   let threshold: number | number[] = 0;
   if (typeof viewport.amount === "number") {

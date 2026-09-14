@@ -113,12 +113,16 @@ const CustomCursor: FC = () => {
       if (outer) outer.style.opacity = "1";
     };
 
-    const handleMouseDown = () => setIsClicked(true);
-    const handleMouseUp = () => setIsClicked(false);
+    const handlePointerDown = (event: PointerEvent) => {
+      if (event.button === 0) setIsClicked(true);
+    };
+    const handlePointerUp = () => setIsClicked(false);
 
     window.addEventListener("mousemove", handleMouseMove, { passive: true });
-    window.addEventListener("mousedown", handleMouseDown);
-    window.addEventListener("mouseup", handleMouseUp);
+    document.addEventListener("pointerdown", handlePointerDown, true);
+    document.addEventListener("pointerup", handlePointerUp, true);
+    document.addEventListener("pointercancel", handlePointerUp, true);
+    window.addEventListener("blur", handlePointerUp);
     document.addEventListener("mouseleave", handleMouseLeave);
     document.addEventListener("mouseout", handleMouseLeave);
     document.addEventListener("mouseenter", handleMouseEnter);
@@ -126,8 +130,10 @@ const CustomCursor: FC = () => {
 
     return () => {
       window.removeEventListener("mousemove", handleMouseMove);
-      window.removeEventListener("mousedown", handleMouseDown);
-      window.removeEventListener("mouseup", handleMouseUp);
+      document.removeEventListener("pointerdown", handlePointerDown, true);
+      document.removeEventListener("pointerup", handlePointerUp, true);
+      document.removeEventListener("pointercancel", handlePointerUp, true);
+      window.removeEventListener("blur", handlePointerUp);
       document.removeEventListener("mouseleave", handleMouseLeave);
       document.removeEventListener("mouseout", handleMouseLeave);
       document.removeEventListener("mouseenter", handleMouseEnter);

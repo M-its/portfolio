@@ -10,6 +10,7 @@ import Text from "../components/text";
 import type { ProjectData } from "../data/projects";
 import useMouseGlare from "../hooks/use-mouse-glare";
 import useProjectTransition from "../hooks/use-project-transition";
+import { loadProjectDetailsPage } from "../utils/project-details-loader";
 import TagsList from "./tags-list";
 
 const projectCardVariants = tv({
@@ -108,6 +109,8 @@ export default function ProjectCard({
               onClick={(event) =>
                 handleProjectNavigation(event, `/projects/${project.slug}`)
               }
+              onFocus={() => void loadProjectDetailsPage()}
+              onPointerEnter={() => void loadProjectDetailsPage()}
               icon={FileTextIcon}
               variant="outline"
               title={`Ver estudo de caso de ${project.name}`}
@@ -127,6 +130,8 @@ export default function ProjectCard({
                   onClick={(event) =>
                     handleProjectNavigation(event, `/projects/${project.slug}`)
                   }
+                  onFocus={() => void loadProjectDetailsPage()}
+                  onPointerEnter={() => void loadProjectDetailsPage()}
                   className="block h-full w-full focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-text-primary"
                   aria-label={`Ver estudo de caso do projeto ${project.name}`}
                 >

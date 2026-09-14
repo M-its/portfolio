@@ -1,4 +1,4 @@
-import { Suspense, lazy, useEffect, useLayoutEffect } from "react";
+import { Suspense, lazy, useLayoutEffect } from "react";
 import { useLocation } from "react-router-dom";
 import Button from "../components/button";
 import Container from "../components/container";
@@ -11,9 +11,9 @@ import AnimatedSection, {
 } from "../components/animated-section.tsx";
 import AboutSection from "../core-components/about-section.tsx";
 import { BUTTON_CONFIG, SOCIAL_LINKS } from "../data/constants.ts";
-import { projectsBase } from "../data/projects.ts";
-import { preloadTechIcons, techs } from "../data/techs.ts";
+import { techs } from "../data/techs.ts";
 import useMediaQuery from "../hooks/use-media-query.ts";
+import { useOnScreen } from "../hooks/use-on-screen.ts";
 import { initializeHomeScroll } from "../hooks/use-project-transition.ts";
 import useScrollToSection from "../hooks/use-scroll-to-section.ts";
 
@@ -50,36 +50,19 @@ export default function PageHome() {
   const isCompact = isMobile || isSquished;
   const buttonConfig = isCompact ? BUTTON_CONFIG.icon : BUTTON_CONFIG.button;
   const scrollToSection = useScrollToSection();
+  const [techLoadRef, isTechNearViewport] = useOnScreen({
+    rootMargin: "50px",
+    triggerOnce: true,
+  });
+  const [projectsLoadRef, areProjectsNearViewport] = useOnScreen({
+    rootMargin: "300px",
+    triggerOnce: true,
+  });
 
   useLayoutEffect(() => {
     // O coordenador restaura antes do paint e remove o scroll global — bugs #2 e #3.
     return initializeHomeScroll(location.hash);
   }, [location.hash]);
-
-  useEffect(() => {
-    const preloadNonCriticalAssets = () => {
-      void preloadTechIcons();
-
-      for (const project of projectsBase) {
-        const image = new Image();
-        image.decoding = "async";
-        image.src = project.image.endsWith(".png")
-          ? `${project.image.slice(0, -4)}-640.webp`
-          : project.image;
-        void image.decode().catch(() => undefined);
-      }
-    };
-
-    if ("requestIdleCallback" in window) {
-      const idleId = window.requestIdleCallback(preloadNonCriticalAssets, {
-        timeout: 1800,
-      });
-      return () => window.cancelIdleCallback(idleId);
-    }
-
-    const timeoutId = globalThis.setTimeout(preloadNonCriticalAssets, 1000);
-    return () => globalThis.clearTimeout(timeoutId);
-  }, []);
 
   return (
     <Container
@@ -126,10 +109,14 @@ export default function PageHome() {
           </div>
         </div>
 
-        <div id="stack">
-          <Suspense fallback={<div className="min-h-[400px]" />}>
-            <TechsContainer techs={techs} />
-          </Suspense>
+        <div id="stack" ref={techLoadRef}>
+          {!isMobile || isTechNearViewport ? (
+            <Suspense fallback={<div className="min-h-[400px]" />}>
+              <TechsContainer techs={techs} />
+            </Suspense>
+          ) : (
+            <div className="min-h-[400px]" aria-hidden="true" />
+          )}
         </div>
       </div>
 
@@ -140,11 +127,17 @@ export default function PageHome() {
         <ScrollIndicator onClick={() => scrollToSection("projects")} />
       </AnimatedSection>
 
-      <AnimatedSection id="projects" variants={animationVariants.fadeUp}>
-        <Suspense fallback={<div className="min-h-[600px]" />}>
-          <ProjectsContainer />
-        </Suspense>
-      </AnimatedSection>
+      <div id="projects" ref={projectsLoadRef}>
+        {areProjectsNearViewport ? (
+          <AnimatedSection variants={animationVariants.fadeUp}>
+            <Suspense fallback={<div className="min-h-[600px]" />}>
+              <ProjectsContainer />
+            </Suspense>
+          </AnimatedSection>
+        ) : (
+          <div className="min-h-[600px]" aria-hidden="true" />
+        )}
+      </div>
     </Container>
   );
 }

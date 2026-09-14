@@ -9,7 +9,7 @@ import {
 } from "react";
 import useMediaQuery from "./use-media-query";
 
-type MouseHandler = (x: number, y: number) => void | (() => void);
+type MouseHandler = (x: number, y: number) => undefined | (() => void);
 
 interface MouseGlareContextType {
   register: (handler: MouseHandler) => void;
@@ -129,48 +129,35 @@ export default function useMouseGlare<T extends HTMLElement>(
     const { register, unregister } = context;
 
     let isVisible = false;
-    let rect: {
-      left: number;
-      top: number;
-      width: number;
-      height: number;
-    } | null = null;
-
-    const updateRect = () => {
-      const element = ref.current;
-      if (!element) return;
-      const nextRect = element.getBoundingClientRect();
-      rect = {
-        left: nextRect.left + window.scrollX,
-        top: nextRect.top + window.scrollY,
-        width: nextRect.width,
-        height: nextRect.height,
-      };
-    };
-
     const observer = new IntersectionObserver(
       ([entry]) => {
         isVisible = entry.isIntersecting;
-        if (isVisible) updateRect();
       },
       { threshold: 0 },
     );
 
-    const resizeObserver = new ResizeObserver(updateRect);
     if (ref.current) {
       observer.observe(ref.current);
-      resizeObserver.observe(ref.current);
-      updateRect();
     }
-
-    window.addEventListener("resize", updateRect, { passive: true });
 
     const handleMove = (clientX: number, clientY: number) => {
       const element = ref.current;
-      if (!element || !isVisible || !rect) return;
+      if (!element || !isVisible) return;
 
-      const x = clientX + window.scrollX - rect.left;
-      const y = clientY + window.scrollY - rect.top;
+      const swiperSlide = element.closest(".swiper-slide");
+      if (
+        swiperSlide &&
+        !swiperSlide.classList.contains("swiper-slide-active")
+      ) {
+        return () => element.style.setProperty("--mouse-opacity", "0");
+      }
+
+      // Swiper posiciona os slides com transform, que não dispara ResizeObserver.
+      // Ler a posição no frame atual mantém o glare alinhado durante e após a troca.
+      const rect = element.getBoundingClientRect();
+
+      const x = clientX - rect.left;
+      const y = clientY - rect.top;
 
       const margin = 300;
       const distX = Math.max(
@@ -190,11 +177,11 @@ export default function useMouseGlare<T extends HTMLElement>(
           element.style.setProperty("--mouse-y", `${y}px`);
           element.style.setProperty("--mouse-opacity", proximity.toFixed(2));
         };
-      } else {
-        return () => {
-          element.style.setProperty("--mouse-opacity", "0");
-        };
       }
+
+      return () => {
+        element.style.setProperty("--mouse-opacity", "0");
+      };
     };
 
     register(handleMove);
@@ -202,8 +189,6 @@ export default function useMouseGlare<T extends HTMLElement>(
     return () => {
       unregister(handleMove);
       observer.disconnect();
-      resizeObserver.disconnect();
-      window.removeEventListener("resize", updateRect);
     };
   }, [context, ref]);
 }

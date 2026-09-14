@@ -8,8 +8,13 @@ import useMediaQuery from "../hooks/use-media-query";
 const Particles = memo(() => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const isMobile = useMediaQuery("(max-width: 768px)");
+  const prefersReducedMotion = useMediaQuery(
+    "(prefers-reduced-motion: reduce)",
+  );
 
   useEffect(() => {
+    if (isMobile || prefersReducedMotion) return;
+
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext("2d");
@@ -18,7 +23,7 @@ const Particles = memo(() => {
       .getPropertyValue("--intro-particle-rgb")
       .trim();
 
-    const count = isMobile ? 20 : 60;
+    const count = 60;
 
     const resize = () => {
       canvas.width = window.innerWidth;
@@ -89,7 +94,9 @@ const Particles = memo(() => {
       window.removeEventListener("resize", resize);
       document.removeEventListener("visibilitychange", handleVisibilityChange);
     };
-  }, [isMobile]);
+  }, [isMobile, prefersReducedMotion]);
+
+  if (isMobile || prefersReducedMotion) return null;
 
   return (
     <canvas ref={canvasRef} className="absolute inset-0 pointer-events-none" />
@@ -203,6 +210,9 @@ export default function IntroSplash({
   duration = 0.9,
 }: IntroSplashProps) {
   const hasFinishedRef = useRef(false);
+  const prefersReducedMotion = useMediaQuery(
+    "(prefers-reduced-motion: reduce)",
+  );
   const finish = useCallback(() => {
     if (hasFinishedRef.current) return;
     hasFinishedRef.current = true;
@@ -210,15 +220,22 @@ export default function IntroSplash({
   }, [onFinish]);
 
   useEffect(() => {
+    if (prefersReducedMotion) return;
+
     document.body.style.overflow = "hidden";
     document.documentElement.style.overflow = "hidden";
     return () => {
       document.body.style.overflow = "";
       document.documentElement.style.overflow = "";
     };
-  }, []);
+  }, [prefersReducedMotion]);
 
   useEffect(() => {
+    if (prefersReducedMotion) {
+      finish();
+      return;
+    }
+
     const timer = setTimeout(finish, duration * 1000);
     const handleKeyDown = () => finish();
 
@@ -227,7 +244,9 @@ export default function IntroSplash({
       clearTimeout(timer);
       document.removeEventListener("keydown", handleKeyDown);
     };
-  }, [duration, finish]);
+  }, [duration, finish, prefersReducedMotion]);
+
+  if (prefersReducedMotion) return null;
 
   return (
     <motion.div

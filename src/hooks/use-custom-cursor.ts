@@ -1,50 +1,31 @@
 import { useEffect, useState } from "react";
 
-function detectUnsupported(threshold: number): boolean {
+const FINE_POINTER_QUERY = "(hover: hover) and (pointer: fine)";
+
+function detectUnsupported(): boolean {
   if (typeof window === "undefined") return true;
 
-  // Se a tela for pequena (mobile/tablet/RDM), desativa o cursor por padrão
-  if (window.innerWidth <= 768) return true;
-
-  const widthDiff = Math.abs(window.outerWidth - window.innerWidth);
-  const heightDiff = Math.abs(window.outerHeight - window.innerHeight);
-  const isDevToolsOpen = widthDiff > threshold || heightDiff > threshold;
-
-  const hasTouch = "ontouchstart" in window || navigator.maxTouchPoints > 0;
   const isMobileUserAgent = /Mobi|Android|iPhone/i.test(navigator.userAgent);
-  const isPointerCoarse = window.matchMedia("(pointer: coarse)").matches;
+  const hasFinePointer = window.matchMedia(FINE_POINTER_QUERY).matches;
 
-  // Em modo de design responsivo o cursor customizado deve ser desativado.
-  return isDevToolsOpen || hasTouch || isMobileUserAgent || isPointerCoarse;
+  return window.innerWidth <= 768 || isMobileUserAgent || !hasFinePointer;
 }
 
-export default function useCustomCursor(threshold = 160) {
-  const [isUnsupported, setIsUnsupported] = useState(() =>
-    detectUnsupported(threshold),
-  );
+export default function useCustomCursor() {
+  const [isUnsupported, setIsUnsupported] = useState(detectUnsupported);
 
   useEffect(() => {
-    const handleCheck = () => {
-      setIsUnsupported(detectUnsupported(threshold));
-    };
+    const pointerQuery = window.matchMedia(FINE_POINTER_QUERY);
+    const handleCheck = () => setIsUnsupported(detectUnsupported());
 
-    // Atualiza o estado inicial
-    handleCheck();
-
-    // Evento de resize na janela (ajuda com docked devtools)
     window.addEventListener("resize", handleCheck);
-
-    // ResizeObserver (crucial para o Modo de Design Responsivo no Firefox)
-    const observer = new ResizeObserver(() => {
-      handleCheck();
-    });
-    observer.observe(document.documentElement);
+    pointerQuery.addEventListener("change", handleCheck);
 
     return () => {
       window.removeEventListener("resize", handleCheck);
-      observer.disconnect();
+      pointerQuery.removeEventListener("change", handleCheck);
     };
-  }, [threshold]);
+  }, []);
 
   return { isUnsupported };
 }

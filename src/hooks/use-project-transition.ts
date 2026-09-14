@@ -1,5 +1,6 @@
 import { flushSync } from "react-dom";
 import { type NavigateFunction, useNavigate } from "react-router-dom";
+import { loadProjectDetailsPage } from "../utils/project-details-loader";
 import { SCROLL_POSITION_SYNC_EVENT } from "./use-scrolled";
 
 type ViewTransitionDocument = Document & {
@@ -150,6 +151,7 @@ export default function useProjectTransition(
     } satisfies ProjectTransitionLocationState;
 
     event.preventDefault();
+    await loadProjectDetailsPage().catch(() => undefined);
     saveHomeScrollPosition();
 
     const navigateAndPlaceHero = async (waitForHeroImage = false) => {
