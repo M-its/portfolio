@@ -18,6 +18,11 @@ const HOME_SCROLL_STORAGE_KEY = "scroll:/";
 const FREEZE_CLASS = "vt-freeze";
 const HOME_ANCHOR_OFFSET = -120;
 
+export function hasSavedHomeScrollPosition() {
+  const savedScroll = sessionStorage.getItem(HOME_SCROLL_STORAGE_KEY);
+  return savedScroll !== null && Number.isFinite(Number(savedScroll));
+}
+
 function scrollInstantly(top: number) {
   // Garante snapshot síncrono mesmo se um estilo antigo ainda estiver ativo — bug #2.
   document.documentElement.style.scrollBehavior = "auto";

@@ -114,7 +114,7 @@ export default function PageProjectDetails() {
         </Link>
       </div>
 
-      <div className="mt-6 grid gap-8 lg:grid-cols-[minmax(280px,0.72fr)_minmax(0,1.28fr)] lg:items-center lg:gap-10 xl:grid-cols-[minmax(320px,0.68fr)_minmax(0,1.32fr)] xl:gap-12">
+      <div className="mt-6 grid gap-8 lg:grid-cols-[minmax(370px,0.72fr)_minmax(0,1.28fr)] lg:items-center lg:gap-10 xl:grid-cols-[minmax(320px,0.68fr)_minmax(0,1.32fr)] xl:gap-12">
         <section className="project-details-reveal order-2 lg:order-1 lg:py-4">
           <div className="flex flex-wrap items-center gap-3 text-xs font-semibold uppercase tracking-[0.24em] opacity-65">
             <span>Estudo de caso</span>
@@ -145,14 +145,14 @@ export default function PageProjectDetails() {
             <span>{projectType}</span>
           </div>
 
-          <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+          <div className="mt-8 flex flex-col gap-6 sm:flex-row sm:flex-nowrap md:gap-8 lg:gap-3 xl:gap-8">
             <Button
               as="a"
               href={project.links.live}
               target="_blank"
               rel="noopener noreferrer"
               icon={GlobeIcon}
-              className="w-full sm:w-auto"
+              className="w-full whitespace-nowrap px-3 gap-1.5 sm:w-auto sm:shrink-0 [&>span:first-child]:size-6 [&_svg]:size-5 [&>span:last-child]:tracking-normal"
               aria-label={`Abrir ${project.name} (abre em nova aba)`}
             >
               Visitar projeto
@@ -164,7 +164,7 @@ export default function PageProjectDetails() {
               rel="noopener noreferrer"
               icon={GitHubIcon}
               variant="outline"
-              className="w-full sm:w-auto [&_svg]:fill-text-primary"
+              className="w-full whitespace-nowrap px-3 gap-1.5 sm:w-auto sm:shrink-0 [&>span:first-child]:size-6 [&_svg]:size-5 [&_svg]:fill-text-primary [&>span:last-child]:tracking-normal"
               aria-label={`Ver código do ${project.name} no GitHub (abre em nova aba)`}
             >
               Ver código

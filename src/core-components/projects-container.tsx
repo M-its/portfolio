@@ -2,13 +2,16 @@ import { motion, type Variants } from "framer-motion";
 import type React from "react";
 import { projectsBase } from "../data/projects";
 import ProjectCard from "./project-card";
-import AnimatedSection from "../components/animated-section";
+import AnimatedSection, {
+  animationVariants,
+} from "../components/animated-section";
 import Text from "../components/text";
 
 interface ProjectsContainerProps extends React.ComponentProps<"div"> {
   staggerDelay?: number;
   cardAnimationDuration?: number;
   viewportAmount?: number;
+  animateEntrance?: boolean;
 }
 
 const containerVariants: Variants = {
@@ -39,6 +42,7 @@ export default function ProjectsContainer({
   staggerDelay = 0.3,
   cardAnimationDuration = 0.5,
   viewportAmount = 0.1,
+  animateEntrance = true,
   className,
   ...props
 }: ProjectsContainerProps) {
@@ -66,7 +70,13 @@ export default function ProjectsContainer({
 
   return (
     <div className={className} {...props}>
-      <AnimatedSection as="div" className="mb-8">
+      <AnimatedSection
+        as="div"
+        variants={
+          animateEntrance ? animationVariants.blur : animationVariants.instant
+        }
+        className="mb-8"
+      >
         <div className="flex items-center gap-4 opacity-70">
           <Text as="span" className="text-[13px] font-black tracking-[0.4em]">
             <span className="hidden lg:inline">02</span>
@@ -86,13 +96,13 @@ export default function ProjectsContainer({
       <motion.div
         className="projects-grid"
         variants={customContainerVariants}
-        initial="hidden"
+        initial={animateEntrance ? "hidden" : false}
         animate="visible"
       >
         {projectsBase.map((project) => (
           <motion.div
             key={project.slug}
-            initial="hidden"
+            initial={animateEntrance ? "hidden" : false}
             animate="visible"
             variants={customCardVariants}
             className="min-w-0 w-full shadow-2xl rounded-3xl"

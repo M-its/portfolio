@@ -38,7 +38,7 @@ export default function ScrollIndicator({ onClick }: { onClick: () => void }) {
               isHovered ? "text-text-primary" : "text-text-primary/80"
             }`}
           >
-            Scroll for more
+            Ver projetos
           </MotionText>
           <motion.div
             animate={{

@@ -1,5 +1,5 @@
-import { useState, useEffect, useRef } from "react";
-import { Link } from "react-router-dom";
+import { useState, useEffect, useLayoutEffect, useRef } from "react";
+import { Link, useLocation } from "react-router-dom";
 
 import ListIcon from "../assets/icons/list.svg?react";
 import XIcon from "../assets/icons/x.svg?react";
@@ -19,10 +19,37 @@ import MobileMenu from "./header-mobile-menu.tsx";
 interface HeaderProps extends React.ComponentProps<typeof Container> {}
 
 export default function Header({ className, ...props }: HeaderProps) {
+  const location = useLocation();
+  const previousPathRef = useRef(location.pathname);
+  const isReturningHome =
+    location.pathname === "/" &&
+    previousPathRef.current.startsWith("/projects/");
+  const [suppressRouteMotion, setSuppressRouteMotion] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const scrolled = useScrolled(50);
   const menuRef = useRef<HTMLDivElement>(null);
   const [scrollbarWidth, setScrollbarWidth] = useState(0);
+
+  useLayoutEffect(() => {
+    const shouldSuppress =
+      location.pathname === "/" &&
+      previousPathRef.current.startsWith("/projects/");
+    previousPathRef.current = location.pathname;
+    if (!shouldSuppress) return;
+
+    setSuppressRouteMotion(true);
+    const firstFrame = window.requestAnimationFrame(() => {
+      const secondFrame = window.requestAnimationFrame(() => {
+        setSuppressRouteMotion(false);
+      });
+      firstFrameRef.current = secondFrame;
+    });
+    const firstFrameRef = { current: firstFrame };
+
+    return () => window.cancelAnimationFrame(firstFrameRef.current);
+  }, [location.pathname]);
+
+  const disableRouteMotion = isReturningHome || suppressRouteMotion;
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -64,7 +91,7 @@ export default function Header({ className, ...props }: HeaderProps) {
   return (
     <>
       <motion.div
-        layout
+        layout={!disableRouteMotion}
         initial={false}
         style={{
           paddingRight: scrollbarWidth,
@@ -72,7 +99,10 @@ export default function Header({ className, ...props }: HeaderProps) {
         }}
         transition={{ layout: { duration: 0.4, ease: [0.25, 0.1, 0.25, 1] } }}
         className={cx(
-          "fixed inset-x-0 mx-auto z-50 transition-[background-color,border-color,box-shadow,backdrop-filter] duration-300",
+          "fixed inset-x-0 mx-auto z-50",
+          disableRouteMotion
+            ? "transition-none"
+            : "transition-[background-color,border-color,box-shadow,backdrop-filter] duration-300",
           scrolled
             ? "top-4 w-[90%] max-w-[1200px] rounded-2xl border bg-header-surface py-2 backdrop-blur-[15px] shadow-header-scrolled"
             : "top-0 w-full max-w-[1400px] border-b py-6 sm:py-8 md:py-10",

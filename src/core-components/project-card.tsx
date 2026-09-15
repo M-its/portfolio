@@ -94,13 +94,21 @@ export default function ProjectCard({
 
         <Card {...props} className={content()}>
           <div className="project-card-header flex items-center justify-between gap-4 w-full">
-            <Text
-              as="h3"
-              variant="heading-section"
-              className="project-card-title capitalize font-medium tracking-wider"
+            <a
+              href={project.links.live}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="rounded-sm focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-text-primary"
+              aria-label={`Visitar o site do projeto ${project.name} (abre em nova aba)`}
             >
-              {project.name}
-            </Text>
+              <Text
+                as="h3"
+                variant="heading-section"
+                className="project-card-title capitalize font-medium tracking-wider transition-opacity hover:opacity-70"
+              >
+                {project.name}
+              </Text>
+            </a>
             <Button
               mode="icon"
               size="md"
@@ -183,7 +191,7 @@ export default function ProjectCard({
                     rel="noopener noreferrer"
                     aria-label={`Ver código do projeto ${project.name} no GitHub (abre em nova aba)`}
                     icon={GitHubIcon}
-                    className="w-full border border-button-primary-surface-hover"
+                    className="w-full border border-button-primary-surface-hover before:hidden"
                   >
                     GitHub
                   </Button>
@@ -194,7 +202,7 @@ export default function ProjectCard({
                     rel="noopener noreferrer"
                     aria-label={`Visitar o site do projeto ${project.name} (abre em nova aba)`}
                     icon={GlobeIcon}
-                    className="border border-button-primary-surface-hover w-full"
+                    className="border border-button-primary-surface-hover w-full before:hidden"
                   >
                     Site
                   </Button>

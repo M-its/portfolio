@@ -14,7 +14,10 @@ import { BUTTON_CONFIG, SOCIAL_LINKS } from "../data/constants.ts";
 import { techs } from "../data/techs.ts";
 import useMediaQuery from "../hooks/use-media-query.ts";
 import { useOnScreen } from "../hooks/use-on-screen.ts";
-import { initializeHomeScroll } from "../hooks/use-project-transition.ts";
+import {
+  hasSavedHomeScrollPosition,
+  initializeHomeScroll,
+} from "../hooks/use-project-transition.ts";
 import useScrollToSection from "../hooks/use-scroll-to-section.ts";
 
 const TechsContainer = lazy(
@@ -43,6 +46,7 @@ const buttonVariants: Variants = {
 
 export default function PageHome() {
   const location = useLocation();
+  const isRestoringHome = hasSavedHomeScrollPosition();
   const isMobile = useMediaQuery("(max-width: 639px)");
   const isSquished = useMediaQuery(
     "(min-width: 1024px) and (max-width: 1080px)",
@@ -56,6 +60,11 @@ export default function PageHome() {
   });
   const [projectsLoadRef, areProjectsNearViewport] = useOnScreen({
     rootMargin: "300px",
+    triggerOnce: true,
+  });
+  const [projectsVisibilityRef, haveProjectsEnteredViewport] = useOnScreen({
+    threshold: 0.1,
+    rootMargin: "0px",
     triggerOnce: true,
   });
 
@@ -122,21 +131,34 @@ export default function PageHome() {
 
       <AnimatedSection
         animateOnMount={true}
-        className="hidden lg:block self-center -mt-12"
+        variants={
+          isRestoringHome ? animationVariants.instant : animationVariants.blur
+        }
+        className={`hidden lg:block self-center -mt-12 ${
+          haveProjectsEnteredViewport ? "invisible pointer-events-none" : ""
+        }`}
       >
         <ScrollIndicator onClick={() => scrollToSection("projects")} />
       </AnimatedSection>
 
       <div id="projects" ref={projectsLoadRef}>
-        {areProjectsNearViewport ? (
-          <AnimatedSection variants={animationVariants.fadeUp}>
-            <Suspense fallback={<div className="min-h-[600px]" />}>
-              <ProjectsContainer />
-            </Suspense>
-          </AnimatedSection>
-        ) : (
-          <div className="min-h-[600px]" aria-hidden="true" />
-        )}
+        <div ref={projectsVisibilityRef}>
+          {areProjectsNearViewport ? (
+            <AnimatedSection
+              variants={
+                isRestoringHome
+                  ? animationVariants.instant
+                  : animationVariants.fadeUp
+              }
+            >
+              <Suspense fallback={<div className="min-h-[600px]" />}>
+                <ProjectsContainer animateEntrance={!isRestoringHome} />
+              </Suspense>
+            </AnimatedSection>
+          ) : (
+            <div className="min-h-[600px]" aria-hidden="true" />
+          )}
+        </div>
       </div>
     </Container>
   );

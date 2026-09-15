@@ -12,6 +12,9 @@ import MailIcon from "../assets/icons/mail.svg?react";
 
 interface FooterProps extends React.ComponentProps<typeof Container> {}
 
+const CONTACT_EMAIL_HREF =
+  "mailto:mitsrael9@gmail.com?subject=Oportunidade%20de%20trabalho%20-%20Desenvolvedor%20Full-Stack&body=Olá%20Mitsrael%2C%0A%0AEncontrei%20seu%20portfólio%20e%20gostaria%20de%20conversar%20sobre%20uma%20oportunidade.";
+
 export default function Footer({ className, ...props }: FooterProps) {
   return (
     <Container
@@ -43,6 +46,8 @@ export default function Footer({ className, ...props }: FooterProps) {
 
       <div className="flex md:flex-row flex-col justify-center items-center w-full my-6 md:my-12 relative gap-8">
         <Button
+          as="a"
+          href={CONTACT_EMAIL_HREF}
           variant="secondary"
           size="lg"
           className="w-full max-w-[440px] md:w-auto md:absolute md:right-0"
@@ -66,7 +71,7 @@ export default function Footer({ className, ...props }: FooterProps) {
             mode="icon"
             size="lg"
             as="a"
-            href="mailto:mitsrael9@gmail.com?subject=Oportunidade%20de%20trabalho%20-%20Desenvolvedor%20Full-Stack&body=Olá%20Mitsrael%2C%0A%0AEncontrei%20seu%20portfólio%20e%20gostaria%20de%20conversar%20sobre%20uma%20oportunidade."
+            href={CONTACT_EMAIL_HREF}
             aria-label="Enviar um e-mail"
             className="opacity-70 hover:opacity-100"
             icon={MailIcon}
