@@ -1,9 +1,11 @@
 import cx from "classnames";
+import { useState } from "react";
 
 import Container from "../components/container";
 import Text from "../components/text";
 import Button from "../components/button";
 import Divider from "../components/divider";
+import ContactChat from "./contact-chat";
 
 import BonfireIcon from "../assets/images/bonfire.svg?react";
 import GitHubIcon from "../assets/icons/github.svg?react";
@@ -16,8 +18,15 @@ const CONTACT_EMAIL_HREF =
   "mailto:mitsrael9@gmail.com?subject=Oportunidade%20de%20trabalho%20-%20Desenvolvedor%20Full-Stack&body=Olá%20Mitsrael%2C%0A%0AEncontrei%20seu%20portfólio%20e%20gostaria%20de%20conversar%20sobre%20uma%20oportunidade.";
 
 export default function Footer({ className, ...props }: FooterProps) {
+  const [isContactChatOpen, setIsContactChatOpen] = useState(false);
+
   return (
-    <Container
+    <>
+      <ContactChat
+        isOpen={isContactChatOpen}
+        onClose={() => setIsContactChatOpen(false)}
+      />
+      <Container
       as="footer"
       id="contact"
       className={cx(
@@ -46,8 +55,7 @@ export default function Footer({ className, ...props }: FooterProps) {
 
       <div className="flex md:flex-row flex-col justify-center items-center w-full my-6 md:my-12 relative gap-8">
         <Button
-          as="a"
-          href={CONTACT_EMAIL_HREF}
+          onClick={() => setIsContactChatOpen(true)}
           variant="secondary"
           size="lg"
           className="w-full max-w-[440px] md:w-auto md:absolute md:right-0"
@@ -92,7 +100,8 @@ export default function Footer({ className, ...props }: FooterProps) {
         <Text className="md:absolute md:left-0 opacity-70 ">
           &copy; {new Date().getFullYear()} - Mitsrael Souza
         </Text>
-      </div>
-    </Container>
+        </div>
+      </Container>
+    </>
   );
 }
