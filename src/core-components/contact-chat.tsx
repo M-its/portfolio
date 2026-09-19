@@ -19,6 +19,7 @@ export default function ContactChat() {
   const panelRef = useRef<HTMLElement>(null);
   const prefersReducedMotion = useReducedMotion();
   const [isOpen, setIsOpen] = useState(false);
+  const [isFooterVisible, setIsFooterVisible] = useState(false);
   const [status, setStatus] = useState<Status>("idle");
   const [error, setError] = useState("");
 
@@ -26,6 +27,18 @@ export default function ContactChat() {
     const openChat = () => setIsOpen(true);
     window.addEventListener(OPEN_CONTACT_CHAT_EVENT, openChat);
     return () => window.removeEventListener(OPEN_CONTACT_CHAT_EVENT, openChat);
+  }, []);
+
+  useEffect(() => {
+    const footer = document.getElementById("contact");
+    if (!footer) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => setIsFooterVisible(entry.isIntersecting),
+      { threshold: 0.12 },
+    );
+    observer.observe(footer);
+    return () => observer.disconnect();
   }, []);
 
   useEffect(() => {
@@ -67,6 +80,8 @@ export default function ContactChat() {
       );
     }
   };
+
+  const showFooterCta = isFooterVisible && !isOpen;
 
   return createPortal(
     <div
@@ -217,7 +232,11 @@ export default function ContactChat() {
 
         <motion.button
           type="button"
-          className="pointer-events-auto relative flex h-13 w-13 items-center justify-center rounded-full border border-chat-border bg-chat-launcher text-chat-launcher-content shadow-[0_10px_30px_rgba(0,0,0,0.18)] transition-colors hover:bg-chat-launcher-hover sm:h-14 sm:w-14"
+          className={`pointer-events-auto relative flex h-13 items-center rounded-full border border-chat-border bg-chat-launcher text-chat-launcher-content shadow-[0_10px_30px_rgba(0,0,0,0.18)] transition-[width,padding,background-color] duration-300 ease-out hover:bg-chat-launcher-hover sm:h-14 ${
+            showFooterCta
+              ? "w-48 justify-start gap-3 px-4"
+              : "w-13 justify-center px-0 sm:w-14"
+          }`}
           onClick={() => setIsOpen((current) => !current)}
           aria-haspopup="dialog"
           aria-expanded={isOpen}
@@ -226,7 +245,7 @@ export default function ContactChat() {
           data-cursor-clickable
           whileTap={prefersReducedMotion ? undefined : { scale: 0.97 }}
         >
-          <span className="flex h-8 w-8 items-center justify-center">
+          <span className="flex h-8 w-8 shrink-0 items-center justify-center">
             <Icon
               svg={isOpen ? XIcon : ChatIcon}
               size="md"
@@ -236,6 +255,19 @@ export default function ContactChat() {
               <span className="absolute right-0.5 top-0.5 h-3 w-3 rounded-full border-2 border-chat-launcher bg-status-online" />
             )}
           </span>
+          <AnimatePresence initial={false}>
+            {showFooterCta && (
+              <motion.span
+                className="whitespace-nowrap text-sm font-medium"
+                initial={{ opacity: 0, x: 8 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: 8 }}
+                transition={{ duration: prefersReducedMotion ? 0 : 0.18 }}
+              >
+                Entre em contato
+              </motion.span>
+            )}
+          </AnimatePresence>
         </motion.button>
       </div>
     </div>,

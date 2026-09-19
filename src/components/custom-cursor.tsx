@@ -2,6 +2,16 @@ import { useEffect, useRef, useState, type FC } from "react";
 import useCustomCursor from "../hooks/use-custom-cursor";
 
 const REDUCED_MOTION_QUERY = "(prefers-reduced-motion: reduce)";
+const INTERACTIVE_SELECTOR =
+  "a, button, input, select, textarea, [data-cursor-clickable], [role='button']";
+const FIELD_SELECTOR = "input, select, textarea";
+
+type CursorState =
+  | "idle"
+  | "idle-pressed"
+  | "interactive"
+  | "field"
+  | "pressed";
 
 const CustomCursor: FC = () => {
   const innerRef = useRef<HTMLDivElement>(null);
@@ -10,15 +20,11 @@ const CustomCursor: FC = () => {
   const [prefersReducedMotion, setPrefersReducedMotion] = useState(
     () => window.matchMedia(REDUCED_MOTION_QUERY).matches,
   );
-  const [isHovering, setIsHovering] = useState(false);
-  const [isOverField, setIsOverField] = useState(false);
-  const [isClicked, setIsClicked] = useState(false);
 
-  // Respeita mudanças de preferência do sistema
   useEffect(() => {
     const media = window.matchMedia(REDUCED_MOTION_QUERY);
-    const handler = (e: MediaQueryListEvent) =>
-      setPrefersReducedMotion(e.matches);
+    const handler = (event: MediaQueryListEvent) =>
+      setPrefersReducedMotion(event.matches);
     media.addEventListener("change", handler);
     return () => media.removeEventListener("change", handler);
   }, []);
@@ -30,151 +36,115 @@ const CustomCursor: FC = () => {
     const outer = outerRef.current;
     if (!inner || !outer) return;
 
-    const pos = { x: window.innerWidth / 2, y: window.innerHeight / 2 };
-    const dot = { x: pos.x, y: pos.y };
-    const circle = { x: pos.x, y: pos.y };
-    let rafId: number;
-    let hoverRafId = 0;
-    let isHidden = false;
-    let isAnimating = true;
-    let lastTarget: Element | null = null;
-    let lastHoverState = false;
-    let lastFieldState = false;
+    const pointer = { x: window.innerWidth / 2, y: window.innerHeight / 2 };
+    const dot = { ...pointer };
+    const ring = { ...pointer };
+    let frameId = 0;
+    let isHidden = true;
+    let isPressed = false;
+    let visualState: CursorState | null = null;
 
     const lerp = (start: number, end: number, factor: number) =>
       start + (end - start) * factor;
 
-    const updateHoverTarget = (target: Element | null) => {
-      if (target === lastTarget) return;
-      lastTarget = target;
+    const resolveState = (): CursorState => {
+      const target = document.elementFromPoint(pointer.x, pointer.y);
+      const ignored = target?.closest("[data-cursor-ignore]");
+      if (!target || ignored) return isPressed ? "idle-pressed" : "idle";
 
-      const shouldIgnore = Boolean(target?.closest("[data-cursor-ignore]"));
+      const interactive = target.closest(INTERACTIVE_SELECTOR);
+      if (!interactive) return isPressed ? "idle-pressed" : "idle";
+      if (isPressed) return "pressed";
+      return target.closest(FIELD_SELECTOR) ? "field" : "interactive";
+    };
+
+    const renderState = (state: CursorState) => {
+      if (state === visualState) return;
+      visualState = state;
+
       const interactive =
-        !shouldIgnore &&
-        Boolean(
-          target?.closest(
-            "a, button, input, select, textarea, [data-cursor-clickable], [role='button']",
-          ),
-        );
-      const overField =
-        !shouldIgnore && Boolean(target?.closest("input, select, textarea"));
+        state === "interactive" || state === "field" || state === "pressed";
+      const size =
+        state === "interactive"
+          ? 56
+          : state === "field"
+            ? 48
+            : state === "pressed"
+              ? 40
+              : state === "idle-pressed"
+                ? 24
+                : 40;
 
-      if (interactive !== lastHoverState) {
-        lastHoverState = interactive;
-        setIsHovering(interactive);
-      }
-      if (overField !== lastFieldState) {
-        lastFieldState = overField;
-        setIsOverField(overField);
-      }
-    };
+      inner.style.width = interactive ? "4px" : "6px";
+      inner.style.height = interactive ? "4px" : "6px";
+      inner.style.opacity = isHidden ? "0" : interactive ? "0.55" : "1";
 
-    const updateTargetAtPointer = () => {
-      hoverRafId = 0;
-      updateHoverTarget(document.elementFromPoint(pos.x, pos.y));
-    };
-
-    const scheduleHoverUpdate = () => {
-      if (!hoverRafId) {
-        hoverRafId = requestAnimationFrame(updateTargetAtPointer);
-      }
+      outer.style.width = `${size}px`;
+      outer.style.height = `${size}px`;
+      outer.style.borderWidth = state.includes("pressed") ? "2px" : "1px";
+      outer.style.backgroundColor = interactive
+        ? "var(--color-cursor-fill)"
+        : "transparent";
+      outer.style.opacity = isHidden ? "0" : state === "field" ? "0.8" : "1";
     };
 
     const animate = () => {
-      dot.x = lerp(dot.x, pos.x, 0.3);
-      dot.y = lerp(dot.y, pos.y, 0.3);
-      circle.x = lerp(circle.x, pos.x, 0.15);
-      circle.y = lerp(circle.y, pos.y, 0.15);
+      dot.x = lerp(dot.x, pointer.x, 0.3);
+      dot.y = lerp(dot.y, pointer.y, 0.3);
+      ring.x = lerp(ring.x, pointer.x, 0.15);
+      ring.y = lerp(ring.y, pointer.y, 0.15);
 
-      if (inner)
-        inner.style.transform = `translate3d(${dot.x}px, ${dot.y}px, 0)`;
-      if (outer)
-        outer.style.transform = `translate3d(${circle.x}px, ${circle.y}px, 0)`;
-
-      const deltaX = Math.abs(pos.x - circle.x);
-      const deltaY = Math.abs(pos.y - circle.y);
-
-      // Só continua o loop se ainda houver movimento visível
-      if (deltaX > 0.1 || deltaY > 0.1) {
-        rafId = requestAnimationFrame(animate);
-      } else {
-        isAnimating = false;
-      }
+      inner.style.transform = `translate3d(${dot.x}px, ${dot.y}px, 0)`;
+      outer.style.transform = `translate3d(${ring.x}px, ${ring.y}px, 0)`;
+      renderState(resolveState());
+      frameId = requestAnimationFrame(animate);
     };
 
-    const handleMouseMove = (e: MouseEvent) => {
-      // Força a exibição do cursor caso ele tenha sido ocultado pelo mouseleave/mouseout
+    const showAtPointer = (event: MouseEvent) => {
+      pointer.x = event.clientX;
+      pointer.y = event.clientY;
       if (isHidden) {
         isHidden = false;
-        if (inner) inner.style.opacity = "1";
-        if (outer) outer.style.opacity = "1";
-      }
-
-      pos.x = e.clientX;
-      pos.y = e.clientY;
-
-      updateHoverTarget(e.target as Element);
-
-      // Reinicia o loop de animação de forma segura sem cancelar frames em andamento
-      if (!isAnimating) {
-        isAnimating = true;
-        rafId = requestAnimationFrame(animate);
+        visualState = null;
       }
     };
 
-    const handleMouseLeave = (e: Event) => {
-      // No Firefox, "mouseout" com relatedTarget nulo indica que o mouse saiu da janela.
-      if (
-        e.type === "mouseleave" ||
-        (e.type === "mouseout" && (e as MouseEvent).relatedTarget === null)
-      ) {
-        isHidden = true;
-        updateHoverTarget(null);
-        if (inner) inner.style.opacity = "0";
-        if (outer) outer.style.opacity = "0";
-      }
+    const hide = () => {
+      isHidden = true;
+      isPressed = false;
+      visualState = null;
     };
 
-    const handleMouseEnter = () => {
-      isHidden = false;
-      if (inner) inner.style.opacity = "1";
-      if (outer) outer.style.opacity = "1";
+    const press = (event: PointerEvent) => {
+      if (event.button !== 0) return;
+      isPressed = true;
+      visualState = null;
     };
 
-    const handlePointerDown = (event: PointerEvent) => {
-      if (event.button === 0) setIsClicked(true);
+    const release = () => {
+      isPressed = false;
+      visualState = null;
     };
-    const handlePointerUp = () => setIsClicked(false);
 
-    window.addEventListener("mousemove", handleMouseMove, { passive: true });
-    window.addEventListener("scroll", scheduleHoverUpdate, true);
-    window.addEventListener("resize", scheduleHoverUpdate, { passive: true });
-    document.addEventListener("pointerdown", handlePointerDown, true);
-    document.addEventListener("pointerup", handlePointerUp, true);
-    document.addEventListener("pointercancel", handlePointerUp, true);
-    window.addEventListener("blur", handlePointerUp);
-    document.addEventListener("mouseleave", handleMouseLeave);
-    document.addEventListener("mouseout", handleMouseLeave);
-    document.addEventListener("mouseenter", handleMouseEnter);
-    rafId = requestAnimationFrame(animate);
+    window.addEventListener("mousemove", showAtPointer, { passive: true });
+    document.addEventListener("pointerdown", press, true);
+    document.addEventListener("pointerup", release, true);
+    document.addEventListener("pointercancel", release, true);
+    window.addEventListener("blur", release);
+    document.addEventListener("mouseleave", hide);
+    frameId = requestAnimationFrame(animate);
 
     return () => {
-      window.removeEventListener("mousemove", handleMouseMove);
-      window.removeEventListener("scroll", scheduleHoverUpdate, true);
-      window.removeEventListener("resize", scheduleHoverUpdate);
-      document.removeEventListener("pointerdown", handlePointerDown, true);
-      document.removeEventListener("pointerup", handlePointerUp, true);
-      document.removeEventListener("pointercancel", handlePointerUp, true);
-      window.removeEventListener("blur", handlePointerUp);
-      document.removeEventListener("mouseleave", handleMouseLeave);
-      document.removeEventListener("mouseout", handleMouseLeave);
-      document.removeEventListener("mouseenter", handleMouseEnter);
-      cancelAnimationFrame(rafId);
-      cancelAnimationFrame(hoverRafId);
+      window.removeEventListener("mousemove", showAtPointer);
+      document.removeEventListener("pointerdown", press, true);
+      document.removeEventListener("pointerup", release, true);
+      document.removeEventListener("pointercancel", release, true);
+      window.removeEventListener("blur", release);
+      document.removeEventListener("mouseleave", hide);
+      cancelAnimationFrame(frameId);
     };
   }, [isUnsupported, prefersReducedMotion]);
 
-  // Esconde o cursor nativo apenas quando o custom cursor está ativo
   useEffect(() => {
     const shouldHide = !isUnsupported && !prefersReducedMotion;
     document.documentElement.style.cursor = shouldHide ? "none" : "auto";
@@ -192,23 +162,11 @@ const CustomCursor: FC = () => {
     >
       <div
         ref={innerRef}
-        className={`absolute top-0 left-0 rounded-full bg-cursor-contrast will-change-transform -translate-x-1/2 -translate-y-1/2 transition-[width,height,opacity] duration-300 ${
-          isHovering ? "h-1 w-1 opacity-55" : "h-1.5 w-1.5 opacity-100"
-        }`}
+        className="absolute top-0 left-0 h-1.5 w-1.5 rounded-full bg-cursor-contrast opacity-0 will-change-transform -translate-x-1/2 -translate-y-1/2 transition-[width,height,opacity] duration-200"
       />
       <div
         ref={outerRef}
-        className={`absolute top-0 left-0 rounded-full border border-cursor-contrast will-change-transform transition-[width,height,border-width,background-color,opacity] duration-300 ease-out -translate-x-1/2 -translate-y-1/2 ${
-          isHovering
-            ? isClicked
-              ? "w-10 h-10 border-2 bg-cursor-fill"
-              : isOverField
-                ? "w-12 h-12 border bg-cursor-fill opacity-80"
-                : "w-14 h-14 border bg-cursor-fill"
-            : isClicked
-              ? "w-6 h-6 border-2"
-              : "w-10 h-10 border bg-transparent opacity-80"
-        }`}
+        className="absolute top-0 left-0 h-10 w-10 rounded-full border border-cursor-contrast bg-transparent opacity-0 will-change-transform -translate-x-1/2 -translate-y-1/2 transition-[width,height,border-width,background-color,opacity] duration-200 ease-out"
       />
     </div>
   );
