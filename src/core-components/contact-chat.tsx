@@ -2,7 +2,7 @@ import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { useEffect, useId, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 
-import MailIcon from "../assets/icons/mail.svg?react";
+import ChatIcon from "../assets/icons/chat.svg?react";
 import PaperPlaneIcon from "../assets/icons/paper-plane-tilt.svg?react";
 import XIcon from "../assets/icons/x.svg?react";
 import Button from "../components/button";
@@ -78,6 +78,7 @@ export default function ContactChat() {
           <motion.button
             type="button"
             aria-label="Fechar conversa"
+            data-cursor-ignore
             className="pointer-events-auto absolute inset-0 cursor-default bg-black/35 backdrop-blur-[2px] sm:bg-black/10 sm:backdrop-blur-none"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -216,34 +217,24 @@ export default function ContactChat() {
 
         <motion.button
           type="button"
-          className="pointer-events-auto flex min-h-14 items-center gap-3 rounded-full border border-chat-border bg-chat-launcher px-4 py-3 text-chat-launcher-content shadow-[0_12px_35px_rgba(0,0,0,0.2)] transition-colors hover:bg-chat-launcher-hover sm:min-w-[164px] sm:px-5"
+          className="pointer-events-auto relative flex h-13 w-13 items-center justify-center rounded-full border border-chat-border bg-chat-launcher text-chat-launcher-content shadow-[0_10px_30px_rgba(0,0,0,0.18)] transition-colors hover:bg-chat-launcher-hover sm:h-14 sm:w-14"
           onClick={() => setIsOpen((current) => !current)}
           aria-haspopup="dialog"
           aria-expanded={isOpen}
           aria-controls={panelId}
+          aria-label={isOpen ? "Fechar conversa" : "Abrir conversa"}
           data-cursor-clickable
           whileTap={prefersReducedMotion ? undefined : { scale: 0.97 }}
         >
-          <span className="relative flex h-8 w-8 items-center justify-center rounded-full bg-chat-launcher-content/10">
+          <span className="flex h-8 w-8 items-center justify-center">
             <Icon
-              svg={isOpen ? XIcon : MailIcon}
+              svg={isOpen ? XIcon : ChatIcon}
               size="md"
               className="fill-current"
             />
             {!isOpen && (
-              <span className="absolute -right-0.5 -top-0.5 h-2.5 w-2.5 rounded-full border-2 border-chat-launcher bg-status-online" />
+              <span className="absolute right-0.5 top-0.5 h-3 w-3 rounded-full border-2 border-chat-launcher bg-status-online" />
             )}
-          </span>
-          <span className="hidden text-left sm:block">
-            <span className="block text-sm font-medium leading-tight">
-              {isOpen ? "Fechar" : "Vamos conversar"}
-            </span>
-            <span className="mt-0.5 flex items-center gap-1.5 text-[11px] leading-tight opacity-65">
-              {!isOpen && (
-                <span className="h-1.5 w-1.5 rounded-full bg-status-online" />
-              )}
-              {isOpen ? "Conversa aberta" : "Online"}
-            </span>
           </span>
         </motion.button>
       </div>

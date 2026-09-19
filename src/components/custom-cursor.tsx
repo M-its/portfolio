@@ -34,6 +34,7 @@ const CustomCursor: FC = () => {
     const dot = { x: pos.x, y: pos.y };
     const circle = { x: pos.x, y: pos.y };
     let rafId: number;
+    let hoverRafId = 0;
     let isHidden = false;
     let isAnimating = true;
     let lastTarget: Element | null = null;
@@ -42,6 +43,42 @@ const CustomCursor: FC = () => {
 
     const lerp = (start: number, end: number, factor: number) =>
       start + (end - start) * factor;
+
+    const updateHoverTarget = (target: Element | null) => {
+      if (target === lastTarget) return;
+      lastTarget = target;
+
+      const shouldIgnore = Boolean(target?.closest("[data-cursor-ignore]"));
+      const interactive =
+        !shouldIgnore &&
+        Boolean(
+          target?.closest(
+            "a, button, input, select, textarea, [data-cursor-clickable], [role='button']",
+          ),
+        );
+      const overField =
+        !shouldIgnore && Boolean(target?.closest("input, select, textarea"));
+
+      if (interactive !== lastHoverState) {
+        lastHoverState = interactive;
+        setIsHovering(interactive);
+      }
+      if (overField !== lastFieldState) {
+        lastFieldState = overField;
+        setIsOverField(overField);
+      }
+    };
+
+    const updateTargetAtPointer = () => {
+      hoverRafId = 0;
+      updateHoverTarget(document.elementFromPoint(pos.x, pos.y));
+    };
+
+    const scheduleHoverUpdate = () => {
+      if (!hoverRafId) {
+        hoverRafId = requestAnimationFrame(updateTargetAtPointer);
+      }
+    };
 
     const animate = () => {
       dot.x = lerp(dot.x, pos.x, 0.3);
@@ -76,24 +113,7 @@ const CustomCursor: FC = () => {
       pos.x = e.clientX;
       pos.y = e.clientY;
 
-      const target = e.target as Element;
-      // Cache de alvo minimiza chamadas caras de reflow/DOM parsing nos cards
-      if (target !== lastTarget) {
-        lastTarget = target;
-        const interactive = !!target.closest(
-          "a, button, input, select, textarea, [data-cursor-clickable], [role='button']",
-        );
-        const overField = !!target.closest("input, select, textarea");
-
-        if (interactive !== lastHoverState) {
-          lastHoverState = interactive;
-          setIsHovering(interactive);
-        }
-        if (overField !== lastFieldState) {
-          lastFieldState = overField;
-          setIsOverField(overField);
-        }
-      }
+      updateHoverTarget(e.target as Element);
 
       // Reinicia o loop de animação de forma segura sem cancelar frames em andamento
       if (!isAnimating) {
@@ -109,6 +129,7 @@ const CustomCursor: FC = () => {
         (e.type === "mouseout" && (e as MouseEvent).relatedTarget === null)
       ) {
         isHidden = true;
+        updateHoverTarget(null);
         if (inner) inner.style.opacity = "0";
         if (outer) outer.style.opacity = "0";
       }
@@ -126,6 +147,8 @@ const CustomCursor: FC = () => {
     const handlePointerUp = () => setIsClicked(false);
 
     window.addEventListener("mousemove", handleMouseMove, { passive: true });
+    window.addEventListener("scroll", scheduleHoverUpdate, true);
+    window.addEventListener("resize", scheduleHoverUpdate, { passive: true });
     document.addEventListener("pointerdown", handlePointerDown, true);
     document.addEventListener("pointerup", handlePointerUp, true);
     document.addEventListener("pointercancel", handlePointerUp, true);
@@ -137,6 +160,8 @@ const CustomCursor: FC = () => {
 
     return () => {
       window.removeEventListener("mousemove", handleMouseMove);
+      window.removeEventListener("scroll", scheduleHoverUpdate, true);
+      window.removeEventListener("resize", scheduleHoverUpdate);
       document.removeEventListener("pointerdown", handlePointerDown, true);
       document.removeEventListener("pointerup", handlePointerUp, true);
       document.removeEventListener("pointercancel", handlePointerUp, true);
@@ -145,6 +170,7 @@ const CustomCursor: FC = () => {
       document.removeEventListener("mouseout", handleMouseLeave);
       document.removeEventListener("mouseenter", handleMouseEnter);
       cancelAnimationFrame(rafId);
+      cancelAnimationFrame(hoverRafId);
     };
   }, [isUnsupported, prefersReducedMotion]);
 
@@ -175,13 +201,13 @@ const CustomCursor: FC = () => {
         className={`absolute top-0 left-0 rounded-full border border-cursor-contrast will-change-transform transition-[width,height,border-width,background-color,opacity] duration-300 ease-out -translate-x-1/2 -translate-y-1/2 ${
           isHovering
             ? isClicked
-              ? "w-9 h-9 border-2 bg-cursor-fill"
+              ? "w-10 h-10 border-2 bg-cursor-fill"
               : isOverField
-                ? "w-10 h-10 border bg-cursor-fill opacity-80"
-                : "w-12 h-12 border bg-cursor-fill"
+                ? "w-12 h-12 border bg-cursor-fill opacity-80"
+                : "w-14 h-14 border bg-cursor-fill"
             : isClicked
-              ? "w-4 h-4 border-2"
-              : "w-8 h-8 border bg-transparent opacity-80"
+              ? "w-6 h-6 border-2"
+              : "w-10 h-10 border bg-transparent opacity-80"
         }`}
       />
     </div>

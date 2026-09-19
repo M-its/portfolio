@@ -29,9 +29,9 @@ export default function SmoothScroll() {
 
     const animate = () => {
       const distance = targetY - currentY;
-      currentY += distance * 0.14;
+      currentY += distance * 0.1;
 
-      if (Math.abs(distance) < 0.5) {
+      if (Math.abs(distance) < 0.25) {
         currentY = targetY;
         isAnimating = false;
         window.scrollTo(0, currentY);
