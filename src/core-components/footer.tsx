@@ -1,69 +1,74 @@
 import cx from "classnames";
-import { useState } from "react";
 
-import Container from "../components/container";
-import Text from "../components/text";
-import Button from "../components/button";
-import Divider from "../components/divider";
-import ContactChat from "./contact-chat";
-
-import BonfireIcon from "../assets/images/bonfire.svg?react";
+import ArrowUpIcon from "../assets/icons/arrow-up.svg?react";
 import GitHubIcon from "../assets/icons/github.svg?react";
 import LinkedInIcon from "../assets/icons/linkedin.svg?react";
 import MailIcon from "../assets/icons/mail.svg?react";
+import Button from "../components/button";
+import Container from "../components/container";
+import Divider from "../components/divider";
+import Text from "../components/text";
+import { OPEN_CONTACT_CHAT_EVENT } from "./contact-chat";
 
 interface FooterProps extends React.ComponentProps<typeof Container> {}
 
 const CONTACT_EMAIL_HREF =
   "mailto:mitsrael9@gmail.com?subject=Oportunidade%20de%20trabalho%20-%20Desenvolvedor%20Full-Stack&body=Olá%20Mitsrael%2C%0A%0AEncontrei%20seu%20portfólio%20e%20gostaria%20de%20conversar%20sobre%20uma%20oportunidade.";
 
-export default function Footer({ className, ...props }: FooterProps) {
-  const [isContactChatOpen, setIsContactChatOpen] = useState(false);
+function openContactChat() {
+  window.dispatchEvent(new Event(OPEN_CONTACT_CHAT_EVENT));
+}
 
+export default function Footer({ className, ...props }: FooterProps) {
   return (
-    <>
-      <ContactChat
-        isOpen={isContactChatOpen}
-        onClose={() => setIsContactChatOpen(false)}
-      />
-      <Container
+    <Container
       as="footer"
       id="contact"
-      className={cx(
-        "flex flex-col justify-between items-center mt-42",
-        className,
-      )}
+      className={cx("mt-32 pb-24 sm:mt-40 sm:pb-28", className)}
       {...props}
     >
-      <Divider
-        className="bg-gradient-to-r from-transparent via-button-primary-surface-hover to-transparent"
-        style={{
-          maskImage:
-            "radial-gradient(circle 60px at center, transparent 50%, black 51%)",
-          WebkitMaskImage:
-            "radial-gradient(circle 60px at center, transparent 50%, black 51%)",
-        }}
-      />
-      <Button
-        mode="icon"
-        icon={BonfireIcon}
-        onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-        aria-label="Voltar ao topo"
-        size="xl"
-        className="-mt-8 mb-12 md:-mt-10 md:mb-8 hover:scale-[1.1]"
-      />
+      <Divider className="bg-gradient-to-r from-transparent via-icon-primary/35 to-transparent" />
 
-      <div className="flex md:flex-row flex-col justify-center items-center w-full my-6 md:my-12 relative gap-8">
+      <div className="grid gap-10 py-12 sm:py-16 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end lg:gap-16">
+        <div className="max-w-2xl">
+          <div className="mb-4 flex items-center gap-2 text-sm text-status-online">
+            <span className="relative flex h-2.5 w-2.5" aria-hidden="true">
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-status-online opacity-35 motion-reduce:animate-none" />
+              <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-status-online" />
+            </span>
+            <span className="font-medium tracking-wide">
+              Online · disponível para conversar
+            </span>
+          </div>
+          <Text as="h2" variant="heading-section" className="max-w-xl">
+            Tem um projeto, uma ideia ou só quer trocar uma ideia?
+          </Text>
+          <Text variant="paragraph-medium" className="mt-4 max-w-lg opacity-65">
+            Me conte brevemente o que você está construindo. Respondo
+            diretamente pelo e-mail informado.
+          </Text>
+        </div>
+
         <Button
-          onClick={() => setIsContactChatOpen(true)}
+          onClick={openContactChat}
           variant="secondary"
           size="lg"
-          className="w-full max-w-[440px] md:w-auto md:absolute md:right-0"
+          icon={MailIcon}
+          className="w-full lg:w-auto"
+          data-cursor-clickable
         >
           Entre em contato
         </Button>
+      </div>
 
-        <div className="flex gap-6 md:gap-3">
+      <Divider className="opacity-35" />
+
+      <div className="flex flex-col gap-7 py-7 sm:flex-row sm:items-center sm:justify-between">
+        <Text className="order-3 opacity-55 sm:order-1">
+          &copy; {new Date().getFullYear()} — Mitsrael Souza
+        </Text>
+
+        <div className="order-1 flex items-center gap-5 sm:order-2 sm:gap-3">
           <Button
             mode="icon"
             size="lg"
@@ -71,7 +76,7 @@ export default function Footer({ className, ...props }: FooterProps) {
             href="https://www.github.com/m-its"
             target="_blank"
             rel="noopener noreferrer"
-            className="opacity-70 hover:opacity-100"
+            className="opacity-65 hover:opacity-100"
             aria-label="Visitar meu perfil no GitHub"
             icon={GitHubIcon}
           />
@@ -81,7 +86,7 @@ export default function Footer({ className, ...props }: FooterProps) {
             as="a"
             href={CONTACT_EMAIL_HREF}
             aria-label="Enviar um e-mail"
-            className="opacity-70 hover:opacity-100"
+            className="opacity-65 hover:opacity-100"
             icon={MailIcon}
           />
           <Button
@@ -92,16 +97,21 @@ export default function Footer({ className, ...props }: FooterProps) {
             target="_blank"
             rel="noopener noreferrer"
             aria-label="Visitar meu perfil no LinkedIn"
-            className="opacity-70 hover:opacity-100"
+            className="opacity-65 hover:opacity-100"
             icon={LinkedInIcon}
           />
         </div>
 
-        <Text className="md:absolute md:left-0 opacity-70 ">
-          &copy; {new Date().getFullYear()} - Mitsrael Souza
-        </Text>
-        </div>
-      </Container>
-    </>
+        <Button
+          mode="text"
+          icon={ArrowUpIcon}
+          onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+          className="order-2 opacity-65 hover:opacity-100 sm:order-3"
+          data-cursor-clickable
+        >
+          Voltar ao topo
+        </Button>
+      </div>
+    </Container>
   );
 }

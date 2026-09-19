@@ -47,6 +47,32 @@
     /* Ícone */
     --color-icon-primary: var(--palette-neutral-100);
     --color-icon-primary-hover: var(--palette-white);
+    --color-cursor-fill: color-mix(
+      in oklab,
+      var(--palette-white) 10%,
+      transparent
+    );
+    --color-scroll-progress: var(--palette-neutral-100);
+    --color-scroll-progress-track: color-mix(
+      in oklab,
+      var(--palette-white) 10%,
+      transparent
+    );
+    --color-chat-surface: var(--palette-neutral-900);
+    --color-chat-surface-muted: var(--palette-neutral-800);
+    --color-chat-input: color-mix(
+      in oklab,
+      var(--palette-white) 4%,
+      transparent
+    );
+    --color-chat-border: color-mix(
+      in oklab,
+      var(--palette-white) 16%,
+      transparent
+    );
+    --color-chat-launcher: var(--palette-neutral-100);
+    --color-chat-launcher-hover: var(--palette-white);
+    --color-chat-launcher-content: var(--palette-black);
 
     /* Skeleton */
     --color-skeleton-surface: var(--palette-neutral-700);

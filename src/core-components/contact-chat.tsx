@@ -1,46 +1,55 @@
-import { AnimatePresence, motion } from "framer-motion";
-import { useEffect, useId, useState } from "react";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import { useEffect, useId, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 
+import MailIcon from "../assets/icons/mail.svg?react";
 import PaperPlaneIcon from "../assets/icons/paper-plane-tilt.svg?react";
 import XIcon from "../assets/icons/x.svg?react";
 import Button from "../components/button";
 import Icon from "../components/icon";
 import { sendContactMessage } from "../utils/contact-service";
 
-type ContactChatProps = {
-  isOpen: boolean;
-  onClose: () => void;
-};
+export const OPEN_CONTACT_CHAT_EVENT = "portfolio:open-contact-chat";
 
 type Status = "idle" | "sending" | "sent" | "error";
 
-export default function ContactChat({ isOpen, onClose }: ContactChatProps) {
+export default function ContactChat() {
   const titleId = useId();
+  const panelId = useId();
+  const panelRef = useRef<HTMLElement>(null);
+  const prefersReducedMotion = useReducedMotion();
+  const [isOpen, setIsOpen] = useState(false);
   const [status, setStatus] = useState<Status>("idle");
   const [error, setError] = useState("");
 
   useEffect(() => {
+    const openChat = () => setIsOpen(true);
+    window.addEventListener(OPEN_CONTACT_CHAT_EVENT, openChat);
+    return () => window.removeEventListener(OPEN_CONTACT_CHAT_EVENT, openChat);
+  }, []);
+
+  useEffect(() => {
     if (!isOpen) return;
-
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") onClose();
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setIsOpen(false);
     };
-
-    document.body.style.overflow = "hidden";
-    window.addEventListener("keydown", handleKeyDown);
-
+    window.addEventListener("keydown", closeOnEscape);
+    const focusTimer = window.setTimeout(
+      () => panelRef.current?.querySelector<HTMLInputElement>("input")?.focus(),
+      prefersReducedMotion ? 0 : 180,
+    );
     return () => {
-      document.body.style.overflow = "";
-      window.removeEventListener("keydown", handleKeyDown);
+      window.clearTimeout(focusTimer);
+      window.removeEventListener("keydown", closeOnEscape);
     };
-  }, [isOpen, onClose]);
+  }, [isOpen, prefersReducedMotion]);
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    const form = new FormData(event.currentTarget);
+    const formElement = event.currentTarget;
+    const form = new FormData(formElement);
     setStatus("sending");
     setError("");
-
     try {
       await sendContactMessage({
         name: String(form.get("name") ?? "").trim() || undefined,
@@ -48,7 +57,7 @@ export default function ContactChat({ isOpen, onClose }: ContactChatProps) {
         message: String(form.get("message") ?? "").trim(),
       });
       setStatus("sent");
-      event.currentTarget.reset();
+      formElement.reset();
     } catch (caughtError) {
       setStatus("error");
       setError(
@@ -59,116 +68,186 @@ export default function ContactChat({ isOpen, onClose }: ContactChatProps) {
     }
   };
 
-  return (
-    <AnimatePresence>
-      {isOpen && (
-        <motion.div
-          className="fixed inset-0 z-50 flex items-end justify-center bg-black/45 p-3 backdrop-blur-sm sm:items-center sm:p-6"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          onMouseDown={(event) => {
-            if (event.target === event.currentTarget) onClose();
-          }}
-        >
-          <motion.section
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby={titleId}
-            className="w-full max-w-lg overflow-hidden rounded-2xl border border-card-border/50 bg-background shadow-2xl"
-            initial={{ opacity: 0, y: 24, scale: 0.98 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 16, scale: 0.98 }}
-            transition={{ duration: 0.2, ease: "easeOut" }}
-          >
-            <header className="flex items-start justify-between border-b border-card-border/40 bg-project-card-surface px-5 py-4 sm:px-6">
-              <div>
-                <p className="text-xs font-medium uppercase tracking-[0.2em] opacity-50">
-                  Novo contato
-                </p>
-                <h2 id={titleId} className="mt-1 text-xl font-medium tracking-wide">
-                  Vamos conversar
-                </h2>
-              </div>
-              <button
-                type="button"
-                onClick={onClose}
-                className="rounded-full p-2 opacity-60 transition hover:bg-current/10 hover:opacity-100"
-                aria-label="Fechar conversa"
-              >
-                <Icon svg={XIcon} size="sm" className="fill-current" />
-              </button>
-            </header>
+  return createPortal(
+    <div
+      className="pointer-events-none fixed inset-0 z-[80]"
+      data-native-scroll
+    >
+      <AnimatePresence>
+        {isOpen && (
+          <motion.button
+            type="button"
+            aria-label="Fechar conversa"
+            className="pointer-events-auto absolute inset-0 cursor-default bg-black/35 backdrop-blur-[2px] sm:bg-black/10 sm:backdrop-blur-none"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: prefersReducedMotion ? 0 : 0.2 }}
+            onClick={() => setIsOpen(false)}
+          />
+        )}
+      </AnimatePresence>
 
-            <div className="space-y-5 p-5 sm:p-6">
-              <div className="max-w-[88%] rounded-2xl rounded-tl-sm bg-project-card-surface px-4 py-3 text-sm leading-relaxed opacity-85">
-                Olá! Conte um pouco sobre o que você tem em mente. Vou responder
-                diretamente no seu e-mail.
-              </div>
-
-              {status === "sent" ? (
-                <div className="rounded-xl border border-button-secondary-surface/50 bg-button-secondary-surface/15 p-4 text-sm leading-relaxed">
-                  Mensagem recebida. Obrigado pelo contato — retorno pelo e-mail
-                  informado assim que possível.
-                  <button
-                    type="button"
-                    className="mt-3 block font-medium underline underline-offset-4"
-                    onClick={() => setStatus("idle")}
-                  >
-                    Enviar outra mensagem
-                  </button>
-                </div>
-              ) : (
-                <form className="grid gap-4" onSubmit={handleSubmit}>
-                  <label className="grid gap-1.5 text-sm">
-                    <span className="opacity-70">Nome <span className="opacity-50">(opcional)</span></span>
-                    <input
-                      name="name"
-                      autoComplete="name"
-                      maxLength={100}
-                      className="rounded-lg border border-card-border/50 bg-transparent px-3 py-2.5 outline-none transition focus:border-icon-primary/70 focus:ring-2 focus:ring-icon-primary/15"
-                    />
-                  </label>
-                  <label className="grid gap-1.5 text-sm">
-                    <span className="opacity-70">Seu e-mail</span>
-                    <input
-                      name="email"
-                      type="email"
-                      autoComplete="email"
-                      required
-                      maxLength={254}
-                      className="rounded-lg border border-card-border/50 bg-transparent px-3 py-2.5 outline-none transition focus:border-icon-primary/70 focus:ring-2 focus:ring-icon-primary/15"
-                    />
-                  </label>
-                  <label className="grid gap-1.5 text-sm">
-                    <span className="opacity-70">Mensagem</span>
-                    <textarea
-                      name="message"
-                      required
-                      maxLength={3000}
-                      rows={5}
-                      className="resize-none rounded-lg border border-card-border/50 bg-transparent px-3 py-2.5 outline-none transition focus:border-icon-primary/70 focus:ring-2 focus:ring-icon-primary/15"
-                    />
-                  </label>
-                  {status === "error" && (
-                    <p className="text-sm text-red-600 dark:text-red-300" role="alert">
-                      {error}
+      <div className="absolute inset-x-3 bottom-3 flex flex-col items-end sm:inset-x-auto sm:right-6 sm:bottom-6">
+        <AnimatePresence>
+          {isOpen && (
+            <motion.section
+              ref={panelRef}
+              id={panelId}
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby={titleId}
+              className="pointer-events-auto mb-3 flex max-h-[calc(100dvh-6.75rem)] w-full flex-col overflow-hidden rounded-2xl border border-chat-border bg-chat-surface shadow-[0_24px_80px_rgba(0,0,0,0.24)] sm:mb-4 sm:w-[min(390px,calc(100vw-3rem))]"
+              initial={{ opacity: 0, y: 20, scale: 0.98 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 14, scale: 0.98 }}
+              transition={{
+                duration: prefersReducedMotion ? 0 : 0.24,
+                ease: [0.22, 1, 0.36, 1],
+              }}
+            >
+              <header className="flex items-start justify-between border-b border-chat-border bg-chat-surface-muted px-5 py-4">
+                <div>
+                  <div className="flex items-center gap-2">
+                    <span
+                      className="relative flex h-2.5 w-2.5"
+                      aria-hidden="true"
+                    >
+                      <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-status-online opacity-35 motion-reduce:animate-none" />
+                      <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-status-online" />
+                    </span>
+                    <p className="text-xs font-medium uppercase tracking-[0.18em] text-status-online">
+                      Online
                     </p>
-                  )}
-                  <Button
-                    type="submit"
-                    icon={PaperPlaneIcon}
-                    className="mt-1 w-full"
-                    disabled={status === "sending"}
+                  </div>
+                  <h2
+                    id={titleId}
+                    className="mt-1.5 text-xl font-medium tracking-wide"
                   >
-                    {status === "sending" ? "Enviando..." : "Enviar mensagem"}
-                  </Button>
-                </form>
+                    Fale comigo
+                  </h2>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setIsOpen(false)}
+                  className="rounded-full p-2 opacity-60 transition hover:bg-current/10 hover:opacity-100"
+                  aria-label="Fechar conversa"
+                  data-cursor-clickable
+                >
+                  <Icon svg={XIcon} size="sm" className="fill-current" />
+                </button>
+              </header>
+
+              <div className="overflow-y-auto p-5" data-native-scroll>
+                <div className="mb-5 max-w-[88%] rounded-2xl rounded-tl-sm bg-chat-surface-muted px-4 py-3 text-sm leading-relaxed opacity-90">
+                  Olá! Conte um pouco sobre o que você tem em mente. Vou
+                  responder diretamente no seu e-mail.
+                </div>
+
+                {status === "sent" ? (
+                  <div className="rounded-xl border border-status-online/35 bg-status-online/10 p-4 text-sm leading-relaxed">
+                    Mensagem recebida. Obrigado pelo contato — retorno pelo
+                    e-mail informado assim que possível.
+                    <button
+                      type="button"
+                      className="mt-3 block font-medium underline underline-offset-4"
+                      onClick={() => setStatus("idle")}
+                      data-cursor-clickable
+                    >
+                      Enviar outra mensagem
+                    </button>
+                  </div>
+                ) : (
+                  <form className="grid gap-3.5" onSubmit={handleSubmit}>
+                    <label className="grid gap-1.5 text-sm">
+                      <span className="opacity-70">
+                        Nome <span className="opacity-50">(opcional)</span>
+                      </span>
+                      <input
+                        name="name"
+                        autoComplete="name"
+                        maxLength={100}
+                        className="rounded-lg border border-chat-border bg-chat-input px-3 py-2.5 outline-none transition focus:border-icon-primary/70 focus:ring-2 focus:ring-icon-primary/15"
+                      />
+                    </label>
+                    <label className="grid gap-1.5 text-sm">
+                      <span className="opacity-70">Seu e-mail</span>
+                      <input
+                        name="email"
+                        type="email"
+                        autoComplete="email"
+                        required
+                        maxLength={254}
+                        className="rounded-lg border border-chat-border bg-chat-input px-3 py-2.5 outline-none transition focus:border-icon-primary/70 focus:ring-2 focus:ring-icon-primary/15"
+                      />
+                    </label>
+                    <label className="grid gap-1.5 text-sm">
+                      <span className="opacity-70">Mensagem</span>
+                      <textarea
+                        name="message"
+                        required
+                        maxLength={3000}
+                        rows={4}
+                        className="resize-none rounded-lg border border-chat-border bg-chat-input px-3 py-2.5 outline-none transition focus:border-icon-primary/70 focus:ring-2 focus:ring-icon-primary/15"
+                      />
+                    </label>
+                    {status === "error" && (
+                      <p
+                        className="text-sm text-red-700 dark:text-red-300"
+                        role="alert"
+                      >
+                        {error}
+                      </p>
+                    )}
+                    <Button
+                      type="submit"
+                      icon={PaperPlaneIcon}
+                      className="mt-1 w-full disabled:cursor-wait disabled:opacity-60"
+                      disabled={status === "sending"}
+                    >
+                      {status === "sending" ? "Enviando..." : "Enviar mensagem"}
+                    </Button>
+                  </form>
+                )}
+              </div>
+            </motion.section>
+          )}
+        </AnimatePresence>
+
+        <motion.button
+          type="button"
+          className="pointer-events-auto flex min-h-14 items-center gap-3 rounded-full border border-chat-border bg-chat-launcher px-4 py-3 text-chat-launcher-content shadow-[0_12px_35px_rgba(0,0,0,0.2)] transition-colors hover:bg-chat-launcher-hover sm:min-w-[164px] sm:px-5"
+          onClick={() => setIsOpen((current) => !current)}
+          aria-haspopup="dialog"
+          aria-expanded={isOpen}
+          aria-controls={panelId}
+          data-cursor-clickable
+          whileTap={prefersReducedMotion ? undefined : { scale: 0.97 }}
+        >
+          <span className="relative flex h-8 w-8 items-center justify-center rounded-full bg-chat-launcher-content/10">
+            <Icon
+              svg={isOpen ? XIcon : MailIcon}
+              size="md"
+              className="fill-current"
+            />
+            {!isOpen && (
+              <span className="absolute -right-0.5 -top-0.5 h-2.5 w-2.5 rounded-full border-2 border-chat-launcher bg-status-online" />
+            )}
+          </span>
+          <span className="hidden text-left sm:block">
+            <span className="block text-sm font-medium leading-tight">
+              {isOpen ? "Fechar" : "Vamos conversar"}
+            </span>
+            <span className="mt-0.5 flex items-center gap-1.5 text-[11px] leading-tight opacity-65">
+              {!isOpen && (
+                <span className="h-1.5 w-1.5 rounded-full bg-status-online" />
               )}
-            </div>
-          </motion.section>
-        </motion.div>
-      )}
-    </AnimatePresence>
+              {isOpen ? "Conversa aberta" : "Online"}
+            </span>
+          </span>
+        </motion.button>
+      </div>
+    </div>,
+    document.body,
   );
 }

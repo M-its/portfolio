@@ -24,6 +24,7 @@
   --palette-sepia-text: #2b2a28;
   --palette-yellow-200: #fff085;
   --palette-yellow-pure: rgb(255, 255, 0);
+  --palette-green-500: #22c55e;
 
   /* Transparências recorrentes */
   --palette-white-02: rgba(255, 255, 255, 0.02);
@@ -141,6 +142,37 @@
     transparent
   );
   --color-cursor-contrast: var(--palette-white);
+  --color-cursor-fill: color-mix(
+    in oklab,
+    var(--palette-white) 12%,
+    transparent
+  );
+  --color-status-online: var(--palette-green-500);
+  --color-scroll-progress: var(--palette-sepia-800);
+  --color-scroll-progress-track: color-mix(
+    in oklab,
+    var(--palette-sepia-800) 12%,
+    transparent
+  );
+  --color-chat-surface: var(--palette-sepia-50);
+  --color-chat-surface-muted: color-mix(
+    in oklab,
+    var(--palette-sepia-200) 35%,
+    var(--palette-sepia-50)
+  );
+  --color-chat-input: color-mix(
+    in oklab,
+    var(--palette-white) 45%,
+    transparent
+  );
+  --color-chat-border: color-mix(
+    in oklab,
+    var(--palette-sepia-800) 24%,
+    transparent
+  );
+  --color-chat-launcher: var(--palette-sepia-900);
+  --color-chat-launcher-hover: var(--palette-sepia-800);
+  --color-chat-launcher-content: var(--palette-sepia-50);
 
   /* Botão primário */
   --color-button-primary-surface: var(--palette-sepia-800);

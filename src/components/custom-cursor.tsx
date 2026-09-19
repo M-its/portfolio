@@ -11,6 +11,7 @@ const CustomCursor: FC = () => {
     () => window.matchMedia(REDUCED_MOTION_QUERY).matches,
   );
   const [isHovering, setIsHovering] = useState(false);
+  const [isOverField, setIsOverField] = useState(false);
   const [isClicked, setIsClicked] = useState(false);
 
   // Respeita mudanças de preferência do sistema
@@ -37,6 +38,7 @@ const CustomCursor: FC = () => {
     let isAnimating = true;
     let lastTarget: Element | null = null;
     let lastHoverState = false;
+    let lastFieldState = false;
 
     const lerp = (start: number, end: number, factor: number) =>
       start + (end - start) * factor;
@@ -81,10 +83,15 @@ const CustomCursor: FC = () => {
         const interactive = !!target.closest(
           "a, button, input, select, textarea, [data-cursor-clickable], [role='button']",
         );
-        
+        const overField = !!target.closest("input, select, textarea");
+
         if (interactive !== lastHoverState) {
           lastHoverState = interactive;
           setIsHovering(interactive);
+        }
+        if (overField !== lastFieldState) {
+          lastFieldState = overField;
+          setIsOverField(overField);
         }
       }
 
@@ -154,23 +161,27 @@ const CustomCursor: FC = () => {
 
   return (
     <div
-      className="pointer-events-none fixed inset-0 z-9999 overflow-hidden mix-blend-difference"
+      className="pointer-events-none fixed inset-0 z-[100] overflow-hidden mix-blend-difference"
       aria-hidden="true"
     >
       <div
         ref={innerRef}
-        className="absolute top-0 left-0 w-1.5 h-1.5 rounded-full bg-cursor-contrast will-change-transform -translate-x-1/2 -translate-y-1/2 transition-opacity duration-300"
+        className={`absolute top-0 left-0 rounded-full bg-cursor-contrast will-change-transform -translate-x-1/2 -translate-y-1/2 transition-[width,height,opacity] duration-300 ${
+          isHovering ? "h-1 w-1 opacity-55" : "h-1.5 w-1.5 opacity-100"
+        }`}
       />
       <div
         ref={outerRef}
-        className={`absolute top-0 left-0 rounded-full border border-cursor-contrast will-change-transform transition-all duration-300 ease-out -translate-x-1/2 -translate-y-1/2 ${
+        className={`absolute top-0 left-0 rounded-full border border-cursor-contrast will-change-transform transition-[width,height,border-width,background-color,opacity] duration-300 ease-out -translate-x-1/2 -translate-y-1/2 ${
           isHovering
             ? isClicked
-              ? "w-8 h-8 border-2"
-              : "w-12 h-12 border"
+              ? "w-9 h-9 border-2 bg-cursor-fill"
+              : isOverField
+                ? "w-10 h-10 border bg-cursor-fill opacity-80"
+                : "w-12 h-12 border bg-cursor-fill"
             : isClicked
               ? "w-4 h-4 border-2"
-              : "w-8 h-8 border"
+              : "w-8 h-8 border bg-transparent opacity-80"
         }`}
       />
     </div>
