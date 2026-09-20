@@ -26,7 +26,7 @@ export default function Header({ className, ...props }: HeaderProps) {
     previousPathRef.current.startsWith("/projects/");
   const [suppressRouteMotion, setSuppressRouteMotion] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
-  const scrolled = useScrolled(50);
+  const scrolled = useScrolled(72, 24);
   const menuRef = useRef<HTMLDivElement>(null);
   const [scrollbarWidth, setScrollbarWidth] = useState(0);
 
@@ -90,29 +90,34 @@ export default function Header({ className, ...props }: HeaderProps) {
 
   return (
     <>
-      <motion.div
-        layout={!disableRouteMotion}
-        initial={false}
+      <div
         style={{
           paddingRight: scrollbarWidth,
-          willChange: "transform",
         }}
-        transition={{ layout: { duration: 0.4, ease: [0.25, 0.1, 0.25, 1] } }}
-        className={cx(
-          "fixed inset-x-0 mx-auto z-50",
-          disableRouteMotion
-            ? "transition-none"
-            : "transition-[background-color,border-color,box-shadow,backdrop-filter] duration-300",
-          scrolled
-            ? "top-4 w-[90%] max-w-[1200px] rounded-2xl border bg-header-surface py-2 backdrop-blur-[15px] shadow-header-scrolled"
-            : "top-0 w-full max-w-[1400px] border-b py-6 sm:py-8 md:py-10",
-          menuOpen ? "border-transparent" : "border-icon-primary/20",
-        )}
+        className="pointer-events-none fixed inset-x-0 top-0 z-50"
       >
+        <div
+          aria-hidden="true"
+          className={cx(
+            "absolute inset-x-0 mx-auto border-icon-primary/20",
+            disableRouteMotion
+              ? "transition-none"
+              : "transition-[top,width,max-width,height,border-radius,background-color,border-color,box-shadow,backdrop-filter] duration-300 ease-out motion-reduce:transition-none",
+            scrolled
+              ? "top-4 h-[58px] w-[90%] max-w-[1200px] rounded-2xl border bg-header-surface backdrop-blur-[8px] shadow-header-scrolled"
+              : "top-0 h-[89px] w-full max-w-[1400px] border-b bg-transparent sm:h-[105px] md:h-[121px]",
+            menuOpen && "border-transparent",
+          )}
+        />
+
         <Container
           as="header"
           className={cx(
-            "flex justify-between items-center relative",
+            "pointer-events-auto absolute inset-x-0 mx-auto flex w-[90%] max-w-[1200px] items-center justify-between",
+            disableRouteMotion
+              ? "transition-none"
+              : "transition-[top] duration-300 ease-out motion-reduce:transition-none",
+            scrolled ? "top-6" : "top-6 sm:top-8 md:top-10",
             className,
           )}
           {...props}
@@ -149,7 +154,7 @@ export default function Header({ className, ...props }: HeaderProps) {
             )}
           </motion.button>
         </Container>
-      </motion.div>
+      </div>
 
       {/* MENU MOBILE */}
       <AnimatePresence>
