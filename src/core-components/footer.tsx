@@ -27,7 +27,7 @@ export default function Footer({ className, ...props }: FooterProps) {
     >
       <div
         id="contact-chat-dock"
-        className="mb-8 flex h-14 w-full items-center justify-center sm:hidden"
+        className="mb-24 -mt-16 flex h-20 w-full items-center justify-end sm:hidden"
       />
 
       <Divider

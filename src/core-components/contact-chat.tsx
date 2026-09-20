@@ -1,4 +1,9 @@
-import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import {
+  AnimatePresence,
+  LayoutGroup,
+  motion,
+  useReducedMotion,
+} from "framer-motion";
 import { useEffect, useId, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 
@@ -24,6 +29,7 @@ export default function ContactChat() {
   const [isFooterVisible, setIsFooterVisible] = useState(false);
   const [isDockVisible, setIsDockVisible] = useState(false);
   const [dockTarget, setDockTarget] = useState<HTMLElement | null>(null);
+  const [isDockExpanded, setIsDockExpanded] = useState(false);
   const [status, setStatus] = useState<Status>("idle");
   const [error, setError] = useState("");
 
@@ -99,15 +105,33 @@ export default function ContactChat() {
   };
 
   const isDocked = isSmallScreen && isDockVisible && dockTarget !== null;
-  const showFooterCta = (isFooterVisible || isDocked) && !isOpen;
+  const showMobileCta = isDocked && isDockExpanded && !isOpen;
+  const showFooterCta =
+    !isOpen && (isSmallScreen ? showMobileCta : isFooterVisible);
+
+  useEffect(() => {
+    if (!isDocked || isOpen) {
+      setIsDockExpanded(false);
+      return;
+    }
+
+    const timer = window.setTimeout(
+      () => setIsDockExpanded(true),
+      prefersReducedMotion ? 0 : 420,
+    );
+    return () => window.clearTimeout(timer);
+  }, [isDocked, isOpen, prefersReducedMotion]);
 
   const launcher = (
     <motion.button
       type="button"
-      className={`pointer-events-auto relative flex h-13 items-center rounded-full border border-chat-border bg-chat-launcher text-chat-launcher-content shadow-[0_10px_30px_rgba(0,0,0,0.18)] transition-[width,padding,background-color] duration-300 ease-out hover:bg-chat-launcher-hover sm:h-14 ${
-        showFooterCta
-          ? "w-48 justify-start gap-3 px-4"
-          : "w-13 justify-center px-0 sm:w-14"
+      layoutId={isSmallScreen ? "mobile-contact-launcher" : undefined}
+      className={`pointer-events-auto relative flex items-center border border-chat-border bg-chat-launcher text-chat-launcher-content transition-[width,height,padding,border-radius,background-color,box-shadow] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] hover:bg-chat-launcher-hover ${
+        showMobileCta
+          ? "h-20 w-[min(22rem,calc(100vw-3rem))] justify-between gap-3 rounded-2xl px-4 shadow-[0_18px_55px_rgba(0,0,0,0.24)]"
+          : showFooterCta
+            ? "h-13 w-48 justify-start gap-3 rounded-full px-4 shadow-[0_10px_30px_rgba(0,0,0,0.18)] sm:h-14"
+            : "h-13 w-13 justify-center rounded-full px-0 shadow-[0_10px_30px_rgba(0,0,0,0.18)] sm:h-14 sm:w-14"
       }`}
       onClick={() => setIsOpen((current) => !current)}
       aria-haspopup="dialog"
@@ -116,27 +140,53 @@ export default function ContactChat() {
       aria-label={isOpen ? "Fechar conversa" : "Abrir conversa"}
       data-cursor-clickable
       whileTap={prefersReducedMotion ? undefined : { scale: 0.97 }}
+      transition={{
+        layout: {
+          duration: prefersReducedMotion ? 0 : 0.42,
+          ease: [0.22, 1, 0.36, 1],
+        },
+      }}
     >
-      <span className="flex h-8 w-8 shrink-0 items-center justify-center">
+      <span
+        className={`flex shrink-0 items-center justify-center transition-[width,height,border-radius,background-color] duration-300 ${
+          showMobileCta
+            ? "h-11 w-11 rounded-xl bg-white/10 dark:bg-black/10"
+            : "h-8 w-8"
+        }`}
+      >
         <Icon
           svg={isOpen ? XIcon : ChatIcon}
           size="md"
           className="fill-current"
         />
-        {!isOpen && (
+        {!isOpen && !showMobileCta && (
           <span className="absolute right-0.5 top-0.5 h-3 w-3 rounded-full border-2 border-chat-launcher bg-status-online" />
         )}
       </span>
       <AnimatePresence initial={false}>
         {showFooterCta && (
           <motion.span
-            className="whitespace-nowrap text-sm font-medium"
+            className={`min-w-0 flex-1 whitespace-nowrap text-left ${
+              showMobileCta ? "flex flex-col" : "text-sm font-medium"
+            }`}
             initial={{ opacity: 0, x: 8 }}
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: 8 }}
             transition={{ duration: prefersReducedMotion ? 0 : 0.18 }}
           >
-            Entre em contato
+            {showMobileCta ? (
+              <>
+                <span className="text-base font-semibold tracking-wide">
+                  Vamos conversar
+                </span>
+                <span className="mt-1 flex items-center gap-1.5 text-xs font-normal opacity-70">
+                  <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-status-online" />
+                  Online · resposta por e-mail
+                </span>
+              </>
+            ) : (
+              "Entre em contato"
+            )}
           </motion.span>
         )}
       </AnimatePresence>
@@ -291,13 +341,6 @@ export default function ContactChat() {
           {!isDocked && (
             <motion.div
               key="fixed-contact-launcher"
-              initial={{ opacity: 0, y: 10, scale: 0.94 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: 10, scale: 0.94 }}
-              transition={{
-                duration: prefersReducedMotion ? 0 : 0.2,
-                ease: [0.22, 1, 0.36, 1],
-              }}
             >
               {launcher}
             </motion.div>
@@ -313,13 +356,7 @@ export default function ContactChat() {
       ? createPortal(
           <motion.div
             key="docked-contact-launcher"
-            className="flex h-full w-full items-center justify-center"
-            initial={{ opacity: 0, y: 12, scale: 0.94 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            transition={{
-              duration: prefersReducedMotion ? 0 : 0.28,
-              ease: [0.22, 1, 0.36, 1],
-            }}
+            className="flex h-full w-full items-center justify-end"
           >
             {launcher}
           </motion.div>,
@@ -328,9 +365,9 @@ export default function ContactChat() {
       : null;
 
   return (
-    <>
+    <LayoutGroup id="contact-launcher">
       {overlay}
       {dockedLauncher}
-    </>
+    </LayoutGroup>
   );
 }
