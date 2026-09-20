@@ -7,6 +7,7 @@ import PaperPlaneIcon from "../assets/icons/paper-plane-tilt.svg?react";
 import XIcon from "../assets/icons/x.svg?react";
 import Button from "../components/button";
 import Icon from "../components/icon";
+import useMediaQuery from "../hooks/use-media-query";
 import { sendContactMessage } from "../utils/contact-service";
 
 export const OPEN_CONTACT_CHAT_EVENT = "portfolio:open-contact-chat";
@@ -18,8 +19,11 @@ export default function ContactChat() {
   const panelId = useId();
   const panelRef = useRef<HTMLElement>(null);
   const prefersReducedMotion = useReducedMotion();
+  const isSmallScreen = useMediaQuery("(max-width: 639px)");
   const [isOpen, setIsOpen] = useState(false);
   const [isFooterVisible, setIsFooterVisible] = useState(false);
+  const [isDockVisible, setIsDockVisible] = useState(false);
+  const [dockTarget, setDockTarget] = useState<HTMLElement | null>(null);
   const [status, setStatus] = useState<Status>("idle");
   const [error, setError] = useState("");
 
@@ -38,6 +42,19 @@ export default function ContactChat() {
       { threshold: 0.12 },
     );
     observer.observe(footer);
+    return () => observer.disconnect();
+  }, []);
+
+  useEffect(() => {
+    const dock = document.getElementById("contact-chat-dock");
+    if (!dock) return;
+
+    setDockTarget(dock);
+    const observer = new IntersectionObserver(
+      ([entry]) => setIsDockVisible(entry.isIntersecting),
+      { threshold: 0.25 },
+    );
+    observer.observe(dock);
     return () => observer.disconnect();
   }, []);
 
@@ -81,13 +98,53 @@ export default function ContactChat() {
     }
   };
 
-  const showFooterCta = isFooterVisible && !isOpen;
+  const isDocked = isSmallScreen && isDockVisible && dockTarget !== null;
+  const showFooterCta = (isFooterVisible || isDocked) && !isOpen;
 
-  return createPortal(
-    <div
-      className="pointer-events-none fixed inset-0 z-[80]"
-      data-native-scroll
+  const launcher = (
+    <motion.button
+      type="button"
+      className={`pointer-events-auto relative flex h-13 items-center rounded-full border border-chat-border bg-chat-launcher text-chat-launcher-content shadow-[0_10px_30px_rgba(0,0,0,0.18)] transition-[width,padding,background-color] duration-300 ease-out hover:bg-chat-launcher-hover sm:h-14 ${
+        showFooterCta
+          ? "w-48 justify-start gap-3 px-4"
+          : "w-13 justify-center px-0 sm:w-14"
+      }`}
+      onClick={() => setIsOpen((current) => !current)}
+      aria-haspopup="dialog"
+      aria-expanded={isOpen}
+      aria-controls={panelId}
+      aria-label={isOpen ? "Fechar conversa" : "Abrir conversa"}
+      data-cursor-clickable
+      whileTap={prefersReducedMotion ? undefined : { scale: 0.97 }}
     >
+      <span className="flex h-8 w-8 shrink-0 items-center justify-center">
+        <Icon
+          svg={isOpen ? XIcon : ChatIcon}
+          size="md"
+          className="fill-current"
+        />
+        {!isOpen && (
+          <span className="absolute right-0.5 top-0.5 h-3 w-3 rounded-full border-2 border-chat-launcher bg-status-online" />
+        )}
+      </span>
+      <AnimatePresence initial={false}>
+        {showFooterCta && (
+          <motion.span
+            className="whitespace-nowrap text-sm font-medium"
+            initial={{ opacity: 0, x: 8 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: 8 }}
+            transition={{ duration: prefersReducedMotion ? 0 : 0.18 }}
+          >
+            Entre em contato
+          </motion.span>
+        )}
+      </AnimatePresence>
+    </motion.button>
+  );
+
+  const overlay = createPortal(
+    <div className="pointer-events-none fixed inset-0 z-[80]" data-native-scroll>
       <AnimatePresence>
         {isOpen && (
           <motion.button
@@ -230,47 +287,50 @@ export default function ContactChat() {
           )}
         </AnimatePresence>
 
-        <motion.button
-          type="button"
-          className={`pointer-events-auto relative flex h-13 items-center rounded-full border border-chat-border bg-chat-launcher text-chat-launcher-content shadow-[0_10px_30px_rgba(0,0,0,0.18)] transition-[width,padding,background-color] duration-300 ease-out hover:bg-chat-launcher-hover sm:h-14 ${
-            showFooterCta
-              ? "w-48 justify-start gap-3 px-4"
-              : "w-13 justify-center px-0 sm:w-14"
-          }`}
-          onClick={() => setIsOpen((current) => !current)}
-          aria-haspopup="dialog"
-          aria-expanded={isOpen}
-          aria-controls={panelId}
-          aria-label={isOpen ? "Fechar conversa" : "Abrir conversa"}
-          data-cursor-clickable
-          whileTap={prefersReducedMotion ? undefined : { scale: 0.97 }}
-        >
-          <span className="flex h-8 w-8 shrink-0 items-center justify-center">
-            <Icon
-              svg={isOpen ? XIcon : ChatIcon}
-              size="md"
-              className="fill-current"
-            />
-            {!isOpen && (
-              <span className="absolute right-0.5 top-0.5 h-3 w-3 rounded-full border-2 border-chat-launcher bg-status-online" />
-            )}
-          </span>
-          <AnimatePresence initial={false}>
-            {showFooterCta && (
-              <motion.span
-                className="whitespace-nowrap text-sm font-medium"
-                initial={{ opacity: 0, x: 8 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: 8 }}
-                transition={{ duration: prefersReducedMotion ? 0 : 0.18 }}
-              >
-                Entre em contato
-              </motion.span>
-            )}
-          </AnimatePresence>
-        </motion.button>
+        <AnimatePresence>
+          {!isDocked && (
+            <motion.div
+              key="fixed-contact-launcher"
+              initial={{ opacity: 0, y: 10, scale: 0.94 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 10, scale: 0.94 }}
+              transition={{
+                duration: prefersReducedMotion ? 0 : 0.2,
+                ease: [0.22, 1, 0.36, 1],
+              }}
+            >
+              {launcher}
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     </div>,
     document.body,
+  );
+
+  const dockedLauncher =
+    isDocked && !isOpen && dockTarget
+      ? createPortal(
+          <motion.div
+            key="docked-contact-launcher"
+            className="flex h-full w-full items-center justify-center"
+            initial={{ opacity: 0, y: 12, scale: 0.94 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            transition={{
+              duration: prefersReducedMotion ? 0 : 0.28,
+              ease: [0.22, 1, 0.36, 1],
+            }}
+          >
+            {launcher}
+          </motion.div>,
+          dockTarget,
+        )
+      : null;
+
+  return (
+    <>
+      {overlay}
+      {dockedLauncher}
+    </>
   );
 }

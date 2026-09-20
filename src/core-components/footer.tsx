@@ -25,6 +25,11 @@ export default function Footer({ className, ...props }: FooterProps) {
       )}
       {...props}
     >
+      <div
+        id="contact-chat-dock"
+        className="mb-8 flex h-14 w-full items-center justify-center sm:hidden"
+      />
+
       <Divider
         className="bg-gradient-to-r from-transparent via-button-primary-surface-hover to-transparent"
         style={{
