@@ -1,58 +1,48 @@
-import { createClient } from "npm:@supabase/supabase-js@2";
-import { Resend } from "npm:resend@4";
+import { createClient } from "npm:@supabase/supabase-js@2.117.2";
+import { Resend } from "npm:resend@4.8.0";
+import { createHandler, type Contact } from "./handler.ts";
 
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "https://YOUR-PORTFOLIO-DOMAIN",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-};
+const env = (key: string) => Deno.env.get(key);
+function database() {
+  const url = env("SUPABASE_URL");
+  const key = env("SUPABASE_SERVICE_ROLE_KEY");
+  if (!url || !key) throw new Error("Database is not configured");
+  return createClient(url, key);
+}
 
-type ContactPayload = { name?: string; email?: string; message?: string };
-
-Deno.serve(async (request) => {
-  if (request.method === "OPTIONS") {
-    return new Response("ok", { headers: corsHeaders });
-  }
-
-  if (request.method !== "POST") {
-    return Response.json({ error: "Method not allowed" }, { status: 405, headers: corsHeaders });
-  }
-
-  try {
-    const { name, email, message } = (await request.json()) as ContactPayload;
-    const normalizedName = name?.trim() || null;
-    const normalizedEmail = email?.trim().toLowerCase();
-    const normalizedMessage = message?.trim();
-
-    if (!normalizedEmail || !/^\S+@\S+\.\S+$/.test(normalizedEmail) || !normalizedMessage) {
-      return Response.json({ error: "Invalid contact payload" }, { status: 400, headers: corsHeaders });
-    }
-    if (normalizedName?.length > 100 || normalizedEmail.length > 254 || normalizedMessage.length > 3000) {
-      return Response.json({ error: "Contact payload is too long" }, { status: 400, headers: corsHeaders });
-    }
-
-    const supabase = createClient(
-      Deno.env.get("SUPABASE_URL")!,
-      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
-    );
-    const { error: databaseError } = await supabase.from("contact_messages").insert({
-      name: normalizedName,
-      email: normalizedEmail,
-      message: normalizedMessage,
-    });
-    if (databaseError) throw databaseError;
-
-    const resend = new Resend(Deno.env.get("RESEND_API_KEY"));
-    await resend.emails.send({
-      from: Deno.env.get("CONTACT_FROM_EMAIL")!,
-      to: [Deno.env.get("CONTACT_TO_EMAIL")!],
-      replyTo: normalizedEmail,
-      subject: `Novo contato${normalizedName ? ` de ${normalizedName}` : ""}`,
-      text: `${normalizedName ? `${normalizedName}\n` : ""}${normalizedEmail}\n\n${normalizedMessage}`,
-    });
-
-    return Response.json({ ok: true }, { headers: corsHeaders });
-  } catch (error) {
-    console.error("Contact submission failed", error);
-    return Response.json({ error: "Unable to submit contact" }, { status: 500, headers: corsHeaders });
-  }
-});
+Deno.serve(
+  createHandler({
+    env,
+    fetch,
+    async limit(key, minute, hour) {
+      const { data, error } = await database().rpc("consume_contact_attempt", {
+        p_client_key: key,
+        p_minute_limit: minute,
+        p_hour_limit: hour,
+      });
+      if (error) throw new Error("Rate limiter unavailable");
+      return data;
+    },
+    async save(contact: Contact) {
+      const { error } = await database()
+        .from("contact_messages")
+        .insert(contact);
+      if (error) throw new Error("Contact storage unavailable");
+    },
+    async notify(contact: Contact) {
+      const resend = new Resend(env("RESEND_API_KEY"));
+      const from = env("CONTACT_FROM_EMAIL");
+      const to = env("CONTACT_TO_EMAIL");
+      if (!from || !to) throw new Error("Email is not configured");
+      const { error } = await resend.emails.send({
+        from,
+        to: [to],
+        replyTo: contact.email,
+        subject: `Novo contato${contact.name ? ` de ${contact.name}` : ""}`,
+        text: `${contact.name ? `${contact.name}\n` : ""}${contact.email}\n\n${contact.message}`,
+      });
+      if (error) console.error("Contact notification failed");
+      return !error;
+    },
+  }),
+);

@@ -12,6 +12,7 @@ import PaperPlaneIcon from "../assets/icons/paper-plane-tilt.svg?react";
 import XIcon from "../assets/icons/x.svg?react";
 import Button from "../components/button";
 import Icon from "../components/icon";
+import ContactVerification from "../components/contact-verification";
 import useMediaQuery from "../hooks/use-media-query";
 import { sendContactMessage } from "../utils/contact-service";
 
@@ -32,6 +33,8 @@ export default function ContactChat() {
   const [isDockExpanded, setIsDockExpanded] = useState(false);
   const [status, setStatus] = useState<Status>("idle");
   const [error, setError] = useState("");
+  const [turnstileToken, setTurnstileToken] = useState("");
+  const [verificationAttempt, setVerificationAttempt] = useState(0);
 
   useEffect(() => {
     const openChat = () => setIsOpen(true);
@@ -82,12 +85,19 @@ export default function ContactChat() {
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    if (status === "sending") return;
+    if (!turnstileToken) {
+      setStatus("error");
+      setError("Conclua a verificação antes de enviar. Sua mensagem foi preservada.");
+      return;
+    }
     const formElement = event.currentTarget;
     const form = new FormData(formElement);
     setStatus("sending");
     setError("");
     try {
       await sendContactMessage({
+        turnstileToken,
         name: String(form.get("name") ?? "").trim() || undefined,
         email: String(form.get("email") ?? "").trim(),
         message: String(form.get("message") ?? "").trim(),
@@ -101,6 +111,9 @@ export default function ContactChat() {
           ? caughtError.message
           : "Não foi possível enviar sua mensagem. Tente novamente.",
       );
+    } finally {
+      setTurnstileToken("");
+      setVerificationAttempt((value) => value + 1);
     }
   };
 
@@ -314,6 +327,7 @@ export default function ContactChat() {
                         className="resize-none rounded-lg border border-chat-border bg-chat-input px-3 py-2.5 outline-none transition focus:border-icon-primary/70 focus:ring-2 focus:ring-icon-primary/15"
                       />
                     </label>
+                    <ContactVerification key={verificationAttempt} onToken={setTurnstileToken} />
                     {status === "error" && (
                       <p
                         className="text-sm text-red-700 dark:text-red-300"
