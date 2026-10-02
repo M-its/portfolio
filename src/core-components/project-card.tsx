@@ -92,7 +92,7 @@ export default function ProjectCard({
           <div className={revealGlare()} />
         </div>
 
-        <Card {...props} className={content()}>
+        <Card {...props} size={size} variant={variant} className={content()}>
           <div className="project-card-header flex items-center justify-between gap-4 w-full">
             <a
               href={project.links.live}

@@ -9,7 +9,7 @@ import Container from "../components/container";
 import Divider from "../components/divider";
 import Text from "../components/text";
 
-interface FooterProps extends React.ComponentProps<typeof Container> {}
+type FooterProps = React.ComponentProps<typeof Container>;
 
 const CONTACT_EMAIL_HREF =
   "mailto:mitsrael9@gmail.com?subject=Oportunidade%20de%20trabalho%20-%20Desenvolvedor%20Full-Stack&body=Olá%20Mitsrael%2C%0A%0AEncontrei%20seu%20portfólio%20e%20gostaria%20de%20conversar%20sobre%20uma%20oportunidade.";

@@ -16,7 +16,7 @@ import Icon from "../components/icon.tsx";
 import DesktopNav from "./header-desktop-nav.tsx";
 import MobileMenu from "./header-mobile-menu.tsx";
 
-interface HeaderProps extends React.ComponentProps<typeof Container> {}
+type HeaderProps = React.ComponentProps<typeof Container>;
 
 export default function Header({ className, ...props }: HeaderProps) {
   const location = useLocation();

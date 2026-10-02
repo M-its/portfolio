@@ -10,7 +10,6 @@ import Text from "../components/text";
 interface ProjectsContainerProps extends React.ComponentProps<"div"> {
   staggerDelay?: number;
   cardAnimationDuration?: number;
-  viewportAmount?: number;
   animateEntrance?: boolean;
 }
 
@@ -41,7 +40,6 @@ const cardVariants: Variants = {
 export default function ProjectsContainer({
   staggerDelay = 0.3,
   cardAnimationDuration = 0.5,
-  viewportAmount = 0.1,
   animateEntrance = true,
   className,
   ...props
