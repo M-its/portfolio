@@ -21,13 +21,15 @@ interface AnimatedSectionProps {
 
 export const animationVariants: Record<string, Variants> = {
   instant: {
-    hidden: { opacity: 1 },
-    visible: { opacity: 1, transition: { duration: 0 } },
+    hidden: { opacity: 1, filter: "blur(0px)" },
+    visible: { opacity: 1, filter: "blur(0px)", transition: { duration: 0 } },
   },
   fadeIn: {
-    hidden: { opacity: 0 },
+    // Reset the desktop blur when resizing into the opacity-only mobile animation.
+    hidden: { opacity: 0, filter: "blur(0px)" },
     visible: {
       opacity: 1,
+      filter: "blur(0px)",
       transition: { duration: 0.4, ease: "easeOut" },
     },
   },

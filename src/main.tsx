@@ -2,8 +2,8 @@ import { StrictMode } from "react";
 import { BrowserRouter } from "react-router-dom";
 import { createRoot } from "react-dom/client";
 import { ThemeProvider } from "./contexts/theme-context";
-import { SpeedInsights } from "@vercel/speed-insights/react"
-import { Analytics } from "@vercel/analytics/react"
+import { SpeedInsights } from "@vercel/speed-insights/react";
+import { Analytics } from "@vercel/analytics/react";
 import App from "./App.tsx";
 import "./index.css";
 
@@ -14,8 +14,8 @@ root.render(
     <BrowserRouter>
       <ThemeProvider>
         <App />
-        <SpeedInsights />
-        <Analytics />
+        <SpeedInsights debug={false} />
+        <Analytics debug={false} />
       </ThemeProvider>
     </BrowserRouter>
   </StrictMode>,

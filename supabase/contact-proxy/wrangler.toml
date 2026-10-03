@@ -3,5 +3,5 @@ main = "index.ts"
 compatibility_date = "2026-10-02"
 
 [vars]
-SUPABASE_CONTACT_URL = "https://your-project.supabase.co/functions/v1/submit-contact"
+SUPABASE_CONTACT_URL = "https://iuabwapknyyrwxbayddt.supabase.co/functions/v1/submit-contact"
 # CONTACT_PROXY_SECRET must be set with wrangler secret put, never here.

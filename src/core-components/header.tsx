@@ -15,6 +15,10 @@ import Button from "../components/button.tsx";
 import Icon from "../components/icon.tsx";
 import DesktopNav from "./header-desktop-nav.tsx";
 import MobileMenu from "./header-mobile-menu.tsx";
+import {
+  MOBILE_MENU_STATE_EVENT,
+  type MobileMenuStateDetail,
+} from "../utils/ui-events.ts";
 
 type HeaderProps = React.ComponentProps<typeof Container>;
 
@@ -86,6 +90,25 @@ export default function Header({ className, ...props }: HeaderProps) {
       document.removeEventListener("mousedown", handleClickOutside);
       document.removeEventListener("keydown", handleEscapeKey);
     };
+  }, [menuOpen]);
+
+  useEffect(() => {
+    const desktopQuery = window.matchMedia("(min-width: 1024px)");
+    const closeMenuOnDesktop = () => {
+      if (desktopQuery.matches) setMenuOpen(false);
+    };
+
+    closeMenuOnDesktop();
+    desktopQuery.addEventListener("change", closeMenuOnDesktop);
+    return () => desktopQuery.removeEventListener("change", closeMenuOnDesktop);
+  }, []);
+
+  useEffect(() => {
+    window.dispatchEvent(
+      new CustomEvent<MobileMenuStateDetail>(MOBILE_MENU_STATE_EVENT, {
+        detail: { open: menuOpen },
+      }),
+    );
   }, [menuOpen]);
 
   return (

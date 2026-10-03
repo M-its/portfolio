@@ -53,7 +53,7 @@ function writeConsoleEasterEgg() {
       styles.highlight,
     );
     console.table({
-      email: "mitsrael9@gmail.com",
+      email: "mitsrael.dev@proton.me",
       linkedin: "https://linkedin.com/in/mitsrael-souza-410415162",
       github: "https://github.com/M-its",
       status: "Disponível para novos desafios",

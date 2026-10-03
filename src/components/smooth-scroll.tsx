@@ -1,4 +1,8 @@
 import { useEffect } from "react";
+import {
+  MOBILE_MENU_STATE_EVENT,
+  type MobileMenuStateDetail,
+} from "../utils/ui-events";
 
 const REDUCED_MOTION_QUERY = "(prefers-reduced-motion: reduce)";
 const FINE_POINTER_QUERY = "(hover: hover) and (pointer: fine)";
@@ -22,6 +26,7 @@ export default function SmoothScroll() {
     let targetY = window.scrollY;
     let currentY = window.scrollY;
     let isAnimating = false;
+    let isScrollLocked = false;
 
     const maxScroll = () =>
       Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
@@ -43,12 +48,25 @@ export default function SmoothScroll() {
     };
 
     const handleWheel = (event: WheelEvent) => {
+      if (isScrollLocked) {
+        event.preventDefault();
+        return;
+      }
+
+      const nativeScrollTarget = shouldUseNativeScroll(event.target);
+
       if (
         reducedMotion.matches ||
         !finePointer.matches ||
         event.ctrlKey ||
-        shouldUseNativeScroll(event.target)
+        nativeScrollTarget
       ) {
+        if (nativeScrollTarget && isAnimating) {
+          window.cancelAnimationFrame(frameId);
+          isAnimating = false;
+          targetY = window.scrollY;
+          currentY = window.scrollY;
+        }
         return;
       }
 
@@ -75,13 +93,34 @@ export default function SmoothScroll() {
       }
     };
 
+    const handleMobileMenuState = (event: Event) => {
+      const { open } = (event as CustomEvent<MobileMenuStateDetail>).detail;
+      isScrollLocked = open;
+
+      if (!open) {
+        targetY = window.scrollY;
+        currentY = window.scrollY;
+        return;
+      }
+
+      window.cancelAnimationFrame(frameId);
+      isAnimating = false;
+      targetY = window.scrollY;
+      currentY = window.scrollY;
+    };
+
     window.addEventListener("wheel", handleWheel, { passive: false });
     window.addEventListener("scroll", syncPosition, { passive: true });
+    window.addEventListener(MOBILE_MENU_STATE_EVENT, handleMobileMenuState);
 
     return () => {
       window.cancelAnimationFrame(frameId);
       window.removeEventListener("wheel", handleWheel);
       window.removeEventListener("scroll", syncPosition);
+      window.removeEventListener(
+        MOBILE_MENU_STATE_EVENT,
+        handleMobileMenuState,
+      );
     };
   }, []);
 
