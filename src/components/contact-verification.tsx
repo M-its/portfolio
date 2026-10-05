@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 
 type Turnstile = {
   render: (
@@ -7,9 +7,16 @@ type Turnstile = {
       sitekey: string;
       action: string;
       size: string;
+      appearance: "interaction-only";
+      retry: "never";
+      "refresh-expired": "never";
+      "refresh-timeout": "never";
+      "feedback-enabled": boolean;
       callback: (token: string) => void;
       "expired-callback": () => void;
-      "error-callback": () => void;
+      "error-callback": (code: string) => void;
+      "timeout-callback": () => void;
+      "unsupported-callback": () => void;
     },
   ) => string;
   remove: (id: string) => void;
@@ -50,20 +57,56 @@ function loadTurnstile(): Promise<Turnstile> {
   return loading;
 }
 
-function VerificationWidget({ onToken }: { onToken: (token: string) => void }) {
+const VERIFICATION_ERROR =
+  "Não foi possível confirmar o envio. Tente enviar novamente. Sua mensagem foi preservada.";
+const CONFIGURATION_ERRORS = new Set([
+  "missing_sitekey",
+  "invalid_sitekey_format",
+  "110100",
+  "110110",
+  "110200",
+  "400020",
+  "400021",
+  "400070",
+]);
+
+export default function ContactVerification({
+  onToken,
+  onError,
+}: {
+  onToken: (token: string) => void;
+  onError: (error: Error) => void;
+}) {
   const container = useRef<HTMLDivElement>(null);
-  const [notice, setNotice] = useState("Carregando verificação...");
   useEffect(() => {
     let cancelled = false;
     let widget: string | undefined;
     let api: Turnstile | undefined;
-    onToken("");
-    const sitekey = import.meta.env.VITE_TURNSTILE_SITE_KEY;
+    const fail = (code: string) => {
+      if (cancelled) return;
+      // Never log keys or tokens; diagnostics belong in the developer console.
+      console.error("[Contact verification]", {
+        code,
+        hostname: window.location.hostname,
+      });
+      onError(
+        new Error(
+          CONFIGURATION_ERRORS.has(code)
+            ? "Contato temporariamente indisponível. Sua mensagem foi preservada. Tente mais tarde."
+            : VERIFICATION_ERROR,
+        ),
+      );
+    };
+    const sitekey = import.meta.env.VITE_TURNSTILE_SITE_KEY?.trim();
     if (!sitekey) {
-      setNotice("Verificação indisponível. Tente novamente mais tarde.");
+      fail("missing_sitekey");
       return;
     }
-    setNotice("Carregando verificação...");
+    // Cloudflare's widget API defines sitekey with maxLength: 32.
+    if (sitekey.length > 32 || /\s/.test(sitekey)) {
+      fail("invalid_sitekey_format");
+      return;
+    }
     loadTurnstile()
       .then((loaded) => {
         if (cancelled || !container.current) return;
@@ -72,66 +115,25 @@ function VerificationWidget({ onToken }: { onToken: (token: string) => void }) {
           sitekey,
           action: "contact",
           size: "flexible",
+          appearance: "interaction-only",
+          retry: "never",
+          "refresh-expired": "never",
+          "refresh-timeout": "never",
+          "feedback-enabled": false,
           callback: (token) => {
-            if (!cancelled) {
-              onToken(token);
-              setNotice("");
-            }
+            if (!cancelled) onToken(token);
           },
-          "expired-callback": () => {
-            if (!cancelled) {
-              onToken("");
-              setNotice(
-                "Verificação expirada. Verifique novamente para enviar.",
-              );
-            }
-          },
-          "error-callback": () => {
-            if (!cancelled) {
-              onToken("");
-              setNotice("Verificação indisponível. Tente verificar novamente.");
-            }
-          },
+          "expired-callback": () => fail("token_expired"),
+          "error-callback": fail,
+          "timeout-callback": () => fail("challenge_timeout"),
+          "unsupported-callback": () => fail("unsupported_browser"),
         });
-        setNotice("");
       })
-      .catch(() => {
-        if (!cancelled) {
-          onToken("");
-          setNotice("Verificação indisponível. Tente verificar novamente.");
-        }
-      });
+      .catch(() => fail("widget_load_failed"));
     return () => {
       cancelled = true;
       if (widget !== undefined) api?.remove(widget);
     };
-  }, [onToken]);
-  return (
-    <div className="grid gap-2">
-      <div ref={container} />
-      <p role="status" className="text-sm opacity-70">
-        {notice}
-      </p>
-    </div>
-  );
-}
-
-export default function ContactVerification({
-  onToken,
-}: {
-  onToken: (token: string) => void;
-}) {
-  const [attempt, setAttempt] = useState(0);
-  return (
-    <div className="grid gap-2">
-      <VerificationWidget key={attempt} onToken={onToken} />
-      <button
-        type="button"
-        className="text-left text-sm underline underline-offset-4"
-        onClick={() => setAttempt((value) => value + 1)}
-      >
-        Verificar novamente
-      </button>
-    </div>
-  );
+  }, [onToken, onError]);
+  return <div ref={container} data-cursor-native />;
 }

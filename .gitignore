@@ -27,6 +27,9 @@ dist-ssr
 
 # enviroment variables
 .env
+.dev.vars
+.dev.vars.*
+.wrangler/
 
 # unused components
 # Componentes de teste ou cópias.

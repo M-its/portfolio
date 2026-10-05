@@ -37,11 +37,20 @@ export default {
       !env.CONTACT_PROXY_SECRET ||
       env.CONTACT_PROXY_SECRET.length < 32 ||
       !env.SUPABASE_CONTACT_URL
-    )
+    ) {
+      console.error("Contact proxy unavailable", {
+        stage: "configuration",
+        validClientIp: Boolean(ip),
+        validProxySecret: Boolean(
+          env.CONTACT_PROXY_SECRET && env.CONTACT_PROXY_SECRET.length >= 32,
+        ),
+        configuredUpstream: Boolean(env.SUPABASE_CONTACT_URL),
+      });
       return Response.json(
         { error: "service_unavailable" },
         { status: 503, headers },
       );
+    }
     try {
       const body = await readLimitedBody(request);
       const timestamp = String(Date.now());
@@ -58,10 +67,25 @@ export default {
         },
         body,
         signal: AbortSignal.timeout(20_000),
-        redirect: "error",
+        // workerd supports manual/follow, not the browser's "error" mode.
+        redirect: "manual",
       });
+      if (response.status >= 300 && response.status < 400) {
+        console.error("Contact proxy unavailable", {
+          stage: "upstream_redirect",
+        });
+        return Response.json(
+          { error: "service_unavailable" },
+          { status: 503, headers },
+        );
+      }
       return response;
     } catch (error) {
+      console.error("Contact proxy unavailable", {
+        stage:
+          error instanceof RangeError ? "request_body" : "upstream_request",
+        errorType: error instanceof Error ? error.name : "UnknownError",
+      });
       return Response.json(
         {
           error:

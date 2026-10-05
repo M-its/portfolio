@@ -8,6 +8,11 @@ import {
   type ReactNode,
 } from "react";
 import useMediaQuery from "./use-media-query";
+import { useTheme } from "../contexts/theme-context";
+import {
+  cancelVisualUpdate,
+  scheduleVisualUpdate,
+} from "../utils/visual-frame";
 
 type MouseHandler = (x: number, y: number) => undefined | (() => void);
 
@@ -23,8 +28,7 @@ export function MouseGlareProvider({ children }: { children: ReactNode }) {
   const handlers = useRef<Set<MouseHandler>>(new Set());
   const isMobile = useMediaQuery("(hover: none) and (pointer: coarse)");
   const prefersReducedMotion = useMediaQuery(REDUCED_MOTION_QUERY);
-  const isChromium = !!(window as unknown as { chrome: unknown }).chrome;
-  const [isDevToolsOpen, setIsDevToolsOpen] = useState(false);
+  const { isDark } = useTheme();
   const [isDocumentVisible, setIsDocumentVisible] = useState(
     () => document.visibilityState === "visible",
   );
@@ -38,34 +42,11 @@ export function MouseGlareProvider({ children }: { children: ReactNode }) {
   }, []);
 
   useEffect(() => {
-    if (!isChromium) return;
-
-    const threshold = 160;
-    const detectDevTools = () => {
-      const widthDiff = Math.abs(window.outerWidth - window.innerWidth);
-      const heightDiff = Math.abs(window.outerHeight - window.innerHeight);
-      setIsDevToolsOpen(widthDiff > threshold || heightDiff > threshold);
-    };
-
-    window.addEventListener("resize", detectDevTools, { passive: true });
-    detectDevTools();
-
-    return () => window.removeEventListener("resize", detectDevTools);
-  }, [isChromium]);
-
-  useEffect(() => {
-    if (
-      isMobile ||
-      prefersReducedMotion ||
-      !isDocumentVisible ||
-      (isChromium && isDevToolsOpen)
-    )
+    if (isMobile || !isDark || prefersReducedMotion || !isDocumentVisible)
       return;
 
     let lastX = 0;
     let lastY = 0;
-    let ticking = false;
-    let frameId: number;
 
     const update = () => {
       const writes: (() => void)[] = [];
@@ -73,10 +54,9 @@ export function MouseGlareProvider({ children }: { children: ReactNode }) {
         const writeFn = handler(lastX, lastY);
         if (writeFn) writes.push(writeFn);
       }
-      for (const write of writes) {
-        write();
-      }
-      ticking = false;
+      return () => {
+        for (const write of writes) write();
+      };
     };
 
     const handleInteraction = (event: MouseEvent | Event) => {
@@ -84,10 +64,7 @@ export function MouseGlareProvider({ children }: { children: ReactNode }) {
         lastX = event.clientX;
         lastY = event.clientY;
       }
-      if (!ticking) {
-        frameId = requestAnimationFrame(update);
-        ticking = true;
-      }
+      scheduleVisualUpdate(update);
     };
 
     document.addEventListener("mousemove", handleInteraction, {
@@ -96,15 +73,9 @@ export function MouseGlareProvider({ children }: { children: ReactNode }) {
 
     return () => {
       document.removeEventListener("mousemove", handleInteraction);
-      cancelAnimationFrame(frameId);
+      cancelVisualUpdate(update);
     };
-  }, [
-    isMobile,
-    prefersReducedMotion,
-    isDocumentVisible,
-    isChromium,
-    isDevToolsOpen,
-  ]);
+  }, [isMobile, isDark, prefersReducedMotion, isDocumentVisible]);
 
   const register = (handler: MouseHandler) => handlers.current.add(handler);
   const unregister = (handler: MouseHandler) =>
@@ -121,6 +92,8 @@ export function MouseGlareProvider({ children }: { children: ReactNode }) {
 
 export default function useMouseGlare<T extends HTMLElement>(
   ref: RefObject<T | null>,
+  effectRef: RefObject<HTMLElement | null>,
+  radius = 180,
 ) {
   const context = useContext(MouseGlareContext);
 
@@ -129,9 +102,18 @@ export default function useMouseGlare<T extends HTMLElement>(
     const { register, unregister } = context;
 
     let isVisible = false;
+    let lastTransform = "";
+    let lastOpacity = "0";
+
+    const hide = () => {
+      if (lastOpacity === "0") return;
+      if (effectRef.current) effectRef.current.style.opacity = "0";
+      lastOpacity = "0";
+    };
     const observer = new IntersectionObserver(
       ([entry]) => {
         isVisible = entry.isIntersecting;
+        if (!isVisible) hide();
       },
       { threshold: 0 },
     );
@@ -142,14 +124,16 @@ export default function useMouseGlare<T extends HTMLElement>(
 
     const handleMove = (clientX: number, clientY: number) => {
       const element = ref.current;
-      if (!element || !isVisible) return;
+      const effect = effectRef.current;
+      if (!element || !effect || !isVisible || element.closest("[inert]"))
+        return;
 
       const swiperSlide = element.closest(".swiper-slide");
       if (
         swiperSlide &&
         !swiperSlide.classList.contains("swiper-slide-active")
       ) {
-        return () => element.style.setProperty("--mouse-opacity", "0");
+        return lastOpacity === "0" ? undefined : hide;
       }
 
       // Swiper posiciona os slides com transform, que não dispara ResizeObserver.
@@ -172,16 +156,26 @@ export default function useMouseGlare<T extends HTMLElement>(
       const proximity = Math.max(0, 1 - distance / margin);
 
       if (proximity > 0) {
+        const nextTransform = `translate3d(${x - radius}px, ${y - radius}px, 0)`;
+        const nextOpacity = proximity.toFixed(2);
+        if (nextTransform === lastTransform && nextOpacity === lastOpacity)
+          return;
+        const spotlights = effect.querySelectorAll<HTMLElement>(
+          "[data-glare-spotlight]",
+        );
         return () => {
-          element.style.setProperty("--mouse-x", `${x}px`);
-          element.style.setProperty("--mouse-y", `${y}px`);
-          element.style.setProperty("--mouse-opacity", proximity.toFixed(2));
+          // Move the pre-painted spotlights; their gradient and border mask stay fixed.
+          if (nextTransform !== lastTransform) {
+            for (const spotlight of spotlights)
+              spotlight.style.transform = nextTransform;
+          }
+          if (nextOpacity !== lastOpacity) effect.style.opacity = nextOpacity;
+          lastTransform = nextTransform;
+          lastOpacity = nextOpacity;
         };
       }
 
-      return () => {
-        element.style.setProperty("--mouse-opacity", "0");
-      };
+      return lastOpacity === "0" ? undefined : hide;
     };
 
     register(handleMove);
@@ -190,5 +184,5 @@ export default function useMouseGlare<T extends HTMLElement>(
       unregister(handleMove);
       observer.disconnect();
     };
-  }, [context, ref]);
+  }, [context, ref, effectRef, radius]);
 }

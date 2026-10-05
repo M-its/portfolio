@@ -7,6 +7,7 @@ import GlobeIcon from "../assets/icons/globe.svg?react";
 import Button from "../components/button";
 import Card, { type cardVariants } from "../components/card";
 import Text from "../components/text";
+import MouseGlare from "../components/mouse-glare";
 import type { ProjectData } from "../data/projects";
 import useMouseGlare from "../hooks/use-mouse-glare";
 import useProjectTransition from "../hooks/use-project-transition";
@@ -22,9 +23,6 @@ const projectCardVariants = tv({
       "absolute inset-px rounded-[calc(1.5rem-1px)] pointer-events-none z-20 border border-card-border/50",
     revealWrapper:
       "absolute inset-px rounded-[calc(1.5rem-1px)] pointer-events-none z-30 transition-opacity duration-300",
-    revealBorder:
-      "absolute inset-0 rounded-3xl border-[1.5px] border-project-card-reveal-border",
-    revealGlare: "absolute inset-0 bg-project-card-reveal-surface",
     content:
       "relative z-10 bg-transparent border-0 p-5 flex flex-col gap-4 w-full h-full",
   },
@@ -44,53 +42,32 @@ export default function ProjectCard({
   ...props
 }: ProjectCardProps) {
   const cardRef = useRef<HTMLDivElement>(null);
+  const revealRef = useRef<HTMLDivElement>(null);
   const imageFrameRef = useRef<HTMLDivElement>(null);
   const handleProjectNavigation = useProjectTransition(imageFrameRef);
 
-  useMouseGlare(cardRef);
+  useMouseGlare(cardRef, revealRef);
 
-  const {
-    container,
-    wrapper,
-    baseBorder,
-    revealWrapper,
-    revealBorder,
-    revealGlare,
-    content,
-  } = projectCardVariants();
+  const { container, wrapper, baseBorder, revealWrapper, content } =
+    projectCardVariants();
   const optimizedImageBase = project.image.endsWith(".png")
     ? project.image.slice(0, -".png".length)
     : null;
 
   return (
-    <div
-      ref={cardRef}
-      className={container()}
-      style={
-        {
-          "--mouse-x": "-9999px",
-          "--mouse-y": "-9999px",
-          "--mouse-opacity": "0",
-        } as React.CSSProperties
-      }
-    >
+    <div ref={cardRef} className={container()}>
       {/* A classe project-card permite congelar o hover antes do snapshot — bug #4. */}
       <div className={`project-card ${wrapper()} ${className ?? ""}`}>
         <div className={baseBorder()} />
 
-        <div
+        <MouseGlare
+          ref={revealRef}
           className={`project-card-theme-reveal ${revealWrapper()}`}
-          style={{
-            opacity: "var(--mouse-opacity)",
-            maskImage:
-              "radial-gradient(180px circle at var(--mouse-x) var(--mouse-y), black, transparent)",
-            WebkitMaskImage:
-              "radial-gradient(180px circle at var(--mouse-x) var(--mouse-y), black, transparent)",
-          }}
-        >
-          <div className={revealBorder()} />
-          <div className={revealGlare()} />
-        </div>
+          radius={180}
+          borderClassName="rounded-3xl"
+          borderColor="var(--color-project-card-reveal-border)"
+          surfaceColor="var(--color-project-card-reveal-surface)"
+        />
 
         <Card {...props} size={size} variant={variant} className={content()}>
           <div className="project-card-header flex items-center justify-between gap-4 w-full">

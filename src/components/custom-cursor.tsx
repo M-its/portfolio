@@ -1,5 +1,10 @@
 import { useEffect, useRef, useState, type FC } from "react";
+import { createPortal } from "react-dom";
 import useCustomCursor from "../hooks/use-custom-cursor";
+import {
+  cancelVisualUpdate,
+  scheduleVisualUpdate,
+} from "../utils/visual-frame";
 
 const REDUCED_MOTION_QUERY = "(prefers-reduced-motion: reduce)";
 const INTERACTIVE_SELECTOR =
@@ -11,11 +16,15 @@ type CursorState =
   | "idle-pressed"
   | "interactive"
   | "field"
+  | "disabled"
+  | "native"
   | "pressed";
 
 const CustomCursor: FC = () => {
   const innerRef = useRef<HTMLDivElement>(null);
   const outerRef = useRef<HTMLDivElement>(null);
+  const dotVisualRef = useRef<HTMLDivElement>(null);
+  const ringVisualRef = useRef<SVGSVGElement>(null);
   const { isUnsupported } = useCustomCursor();
   const [prefersReducedMotion, setPrefersReducedMotion] = useState(
     () => window.matchMedia(REDUCED_MOTION_QUERY).matches,
@@ -34,26 +43,28 @@ const CustomCursor: FC = () => {
 
     const inner = innerRef.current;
     const outer = outerRef.current;
-    if (!inner || !outer) return;
+    const dotVisual = dotVisualRef.current;
+    const ringVisual = ringVisualRef.current;
+    if (!inner || !outer || !dotVisual || !ringVisual) return;
 
     const pointer = { x: window.innerWidth / 2, y: window.innerHeight / 2 };
-    const dot = { ...pointer };
     const ring = { ...pointer };
-    let frameId = 0;
     let isHidden = true;
     let isPressed = false;
     let visualState: CursorState | null = null;
-
-    const lerp = (start: number, end: number, factor: number) =>
-      start + (end - start) * factor;
+    let needsHitTest = false;
 
     const resolveState = (): CursorState => {
       const target = document.elementFromPoint(pointer.x, pointer.y);
       const ignored = target?.closest("[data-cursor-ignore]");
+      if (target?.closest("iframe, [data-cursor-native]")) return "native";
       if (!target || ignored) return isPressed ? "idle-pressed" : "idle";
 
       const interactive = target.closest(INTERACTIVE_SELECTOR);
       if (!interactive) return isPressed ? "idle-pressed" : "idle";
+      if (interactive.matches(":disabled, [aria-disabled='true']")) {
+        return "disabled";
+      }
       if (isPressed) return "pressed";
       return target.closest(FIELD_SELECTOR) ? "field" : "interactive";
     };
@@ -73,39 +84,69 @@ const CustomCursor: FC = () => {
               ? 40
               : state === "idle-pressed"
                 ? 24
-                : 40;
+                : state === "disabled"
+                  ? 28
+                  : 40;
+      const hidden = isHidden || state === "native";
 
-      inner.style.width = interactive ? "4px" : "6px";
-      inner.style.height = interactive ? "4px" : "6px";
-      inner.style.opacity = isHidden ? "0" : interactive ? "0.55" : "1";
+      dotVisual.style.transform = `scale(${interactive ? 2 / 3 : 1})`;
+      inner.style.opacity = hidden ? "0" : interactive ? "0.55" : "1";
 
-      outer.style.width = `${size}px`;
-      outer.style.height = `${size}px`;
-      outer.style.borderWidth = state.includes("pressed") ? "2px" : "1px";
-      outer.style.backgroundColor = interactive
+      const strokeWidth = state.includes("pressed") ? 2 : 1;
+      // A fixed 56px SVG scales without layout; its stroke stays 1px/2px on screen.
+      ringVisual.style.transform = `scale(${(size - strokeWidth) / 55})`;
+      ringVisual.style.strokeWidth = `${strokeWidth}px`;
+      ringVisual.style.fill = interactive
         ? "var(--color-cursor-fill)"
         : "transparent";
-      outer.style.opacity = isHidden ? "0" : state === "field" ? "0.8" : "1";
+      outer.style.opacity = hidden
+        ? "0"
+        : state === "disabled"
+          ? "0.45"
+          : state === "field"
+            ? "0.8"
+            : "1";
     };
 
-    const animate = () => {
-      dot.x = lerp(dot.x, pointer.x, 0.3);
-      dot.y = lerp(dot.y, pointer.y, 0.3);
-      ring.x = lerp(ring.x, pointer.x, 0.15);
-      ring.y = lerp(ring.y, pointer.y, 0.15);
+    const refreshState = () => {
+      if (!isHidden) needsHitTest = true;
+    };
 
-      inner.style.transform = `translate3d(${dot.x}px, ${dot.y}px, 0)`;
-      outer.style.transform = `translate3d(${ring.x}px, ${ring.y}px, 0)`;
-      renderState(resolveState());
-      frameId = requestAnimationFrame(animate);
+    const prepareFrame = () => {
+      if (isHidden) return;
+      const state = needsHitTest ? resolveState() : null;
+      needsHitTest = false;
+      return () => {
+        if (state) renderState(state);
+        ring.x += (pointer.x - ring.x) * 0.15;
+        ring.y += (pointer.y - ring.y) * 0.15;
+        inner.style.transform = `translate3d(${pointer.x}px, ${pointer.y}px, 0)`;
+        outer.style.transform = `translate3d(${ring.x}px, ${ring.y}px, 0)`;
+        if (Math.hypot(pointer.x - ring.x, pointer.y - ring.y) > 0.1) {
+          scheduleVisualUpdate(prepareFrame);
+        }
+      };
+    };
+
+    const scheduleRefresh = () => {
+      refreshState();
+      if (!isHidden) scheduleVisualUpdate(prepareFrame);
     };
 
     const showAtPointer = (event: MouseEvent) => {
       pointer.x = event.clientX;
       pointer.y = event.clientY;
       if (isHidden) {
+        ring.x = pointer.x;
+        ring.y = pointer.y;
         isHidden = false;
         visualState = null;
+      }
+      scheduleRefresh();
+      if (
+        !document.documentElement.classList.contains("custom-cursor-active")
+      ) {
+        document.documentElement.classList.add("custom-cursor-active");
       }
     };
 
@@ -113,62 +154,92 @@ const CustomCursor: FC = () => {
       isHidden = true;
       isPressed = false;
       visualState = null;
+      cancelVisualUpdate(prepareFrame);
+      renderState("idle");
+      document.documentElement.classList.remove("custom-cursor-active");
     };
 
     const press = (event: PointerEvent) => {
       if (event.button !== 0) return;
       isPressed = true;
-      visualState = null;
+      scheduleRefresh();
     };
 
     const release = () => {
       isPressed = false;
-      visualState = null;
+      scheduleRefresh();
     };
 
+    // UI changes can alter the hovered control even when the mouse stays still.
+    const observer = new MutationObserver(scheduleRefresh);
+    observer.observe(document.body, {
+      subtree: true,
+      childList: true,
+      attributes: true,
+      attributeFilter: ["disabled", "aria-disabled", "inert"],
+    });
+
     window.addEventListener("mousemove", showAtPointer, { passive: true });
+    document.addEventListener("mouseover", showAtPointer, { passive: true });
     document.addEventListener("pointerdown", press, true);
     document.addEventListener("pointerup", release, true);
     document.addEventListener("pointercancel", release, true);
-    window.addEventListener("blur", release);
+    window.addEventListener("blur", hide);
     document.addEventListener("mouseleave", hide);
-    frameId = requestAnimationFrame(animate);
+    document.addEventListener("scroll", scheduleRefresh, {
+      passive: true,
+      capture: true,
+    });
+    window.addEventListener("resize", scheduleRefresh, { passive: true });
 
     return () => {
       window.removeEventListener("mousemove", showAtPointer);
+      document.removeEventListener("mouseover", showAtPointer);
       document.removeEventListener("pointerdown", press, true);
       document.removeEventListener("pointerup", release, true);
       document.removeEventListener("pointercancel", release, true);
-      window.removeEventListener("blur", release);
+      window.removeEventListener("blur", hide);
       document.removeEventListener("mouseleave", hide);
-      cancelAnimationFrame(frameId);
-    };
-  }, [isUnsupported, prefersReducedMotion]);
-
-  useEffect(() => {
-    const shouldHide = !isUnsupported && !prefersReducedMotion;
-    document.documentElement.style.cursor = shouldHide ? "none" : "auto";
-    return () => {
-      document.documentElement.style.cursor = "auto";
+      document.removeEventListener("scroll", scheduleRefresh, true);
+      window.removeEventListener("resize", scheduleRefresh);
+      observer.disconnect();
+      cancelVisualUpdate(prepareFrame);
+      document.documentElement.classList.remove("custom-cursor-active");
     };
   }, [isUnsupported, prefersReducedMotion]);
 
   if (isUnsupported || prefersReducedMotion) return null;
 
-  return (
+  return createPortal(
     <div
       className="pointer-events-none fixed inset-0 z-[100] overflow-hidden mix-blend-difference"
       aria-hidden="true"
     >
       <div
         ref={innerRef}
-        className="absolute top-0 left-0 h-1.5 w-1.5 rounded-full bg-cursor-contrast opacity-0 will-change-transform -translate-x-1/2 -translate-y-1/2 transition-[width,height,opacity] duration-200"
-      />
+        className="absolute top-0 left-0 h-1.5 w-1.5 opacity-0 will-change-transform -translate-x-1/2 -translate-y-1/2 transition-opacity duration-200"
+      >
+        <div
+          ref={dotVisualRef}
+          className="h-full w-full rounded-full bg-cursor-contrast transition-transform duration-200"
+        />
+      </div>
       <div
         ref={outerRef}
-        className="absolute top-0 left-0 h-10 w-10 rounded-full border border-cursor-contrast bg-transparent opacity-0 will-change-transform -translate-x-1/2 -translate-y-1/2 transition-[width,height,border-width,background-color,opacity] duration-200 ease-out"
-      />
-    </div>
+        className="absolute top-0 left-0 h-14 w-14 opacity-0 will-change-transform -translate-x-1/2 -translate-y-1/2 transition-opacity duration-200 ease-out"
+      >
+        <svg
+          aria-hidden="true"
+          ref={ringVisualRef}
+          viewBox="0 0 56 56"
+          className="h-full w-full overflow-visible fill-transparent stroke-cursor-contrast transition-[transform,stroke-width,fill] duration-200 ease-out"
+          style={{ transform: "scale(0.7090909090909091)", strokeWidth: "1px" }}
+        >
+          <circle cx="28" cy="28" r="27.5" vectorEffect="non-scaling-stroke" />
+        </svg>
+      </div>
+    </div>,
+    document.body,
   );
 };
 

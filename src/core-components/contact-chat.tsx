@@ -5,7 +5,14 @@ import {
   useMotionValue,
   useReducedMotion,
 } from "framer-motion";
-import { useEffect, useId, useRef, useState, type ReactNode } from "react";
+import {
+  useCallback,
+  useEffect,
+  useId,
+  useRef,
+  useState,
+  type ReactNode,
+} from "react";
 import { createPortal } from "react-dom";
 
 import ChatIcon from "../assets/icons/chat.svg?react";
@@ -22,7 +29,7 @@ import {
 
 export const OPEN_CONTACT_CHAT_EVENT = "portfolio:open-contact-chat";
 
-type Status = "idle" | "sending" | "sent" | "error";
+type Status = "idle" | "verifying" | "sending" | "sent" | "error";
 type LauncherPhase = "compact" | "vertical" | "expanded";
 
 const MOTION_EASE = [0.22, 1, 0.36, 1] as const;
@@ -46,7 +53,10 @@ function FormField({
   children: ReactNode;
 }) {
   return (
-    <label htmlFor={fieldId} className="grid gap-1 px-4 py-3 transition-colors focus-within:bg-chat-surface-muted/45">
+    <label
+      htmlFor={fieldId}
+      className="grid gap-1 px-4 py-3 transition-colors focus-within:bg-chat-surface-muted/45"
+    >
       <span className="text-[10px] font-medium uppercase tracking-[0.18em] opacity-50">
         {label}
         {optional && (
@@ -62,6 +72,7 @@ export default function ContactChat() {
   const titleId = useId();
   const panelId = useId();
   const panelRef = useRef<HTMLElement>(null);
+  const launcherRef = useRef<HTMLButtonElement>(null);
   const prefersReducedMotion = useReducedMotion();
   const isSmallScreen = useMediaQuery("(max-width: 639px)");
   const [viewportWidth, setViewportWidth] = useState(() => window.innerWidth);
@@ -73,8 +84,35 @@ export default function ContactChat() {
   const [launcherPhase, setLauncherPhase] = useState<LauncherPhase>("compact");
   const [status, setStatus] = useState<Status>("idle");
   const [error, setError] = useState("");
-  const [turnstileToken, setTurnstileToken] = useState("");
-  const [verificationAttempt, setVerificationAttempt] = useState(0);
+  const verificationRef = useRef<{
+    resolve: (token: string) => void;
+    reject: (error: Error) => void;
+  } | null>(null);
+  const submissionRef = useRef(false);
+  const onVerificationToken = useCallback((token: string) => {
+    if (token) verificationRef.current?.resolve(token);
+  }, []);
+  const onVerificationError = useCallback((error: Error) => {
+    verificationRef.current?.reject(error);
+  }, []);
+
+  useEffect(() => {
+    if (isOpen) return;
+    verificationRef.current?.reject(
+      new DOMException("Envio cancelado.", "AbortError"),
+    );
+    verificationRef.current = null;
+  }, [isOpen]);
+
+  useEffect(
+    () => () => {
+      verificationRef.current?.reject(
+        new DOMException("Envio cancelado.", "AbortError"),
+      );
+      verificationRef.current = null;
+    },
+    [],
+  );
 
   useEffect(() => {
     const openChat = () => setIsOpen(true);
@@ -190,33 +228,98 @@ export default function ContactChat() {
 
   useEffect(() => {
     if (!isOpen) return;
-    const closeOnEscape = (event: KeyboardEvent) => {
-      if (event.key === "Escape") setIsOpen(false);
+    const page = document.getElementById("root");
+    const wasInert = page?.inert ?? false;
+    const previousFocus = document.activeElement;
+    const launcherElement = launcherRef.current;
+    const bodyOverflow = document.body.style.overflow;
+    const rootOverflow = document.documentElement.style.overflow;
+    const scrollbarGutter = document.documentElement.style.scrollbarGutter;
+
+    if (page) page.inert = true;
+    document.documentElement.style.scrollbarGutter = "stable";
+    document.documentElement.style.overflow = "hidden";
+    document.body.style.overflow = "hidden";
+
+    const focusPanel = () => {
+      const panel = panelRef.current;
+      (panel?.querySelector<HTMLInputElement>("input") ?? panel)?.focus({
+        preventScroll: true,
+      });
     };
-    window.addEventListener("keydown", closeOnEscape);
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setIsOpen(false);
+        return;
+      }
+      if (event.key !== "Tab") return;
+      const controls = panelRef.current?.querySelectorAll<HTMLElement>(
+        'button:not(:disabled), input:not(:disabled), textarea:not(:disabled), select:not(:disabled), a[href], iframe, [tabindex="0"]',
+      );
+      if (!controls?.length) {
+        event.preventDefault();
+        panelRef.current?.focus({ preventScroll: true });
+        return;
+      }
+      const first = controls[0];
+      const last = controls[controls.length - 1];
+      const outside = !panelRef.current?.contains(document.activeElement);
+      if (
+        outside ||
+        (event.shiftKey
+          ? document.activeElement === first
+          : document.activeElement === last)
+      ) {
+        event.preventDefault();
+        (event.shiftKey ? last : first).focus({ preventScroll: true });
+      }
+    };
+    const containFocus = (event: FocusEvent) => {
+      if (
+        event.target instanceof Node &&
+        !panelRef.current?.contains(event.target)
+      ) {
+        focusPanel();
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    document.addEventListener("focusin", containFocus);
     const focusTimer = window.setTimeout(
-      () => panelRef.current?.querySelector<HTMLInputElement>("input")?.focus(),
+      focusPanel,
       prefersReducedMotion ? 0 : 180,
     );
     return () => {
       window.clearTimeout(focusTimer);
-      window.removeEventListener("keydown", closeOnEscape);
+      window.removeEventListener("keydown", handleKeyDown);
+      document.removeEventListener("focusin", containFocus);
+      if (page) page.inert = wasInert;
+      document.body.style.overflow = bodyOverflow;
+      document.documentElement.style.overflow = rootOverflow;
+      document.documentElement.style.scrollbarGutter = scrollbarGutter;
+      const focusTarget =
+        previousFocus instanceof HTMLElement &&
+        previousFocus.isConnected &&
+        previousFocus !== document.body
+          ? previousFocus
+          : launcherElement;
+      focusTarget?.focus({ preventScroll: true });
     };
   }, [isOpen, prefersReducedMotion]);
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (status === "sending") return;
-    if (!turnstileToken) {
-      setStatus("error");
-      setError("Conclua a verificação antes de enviar. Sua mensagem foi preservada.");
-      return;
-    }
+    if (submissionRef.current) return;
+    submissionRef.current = true;
     const formElement = event.currentTarget;
     const form = new FormData(formElement);
-    setStatus("sending");
+    setStatus("verifying");
     setError("");
     try {
+      const turnstileToken = await new Promise<string>((resolve, reject) => {
+        verificationRef.current = { resolve, reject };
+      });
+      verificationRef.current = null;
+      setStatus("sending");
       await sendContactMessage({
         turnstileToken,
         name: String(form.get("name") ?? "").trim() || undefined,
@@ -226,6 +329,13 @@ export default function ContactChat() {
       setStatus("sent");
       formElement.reset();
     } catch (caughtError) {
+      if (
+        caughtError instanceof DOMException &&
+        caughtError.name === "AbortError"
+      ) {
+        setStatus("idle");
+        return;
+      }
       setStatus("error");
       setError(
         caughtError instanceof Error
@@ -233,8 +343,8 @@ export default function ContactChat() {
           : "Não foi possível enviar sua mensagem. Tente novamente.",
       );
     } finally {
-      setTurnstileToken("");
-      setVerificationAttempt((value) => value + 1);
+      verificationRef.current = null;
+      submissionRef.current = false;
     }
   };
 
@@ -297,8 +407,9 @@ export default function ContactChat() {
   const launcher = (
     <div className="relative">
       <motion.button
+        ref={launcherRef}
         type="button"
-        className="group pointer-events-auto relative block origin-bottom-right overflow-visible text-chat-launcher-content"
+        className="group pointer-events-auto relative block origin-bottom-right cursor-pointer overflow-visible text-chat-launcher-content"
         style={{ width: launcherWidth, height: launcherHeight }}
         animate={{
           clipPath: `inset(${visibleTop}px 0px 0px ${visibleLeft}px round ${visibleRadius}px)`,
@@ -310,7 +421,7 @@ export default function ContactChat() {
         aria-controls={panelId}
         aria-label={isOpen ? "Fechar conversa" : "Abrir conversa"}
         data-cursor-clickable
-        tabIndex={isMobileMenuOpen ? -1 : 0}
+        tabIndex={isMobileMenuOpen || isOpen ? -1 : 0}
         whileTap={prefersReducedMotion ? undefined : { scale: 0.97 }}
       >
         <svg
@@ -460,8 +571,9 @@ export default function ContactChat() {
           <motion.button
             type="button"
             aria-label="Fechar conversa"
+            tabIndex={-1}
             data-cursor-ignore
-            className="pointer-events-auto absolute inset-0 cursor-default bg-black/35 backdrop-blur-[2px] sm:bg-black/10 sm:backdrop-blur-none"
+            className="pointer-events-auto absolute inset-0 cursor-default bg-black/35 backdrop-blur-[2px]"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -479,6 +591,7 @@ export default function ContactChat() {
               id={panelId}
               role="dialog"
               aria-modal="true"
+              tabIndex={-1}
               aria-labelledby={titleId}
               className="pointer-events-auto mb-3 flex max-h-[calc(100dvh-6.75rem)] w-full flex-col overflow-hidden rounded-[1.25rem] border border-chat-border bg-chat-surface shadow-[0_24px_64px_-24px_rgba(0,0,0,0.34)] sm:mb-4 sm:w-[min(410px,calc(100vw-3rem))]"
               initial={{ opacity: 0, y: 20, scale: 0.98 }}
@@ -530,12 +643,13 @@ export default function ContactChat() {
               </header>
 
               <div
-                className="overflow-y-auto px-5 pt-1 pb-5 sm:px-6 sm:pb-6"
+                className="overflow-y-auto overscroll-contain px-5 pt-1 pb-5 sm:px-6 sm:pb-6"
                 data-native-scroll
               >
                 {status === "sent" ? (
                   <div className="border-l-2 border-status-online bg-status-online/8 px-4 py-3 text-sm leading-relaxed">
-                    Recebi sua mensagem! Obrigado por entrar em contato. Em breve, responderei pelo e-mail informado
+                    Recebi sua mensagem! Obrigado por entrar em contato. Em
+                    breve, responderei pelo e-mail informado
                     <button
                       type="button"
                       className="mt-3 block font-medium underline underline-offset-4"
@@ -548,17 +662,27 @@ export default function ContactChat() {
                 ) : (
                   <form className="grid gap-4" onSubmit={handleSubmit}>
                     <div className="divide-y divide-chat-border overflow-hidden rounded-xl border border-chat-border bg-chat-input">
-                      <FormField label="Nome" fieldId={`${panelId}-name`} optional>
+                      <FormField
+                        label="Nome"
+                        fieldId={`${panelId}-name`}
+                        optional
+                      >
                         <input
                           id={`${panelId}-name`}
                           name="name"
                           autoComplete="name"
                           maxLength={100}
+                          readOnly={
+                            status === "verifying" || status === "sending"
+                          }
                           className="bg-transparent py-1 text-sm outline-none placeholder:opacity-35"
                           placeholder="Como posso chamar você?"
                         />
                       </FormField>
-                      <FormField label="Seu e-mail" fieldId={`${panelId}-email`}>
+                      <FormField
+                        label="Seu e-mail"
+                        fieldId={`${panelId}-email`}
+                      >
                         <input
                           id={`${panelId}-email`}
                           name="email"
@@ -566,16 +690,25 @@ export default function ContactChat() {
                           autoComplete="email"
                           required
                           maxLength={254}
+                          readOnly={
+                            status === "verifying" || status === "sending"
+                          }
                           className="bg-transparent py-1 text-sm outline-none placeholder:opacity-35"
                           placeholder="voce@exemplo.com"
                         />
                       </FormField>
-                      <FormField label="Mensagem" fieldId={`${panelId}-message`}>
+                      <FormField
+                        label="Mensagem"
+                        fieldId={`${panelId}-message`}
+                      >
                         <textarea
                           id={`${panelId}-message`}
                           name="message"
                           required
                           maxLength={3000}
+                          readOnly={
+                            status === "verifying" || status === "sending"
+                          }
                           rows={3}
                           className="resize-none bg-transparent py-1 text-sm leading-relaxed outline-none placeholder:opacity-35"
                           placeholder="Projeto, ideia ou só um olá..."
@@ -590,17 +723,24 @@ export default function ContactChat() {
                         {error}
                       </p>
                     )}
-                    <ContactVerification key={verificationAttempt} onToken={setTurnstileToken} />
+                    {status === "verifying" && (
+                      <ContactVerification
+                        onToken={onVerificationToken}
+                        onError={onVerificationError}
+                      />
+                    )}
                     <button
                       type="submit"
                       className="group flex w-full items-center justify-between rounded-xl border border-chat-launcher bg-chat-launcher px-3 py-3 text-chat-launcher-content transition duration-300 hover:-translate-y-0.5 hover:bg-chat-launcher-hover hover:shadow-[0_12px_28px_-18px_rgba(0,0,0,0.65)] disabled:cursor-wait disabled:opacity-60"
-                      disabled={status === "sending"}
+                      disabled={status === "verifying" || status === "sending"}
                       data-cursor-clickable
                     >
                       <span className="pl-1 text-sm font-medium tracking-wide">
-                        {status === "sending"
-                          ? "Enviando..."
-                          : "Enviar mensagem"}
+                        {status === "verifying"
+                          ? "Verificando..."
+                          : status === "sending"
+                            ? "Enviando..."
+                            : "Enviar mensagem"}
                       </span>
                       <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-current/10 transition-transform duration-300 group-hover:-rotate-6 group-hover:translate-x-0.5">
                         <Icon

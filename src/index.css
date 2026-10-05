@@ -8,3 +8,23 @@
 @import "./styles/project-view-transition.css";
 @import "./styles/projects-grid.css";
 @import "./styles/scrollbar.css";
+
+@layer base {
+  button:not(:disabled),
+  [role="button"]:not([aria-disabled="true"]) {
+    cursor: pointer;
+  }
+}
+
+/* Override local cursor utilities only while a working custom cursor is visible. */
+html.custom-cursor-active,
+html.custom-cursor-active * {
+  cursor: none;
+}
+
+/* Cross-origin challenges own their pointer events and need a native fallback. */
+html.custom-cursor-active iframe,
+html.custom-cursor-active [data-cursor-native],
+html.custom-cursor-active [data-cursor-native] * {
+  cursor: auto;
+}

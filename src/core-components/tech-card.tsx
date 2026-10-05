@@ -5,6 +5,7 @@ import { tv, type VariantProps } from "tailwind-variants";
 import Card from "../components/card";
 import Text from "../components/text";
 import Icon from "../components/icon";
+import MouseGlare from "../components/mouse-glare";
 import useMouseGlare from "../hooks/use-mouse-glare";
 import { type techs, SpinnerIcon } from "../data/techs";
 
@@ -25,9 +26,6 @@ const techCardVariants = tv({
       "absolute inset-0 rounded-2xl pointer-events-none z-1 border border-tech-card-border",
     revealWrapper:
       "absolute inset-0 rounded-xl pointer-events-none z-10 overflow-hidden",
-    revealBorder:
-      "absolute inset-0 rounded-2xl border-[1.5px] border-tech-card-reveal-border",
-    revealBg: "absolute inset-0 bg-tech-card-reveal-surface",
   },
   variants: {
     size: {
@@ -46,18 +44,13 @@ interface TechCardProps extends Omit<React.ComponentProps<"div">, "size"> {
 
 export default function TechCard({ tech, size, className }: TechCardProps) {
   const cardRef = useRef<HTMLDivElement>(null);
+  const revealRef = useRef<HTMLDivElement>(null);
   const [isHovered, setIsHovered] = useState(false);
-  useMouseGlare(cardRef);
+  useMouseGlare(cardRef, revealRef, 100);
 
-  const {
-    card,
-    icon,
-    text,
-    baseBorder,
-    revealWrapper,
-    revealBorder,
-    revealBg,
-  } = techCardVariants({ size });
+  const { card, icon, text, baseBorder, revealWrapper } = techCardVariants({
+    size,
+  });
 
   return (
     <Card
@@ -67,9 +60,6 @@ export default function TechCard({ tech, size, className }: TechCardProps) {
       onMouseLeave={() => setIsHovered(false)}
       style={
         {
-          "--mouse-x": "-9999px",
-          "--mouse-y": "-9999px",
-          "--mouse-opacity": "0",
           transition: "background-color 0.3s ease-in-out",
           willChange: "transform, background-color, border-color",
           contain: "layout style paint",
@@ -81,20 +71,15 @@ export default function TechCard({ tech, size, className }: TechCardProps) {
         style={{ transition: "border-color 0.3s" }}
       />
 
-      <div
+      <MouseGlare
+        ref={revealRef}
         className={`tech-card-theme-reveal ${revealWrapper()}`}
-        style={{
-          opacity: "var(--mouse-opacity)",
-          transition: "opacity 0.3s",
-          maskImage:
-            "radial-gradient(100px circle at var(--mouse-x) var(--mouse-y), black, transparent)",
-          WebkitMaskImage:
-            "radial-gradient(100px circle at var(--mouse-x) var(--mouse-y), black, transparent)",
-        }}
-      >
-        <div className={revealBorder()} />
-        <div className={revealBg()} />
-      </div>
+        radius={100}
+        borderClassName="rounded-2xl"
+        borderColor="var(--color-tech-card-reveal-border)"
+        surfaceColor="var(--color-tech-card-reveal-surface)"
+        style={{ transition: "opacity 0.3s" }}
+      />
 
       <div
         className="relative z-20 flex flex-col items-center gap-5"
@@ -108,9 +93,7 @@ export default function TechCard({ tech, size, className }: TechCardProps) {
             svg={tech.icon}
             className={icon()}
             style={{
-              filter: isHovered
-                ? "var(--filter-tech-icon-hover)"
-                : "none",
+              filter: isHovered ? "var(--filter-tech-icon-hover)" : "none",
               transition: "filter 0.3s",
             }}
           />

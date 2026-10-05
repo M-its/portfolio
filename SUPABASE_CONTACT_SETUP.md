@@ -70,9 +70,28 @@ São valores iniciais conservadores para um portfólio de baixo volume. NAT, red
 - `503`: configuração, banco, limitador ou verificação indisponíveis. Nunca libera o envio silenciosamente.
 - `200`: mensagem salva. Falha de notificação retorna `notificationSent: false`, evitando solicitar reenvio e duplicar mensagens já recebidas. As mensagens continuam disponíveis no Table Editor; acompanhe falhas de notificação nos logs.
 
-O formulário mantém seus campos nas recusas e falhas de envio, apresenta o tempo de espera, distingue expiração e indisponibilidade, renova o widget após cada tentativa e oferece “Verificar novamente”. Tokens expiram em cinco minutos e só podem ser usados uma vez. Timeout de rede tem resposta amigável, embora uma resposta perdida após salvar possa gerar duplicidade se o visitante reenviar; idempotência de mensagens não faz parte desta mudança.
+O formulário mantém seus campos nas recusas e falhas de envio e apresenta o tempo de espera. A verificação só inicia ao enviar; o widget aparece apenas quando exige interação. Cada nova tentativa obtém um token novo, sem um botão separado de reverificação. Tokens expiram em cinco minutos e só podem ser usados uma vez. Timeout de rede tem resposta amigável, embora uma resposta perdida após salvar possa gerar duplicidade se o visitante reenviar; idempotência de mensagens não faz parte desta mudança.
+
+O console registra falhas de verificação com código e hostname, sem chaves ou tokens. `400020` significa Site Key inválida: confira a Site Key pública no painel Cloudflare e atualize `VITE_TURNSTILE_SITE_KEY` em `.env.local` e no ambiente de build publicado. A API Cloudflare define tamanho máximo de 32 caracteres para a Site Key; o frontend rejeita valores maiores ou com espaços, sem truncá-los. Não use a Secret Key nessa variável. Reinicie o Vite após alterar `.env.local`; em produção, recompile e publique. `110200` indica hostname não autorizado: inclua o domínio usado no widget. Falhas de configuração exibem indisponibilidade em vez de sugerir que uma nova tentativa imediata resolverá o problema.
 
 ## Validação local e produção
+
+O Worker deve usar `redirect: "manual"` e recusar respostas 3xx do destino. O runtime Cloudflare não implementa `redirect: "error"`: esse valor lança `TypeError` antes do encaminhamento, resultando em `503 service_unavailable` mesmo com configuração e assinatura corretas.
+
+Para validar o Worker local contra a função publicada, crie `supabase/contact-proxy/.dev.vars` com o `CONTACT_PROXY_SECRET` correspondente ao Supabase publicado. Esse arquivo é apenas local, é ignorado pelo Git e não modifica segredos publicados. Execute:
+
+```powershell
+pnpm dlx wrangler dev --config supabase/contact-proxy/wrangler.toml --local --ip 127.0.0.1 --port 8787
+```
+
+Inicie o frontend com o endpoint local definido no processo do Vite:
+
+```powershell
+$env:VITE_CONTACT_ENDPOINT = "http://127.0.0.1:8787"
+pnpm run dev -- --host 127.0.0.1 --port 5173 --strictPort
+```
+
+Um POST `{}` deve retornar `400 invalid_payload` da função publicada; o preflight deve aceitar `http://localhost:5173` e `http://127.0.0.1:5173`. Isso verifica encaminhamento e assinatura, mas não valida o Turnstile. Para o envio completo, o backend usado no teste precisa ter a Secret Key do mesmo widget da Site Key do frontend, aceitar explicitamente seu hostname e exigir action `contact`. Não troque os segredos nem os hostnames da função de produção para testar o widget local.
 
 ```bash
 pnpm run test

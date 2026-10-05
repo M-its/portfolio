@@ -31,8 +31,19 @@ export default function SmoothScroll() {
     const maxScroll = () =>
       Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
     const clamp = (value: number) => Math.min(maxScroll(), Math.max(0, value));
+    const isPageLocked = () => document.body.style.overflow === "hidden";
+    const stopAnimation = () => {
+      window.cancelAnimationFrame(frameId);
+      isAnimating = false;
+      targetY = window.scrollY;
+      currentY = window.scrollY;
+    };
 
     const animate = () => {
+      if (isPageLocked()) {
+        stopAnimation();
+        return;
+      }
       const distance = targetY - currentY;
       currentY += distance * 0.1;
 
@@ -48,12 +59,16 @@ export default function SmoothScroll() {
     };
 
     const handleWheel = (event: WheelEvent) => {
+      const nativeScrollTarget = shouldUseNativeScroll(event.target);
+      if (isPageLocked()) {
+        stopAnimation();
+        if (isScrollLocked || !nativeScrollTarget) event.preventDefault();
+        return;
+      }
       if (isScrollLocked) {
         event.preventDefault();
         return;
       }
-
-      const nativeScrollTarget = shouldUseNativeScroll(event.target);
 
       if (
         reducedMotion.matches ||
