@@ -14,7 +14,7 @@ type Turnstile = {
       "feedback-enabled": boolean;
       callback: (token: string) => void;
       "expired-callback": () => void;
-      "error-callback": (code: string) => void;
+      "error-callback": (code: string) => boolean;
       "timeout-callback": () => void;
       "unsupported-callback": () => void;
     },
@@ -124,7 +124,11 @@ export default function ContactVerification({
             if (!cancelled) onToken(token);
           },
           "expired-callback": () => fail("token_expired"),
-          "error-callback": fail,
+          "error-callback": (code) => {
+            fail(code);
+            // Acknowledge handling so Turnstile does not log the same failure again.
+            return true;
+          },
           "timeout-callback": () => fail("challenge_timeout"),
           "unsupported-callback": () => fail("unsupported_browser"),
         });

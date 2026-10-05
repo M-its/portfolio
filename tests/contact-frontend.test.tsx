@@ -88,7 +88,9 @@ describe("contact submission UX", () => {
   it("distinguishes a Cloudflare configuration rejection from a retryable challenge failure", async () => {
     openAndFill();
     await submit();
-    act(() => widget["error-callback"]("400020"));
+    act(() => {
+      expect(widget["error-callback"]("400020")).toBe(true);
+    });
     expect((await screen.findByRole("alert")).textContent).toContain(
       "Tente mais tarde",
     );
