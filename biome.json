@@ -1,28 +1,39 @@
 {
-	"$schema": "https://biomejs.dev/schemas/2.5.15/schema.json",
-	"files": { "includes": ["**/*.{js,jsx,ts,tsx,json,jsonc,css}", "!**/dist", "!**/node_modules"] },
-	"css": { "parser": { "tailwindDirectives": true } },
-	"overrides": [
-		{
-			"includes": ["**/tsconfig*.json"],
-			"json": { "parser": { "allowComments": true } }
-		}
-	],
-	"assist": { "actions": { "source": { "organizeImports": "on" } } },
-	"formatter": {
-		"enabled": true,
-		"formatWithErrors": false,
-		"indentStyle": "space",
-		"indentWidth": 2,
-		"lineWidth": 80
-	},
-	"linter": {
-		"enabled": true,
-		"rules": {
-			"preset": "recommended",
-			"style": {
-				"noNonNullAssertion": "off"
-			}
-		}
-	}
+  "$schema": "https://biomejs.dev/schemas/2.5.15/schema.json",
+  "files": {
+    "includes": [
+      "**/*.{js,jsx,ts,tsx,json,jsonc,css}",
+      "!**/dist",
+      "!**/node_modules",
+      "!**/.wrangler"
+    ]
+  },
+  "css": { "parser": { "tailwindDirectives": true } },
+  "overrides": [
+    {
+      "includes": ["src/styles/project-view-transition.css"],
+      "linter": { "rules": { "complexity": { "noImportantStyles": "off" } } }
+    },
+    {
+      "includes": ["**/tsconfig*.json"],
+      "json": { "parser": { "allowComments": true } }
+    }
+  ],
+  "assist": { "actions": { "source": { "organizeImports": "on" } } },
+  "formatter": {
+    "enabled": true,
+    "formatWithErrors": false,
+    "indentStyle": "space",
+    "indentWidth": 2,
+    "lineWidth": 80
+  },
+  "linter": {
+    "enabled": true,
+    "rules": {
+      "preset": "recommended",
+      "style": {
+        "noNonNullAssertion": "off"
+      }
+    }
+  }
 }

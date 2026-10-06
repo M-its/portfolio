@@ -31,9 +31,6 @@ export default function ThemeSwitcher() {
         aria-label={isDark ? "Mudar para tema claro" : "Mudar para tema escuro"}
         aria-pressed={isDark}
         onClick={handleToggle}
-        onKeyDown={(e) => {
-          if (e.key === "Enter" || e.key === " ") handleToggle();
-        }}
       >
         <div className={trackClass}>
           <div className={toggleClass} />

@@ -5,6 +5,8 @@ import IntroSplash from "./core-components/intro-splash";
 import LayoutMain from "./pages/layout-main";
 import PageHome from "./pages/page-home";
 import { loadProjectDetailsPage } from "./utils/project-details-loader";
+import { readStoredValue, writeStoredValue } from "./utils/storage";
+import PageMetadata from "./components/page-metadata";
 
 const PageComponents = lazy(() => import("./pages/page-components"));
 const PageProjectDetails = lazy(loadProjectDetailsPage);
@@ -13,7 +15,7 @@ const PageProjectNotFound = lazy(
 );
 export default function App() {
   const [showIntro, setShowIntro] = useState(() => {
-    return !localStorage.getItem("visited");
+    return !readStoredValue("visited");
   });
 
   useEffect(() => {
@@ -27,12 +29,13 @@ export default function App() {
     }
 
     if (showIntro) {
-      localStorage.setItem("visited", "true");
+      writeStoredValue("visited", "true");
     }
   }, [showIntro]);
 
   return (
     <>
+      <PageMetadata />
       <AnimatePresence>
         {showIntro && (
           <IntroSplash key="intro" onFinish={() => setShowIntro(false)} />
@@ -44,10 +47,7 @@ export default function App() {
           <Routes>
             <Route element={<LayoutMain />}>
               <Route index element={<PageHome />} />
-              <Route
-                path="projects/:slug"
-                element={<PageProjectDetails />}
-              />
+              <Route path="projects/:slug" element={<PageProjectDetails />} />
               <Route path="/components" element={<PageComponents />} />
               <Route path="*" element={<PageProjectNotFound />} />
             </Route>

@@ -1,4 +1,3 @@
 User-agent: *
 Allow: /
-Disallow: /components
 Sitemap: https://mitsrael.vercel.app/sitemap.xml

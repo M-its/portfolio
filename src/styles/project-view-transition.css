@@ -5,7 +5,8 @@
     --hero-transition-easing: cubic-bezier(0.22, 1, 0.36, 1);
   }
 
-  /* Remove os transforms de hover antes da captura — resolve o bug #4. */
+  /* !important overrides Tailwind/inline hover transforms during the snapshot.
+     Biome's exception is scoped to this file to preserve this contract. */
   html.vt-freeze .project-card,
   html.vt-freeze .project-card-img {
     rotate: none !important;

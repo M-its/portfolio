@@ -145,9 +145,17 @@ pnpm dev          # Servidor de desenvolvimento com HMR
 pnpm build        # Build de produção (TypeScript + Vite)
 pnpm preview      # Preview do build de produção
 pnpm lint         # ESLint + Biome lint
+pnpm typecheck    # Tipos da aplicação e dos testes
+pnpm test         # Testes de regressão
 pnpm format       # Formata o código com Biome
 pnpm format:check # Verifica formatação sem escrever
 ```
+
+### Metadados das páginas
+
+O build gera `dist/projects/<slug>.html` com título, descrição, canonical e tags de compartilhamento próprios de cada projeto. `cleanUrls` na Vercel serve esses arquivos em `/projects/<slug>`, sem extensão. A navegação interna atualiza os mesmos metadados. A rota `/components` e as páginas não encontradas usam `noindex` na aplicação; o HTML gerado de `/components` também contém essa diretiva.
+
+O sitemap é gerado a partir de `src/data/projects.ts` no build e servido dinamicamente em desenvolvimento. Ao adicionar um projeto, sua URL entra automaticamente no sitemap e recebe HTML próprio no próximo build. O domínio e os metadados estão em `src/data/page-metadata.ts`; os artigos continuam em `src/data/projects.ts`.
 
 ---
 

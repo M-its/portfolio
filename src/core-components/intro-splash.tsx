@@ -129,7 +129,7 @@ function VerticalText() {
       {"DIGITAL".split("").map((char, i) => (
         <span
           key={`d-${
-            // biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
+            // biome-ignore lint/suspicious/noArrayIndexKey: The decorative lettering never changes order.
             i
           }`}
           className="leading-tight"
@@ -141,7 +141,7 @@ function VerticalText() {
       {"EXPERIENCE".split("").map((char, i) => (
         <span
           key={`e-${
-            // biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
+            // biome-ignore lint/suspicious/noArrayIndexKey: The decorative lettering never changes order.
             i
           }`}
           className="leading-tight"
